@@ -1,12 +1,18 @@
+import { useEffect } from 'react';
 import { useKeycloakContext } from '../../services/useKeycloakContext';
 
 const Login = () => {
   const { keycloak } = useKeycloakContext();
 
+  useEffect(() => {
+    if (!keycloak.authenticated) {
+      keycloak.login();
+    }
+  }, []);
+
   return (
     <div>
-      <h1>Login</h1>
-       <button onClick={() => keycloak.login()}>Se connecter</button>  
+      <p>Redirection vers la page de connexion... LOADER</p>
     </div>
   );
 };

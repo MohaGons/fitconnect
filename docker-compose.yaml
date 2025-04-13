@@ -25,7 +25,7 @@ services:
 
   frontend:
     image: node:latest
-    container_name: my-react-app
+    container_name: react-app
     working_dir: /usr/src/app
     command: sh -c "npm install && npm run dev -- --host"
     ports:
@@ -84,7 +84,7 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.3
-    container_name: my-keycloak
+    container_name: keycloak
     command: start-dev
     environment:
       - KEYCLOAK_ADMIN=admin
