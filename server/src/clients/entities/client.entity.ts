@@ -1,0 +1,83 @@
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import { Subscription } from '../../subscriptions/entities/subscription.entity';
+import { Session } from '../../sessions/entities/session.entity';
+import { ProgressTracking } from '../../progress-tracking/entities/progress-tracking.entity';
+import { ProgressPhoto } from '../../progress-photos/entities/progress-photo.entity';
+import { ClientGoal } from '../../client-goals/entities/client-goal.entity';
+import { NutritionPlan } from '../../nutrition-plans/entities/nutrition-plan.entity';
+import { MealTracking } from '../../meal-tracking/entities/meal-tracking.entity';
+import { Review } from '../../reviews/entities/review.entity';
+
+@Entity('clients')
+export class Client {
+  @PrimaryGeneratedColumn()
+  client_id: number;
+
+  @Column()
+  user_id: number;
+
+  @Column({ type: 'date', nullable: true })
+  birth_date: Date;
+
+  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
+  weight: number;
+
+  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
+  height: number;
+
+  @Column({ nullable: true })
+  goal: string;
+
+  @Column({ type: 'text', nullable: true })
+  dietary_restrictions: string;
+
+  @Column({ type: 'text', nullable: true })
+  health_issues: string;
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
+
+  @ManyToOne(() => User, (user) => user.client)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+
+  @OneToMany(() => Subscription, (subscription) => subscription.client)
+  subscriptions: Subscription[];
+
+  @OneToMany(() => Session, (session) => session.client)
+  sessions: Session[];
+
+  @OneToMany(
+    () => ProgressTracking,
+    (progressTracking) => progressTracking.client,
+  )
+  progress_trackings: ProgressTracking[];
+
+  @OneToMany(() => ProgressPhoto, (progressPhoto) => progressPhoto.client)
+  progress_photos: ProgressPhoto[];
+
+  @OneToMany(() => ClientGoal, (clientGoal) => clientGoal.client)
+  client_goals: ClientGoal[];
+
+  @OneToMany(() => NutritionPlan, (nutritionPlan) => nutritionPlan.client)
+  nutrition_plans: NutritionPlan[];
+
+  @OneToMany(() => MealTracking, (mealTracking) => mealTracking.client)
+  meal_trackings: MealTracking[];
+
+  @OneToMany(() => Review, (review) => review.client)
+  reviews: Review[];
+}
