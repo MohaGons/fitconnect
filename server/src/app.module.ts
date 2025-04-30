@@ -25,6 +25,7 @@ import { MessagesModule } from './messages/messages.module';
 import { ClientGoalsModule } from './client-goals/client-goals.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { UserProfileModule, } from './user-profile/user-profile.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
@@ -72,6 +73,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     ClientGoalsModule,
     NotificationsModule,
     ReviewsModule,
+    UserProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -4,11 +4,8 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToOne,
   OneToMany,
-  JoinColumn,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
 import { Program } from '../../programs/entities/program.entity';
 import { NutritionPlan } from '../../nutrition-plans/entities/nutrition-plan.entity';
 import { Subscription } from '../../subscriptions/entities/subscription.entity';
@@ -20,8 +17,8 @@ export class Coach {
   @PrimaryGeneratedColumn()
   coach_id: number;
 
-  @Column()
-  user_id: number;
+  @Column({ type: 'uuid' })
+  user_id: string;  // UUID venant de Keycloak
 
   @Column()
   specialty: string;
@@ -44,10 +41,7 @@ export class Coach {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => User, (user) => user.coach)
-  @JoinColumn({ name: 'user_id' })
-  user: User;
-
+  // Relations avec d'autres entités
   @OneToMany(() => Program, (program) => program.coach)
   programs: Program[];
 

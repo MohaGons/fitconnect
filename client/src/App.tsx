@@ -18,6 +18,7 @@ import Invoices from "./pages/Invoices/Invoices";
 import Exerecices from "./pages/Exercices/Exerecices";
 import Login from "./pages/auth/login"
 import ProtectedRoute from "./routes/protectedRoute";
+import InscriptionPage from "./pages/inscription/inscription";
 
 export default function App() {
   return (
@@ -41,7 +42,9 @@ export default function App() {
             <Route path="/dashboard/exercises" element={<Exerecices />} />
             </Route>
           </Route>
-
+          <Route element={<ProtectedRoute />}>
+            <Route path="/inscription" element={<InscriptionPage />} />
+          </Route>
           {/* Auth Layout */}
           <Route path="/signin" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />

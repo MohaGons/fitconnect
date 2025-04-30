@@ -25,6 +25,7 @@
     "@react-jvectormap/world": "^1.1.2",
     "@react-keycloak/web": "^3.4.0",
     "apexcharts": "^4.1.0",
+    "axios": "^1.9.0",
     "clsx": "^2.1.1",
     "cypress": "^14.2.0",
     "flatpickr": "^4.6.13",
