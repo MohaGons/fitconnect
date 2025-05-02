@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
-import SignIn from "./pages/AuthPages/SignIn";
+//import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
 
 import { KeycloakProvider } from './services/keycloakContext';
@@ -35,6 +35,7 @@ export default function App() {
             <Route path="/dashboard/customers" element={<Customers />} />
             <Route path="/dashboard/calendar" element={<Calendar/>} />
             <Route path="/dashboard/chat" element={<Chat />} />
+
             <Route path="/dashboard/nutrition" element={<Nutrition />} />
             <Route path="/dashboard/invoices" element={<Invoices />} />
             <Route path="/dashboard/programs" element={<Programs />} />
