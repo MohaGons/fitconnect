@@ -1,9 +1,12 @@
 
-import React, { useEffect, useState } from "react";
+import React, { lazy,useEffect, Suspense, useState } from "react";
 import { useKeycloakContext } from '../../services/useKeycloakContext';
 import CoachImage from "../../assets/coach2.jpg";
 import ComanyImage from "../../assets/client.jpg";
 import { Link } from "react-router-dom";
+
+const CoachForm = lazy(() => import('./forms/coachForm'));
+const ClientForm = lazy(() => import('./forms/clientForm'));
 
 const Inscription: React.FC = () => {
   const [selectedProfile, setSelectedProfile] = useState<string>("dealer");
@@ -11,15 +14,13 @@ const Inscription: React.FC = () => {
     const { keycloak } = useKeycloakContext();
     const token = keycloak?.token;
     const roles = keycloak?.tokenParsed?.realm_access?.roles || []; 
-    const userId = keycloak?.tokenParsed?.sub; // Récupérer l'ID de l'utilisateur
-    console.log("Roles:", roles); // Affiche les rôles dans la console
-    console.log("Token:", token); // Affiche le token dans la console
-    
+    const userId = keycloak?.tokenParsed?.sub; 
+
     useEffect(() => {
         if (!token) {
             console.error("Token is not available");
         } else {
-            console.log("Token:", token); // Affiche le token dans la console
+            console.log("Token:", token); 
         }
     }, []); 
   const profiles = [
@@ -51,10 +52,10 @@ const Inscription: React.FC = () => {
       </svg>
 
       {/* Contenu principal */}
-      <div className="z-10 p-6 bg-white shadow-2xl rounded-lg max-w-sm md:max-w-md lg:max-w-lg my-10">
+      <div className="z-10 p-10 bg-white shadow-2xl rounded-lg max-w-xl md:max-w-2xl lg:max-w-3xl my-10">
         <div className="w-full p-2 sm:p-12.5 xl:p-17.5">
           <h1 className="mb-1 text-2xl font-semibold sm:text-2xl text-center">
-            Compléter votre inscription {token} {roles.join(", ")} {userId}
+            Compléter votre inscription 
           </h1>
 
           <p className="text-zinc-300 text-sm text-center">
@@ -83,7 +84,7 @@ const Inscription: React.FC = () => {
                     alt={profile.title}
                     className="w-32 h-32 mb-4"
                   />
-                  <h3 className="text-lg font-medium text-zinc-300">
+                  <h3 className="text-lg font-medium text-orange-500">
                     {profile.title}
                   </h3>
                 </div>
@@ -108,17 +109,17 @@ const Inscription: React.FC = () => {
             ))}
           </div>
 
-          <Link
-            to={`/register/${selectedProfile}`}
-            className={`w-64 flex items-center flex-row justify-center m-auto py-3 rounded-lg font-medium transition-all duration-200 ${
-              selectedProfile
-                ? "bg-btn-primary text-white hover:bg-orange-600"
-                : "bg-gray-200 text-gray-400 cursor-not-allowed"
-            }`}
-          >
-            Suivant
-          </Link>
         </div>
+        
+       {/* Dynamic Forms */}
+        <div className="mt-6">
+            <Suspense fallback={<p>Chargement...</p>}>
+            {selectedProfile === "COACH" && <CoachForm />}
+            {selectedProfile === "CLIENT" && <ClientForm />}
+            </Suspense>
+        </div>
+       
+
       </div>
 
       {/* SVG en bas à gauche */}
