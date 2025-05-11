@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
+import { KeycloakModule } from './keycloak/keycloak.module';
 import { UsersModule } from './users/users.module';
 import { CoachesModule } from './coaches/coaches.module';
 import { ClientsModule } from './clients/clients.module';
@@ -28,6 +30,7 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { UserProfileModule, } from './user-profile/user-profile.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -49,6 +52,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           configService.get('NODE_ENV', 'development') !== 'production',
       }),
     }),
+    AuthModule,
+    KeycloakModule,
+    StorageModule,
     UsersModule,
     CoachesModule,
     ClientsModule,

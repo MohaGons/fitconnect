@@ -16,13 +16,7 @@ const Inscription: React.FC = () => {
     const roles = keycloak?.tokenParsed?.realm_access?.roles || []; 
     const userId = keycloak?.tokenParsed?.sub; 
 
-    useEffect(() => {
-        if (!token) {
-            console.error("Token is not available");
-        } else {
-            console.log("Token:", token); 
-        }
-    }, []); 
+  
   const profiles = [
     {
       id: "CLIENT",
@@ -112,7 +106,7 @@ const Inscription: React.FC = () => {
         </div>
         
        {/* Dynamic Forms */}
-        <div className="mt-6">
+        <div className="w-full sm:p-12.5 xl:p-17.5">
             <Suspense fallback={<p>Chargement...</p>}>
             {selectedProfile === "COACH" && <CoachForm />}
             {selectedProfile === "CLIENT" && <ClientForm />}

@@ -35,6 +35,9 @@ export class Coach {
   @Column({ type: 'text', nullable: true })
   availability: string;
 
+  @Column({ type: 'text', nullable: true })
+  photo_url: string;
+
   @CreateDateColumn()
   created_at: Date;
 
