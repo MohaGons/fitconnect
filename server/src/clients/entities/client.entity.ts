@@ -41,6 +41,9 @@ export class Client {
   @Column({ type: 'text', nullable: true })
   health_issues: string;
 
+  @Column({ type: 'text', nullable: true })
+  sport_experience: string;
+
   @CreateDateColumn()
   created_at: Date;
 

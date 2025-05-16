@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form';
 import api from '../../../api/api';
+import { useNavigate } from 'react-router-dom';
 
 import { useKeycloakContext } from '../../../services/useKeycloakContext';
 
@@ -7,6 +8,7 @@ const CoachForm = () => {
   const { register, handleSubmit } = useForm();
      const { keycloak } = useKeycloakContext();
      const userId = keycloak?.tokenParsed?.sub; 
+     const navigate = useNavigate();
   const onSubmit = async (data: any) => {
     try {
       // Gestion du fichier photo
@@ -22,7 +24,6 @@ const CoachForm = () => {
       }
       data.user_id = userId;
       await api.post('/coaches', data);
-      alert("Coach enregistré avec succès !");
        // 2. Assigner le rôle "COACH"
        const token = keycloak.token;
        await api.post(
@@ -31,7 +32,7 @@ const CoachForm = () => {
          { headers: { Authorization: `Bearer ${token}` } }
        );
  
-       alert('Coach enregistré et rôle assigné avec succès !');
+       window.location.href = '/dashboard/home';
     } catch (err) {
       console.error(err);
     }
