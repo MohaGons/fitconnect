@@ -4,11 +4,8 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToOne,
   OneToMany,
-  JoinColumn,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
 import { Subscription } from '../../subscriptions/entities/subscription.entity';
 import { Session } from '../../sessions/entities/session.entity';
 import { ProgressTracking } from '../../progress-tracking/entities/progress-tracking.entity';
@@ -23,8 +20,8 @@ export class Client {
   @PrimaryGeneratedColumn()
   client_id: number;
 
-  @Column()
-  user_id: number;
+  @Column({ type: 'uuid' })
+  user_id: string; // UUID venant de Keycloak
 
   @Column({ type: 'date', nullable: true })
   birth_date: Date;
@@ -44,26 +41,23 @@ export class Client {
   @Column({ type: 'text', nullable: true })
   health_issues: string;
 
+  @Column({ type: 'text', nullable: true })
+  sport_experience: string;
+
   @CreateDateColumn()
   created_at: Date;
 
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => User, (user) => user.client)
-  @JoinColumn({ name: 'user_id' })
-  user: User;
-
+  // Relations avec d'autres entités
   @OneToMany(() => Subscription, (subscription) => subscription.client)
   subscriptions: Subscription[];
 
   @OneToMany(() => Session, (session) => session.client)
   sessions: Session[];
 
-  @OneToMany(
-    () => ProgressTracking,
-    (progressTracking) => progressTracking.client,
-  )
+  @OneToMany(() => ProgressTracking, (progressTracking) => progressTracking.client)
   progress_trackings: ProgressTracking[];
 
   @OneToMany(() => ProgressPhoto, (progressPhoto) => progressPhoto.client)

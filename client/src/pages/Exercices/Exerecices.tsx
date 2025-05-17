@@ -1,8 +1,18 @@
+import PageBreadcrumb from "../../components/common/PageBreadCrumb";
+import DataTable from "../../features/exercices/components/DataTable/DataTable";
 
-function Exerecices() {
+const Exerecices: React.FC = () => {
   return (
-    <div>Exerecices</div>
-  )
-}
+    <div className=" dark:bg-gray-900  ">
+     <PageBreadcrumb pageTitle="Exercices" />
+      
+      <DataTable 
+        apiEndpoint="exercices"
+        featurePath="exercices"
+        searchPlaceholder="Rechercher un exercice..."
+      />
+    </div>
+  );
+};
 
 export default Exerecices

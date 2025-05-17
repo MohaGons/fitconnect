@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
-import SignIn from "./pages/AuthPages/SignIn";
+//import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
 
 import { KeycloakProvider } from './services/keycloakContext';
@@ -18,6 +18,7 @@ import Invoices from "./pages/Invoices/Invoices";
 import Exerecices from "./pages/Exercices/Exerecices";
 import Login from "./pages/auth/login"
 import ProtectedRoute from "./routes/protectedRoute";
+import InscriptionPage from "./pages/inscription/inscription";
 
 export default function App() {
   return (
@@ -35,13 +36,16 @@ export default function App() {
             <Route path="/dashboard/customers" element={<Customers />} />
             <Route path="/dashboard/calendar" element={<Calendar/>} />
             <Route path="/dashboard/chat" element={<Chat />} />
+
             <Route path="/dashboard/nutrition" element={<Nutrition />} />
             <Route path="/dashboard/invoices" element={<Invoices />} />
             <Route path="/dashboard/programs" element={<Programs />} />
             <Route path="/dashboard/exercises" element={<Exerecices />} />
             </Route>
           </Route>
-
+          <Route element={<ProtectedRoute />}>
+            <Route path="/inscription" element={<InscriptionPage />} />
+          </Route>
           {/* Auth Layout */}
           <Route path="/signin" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
