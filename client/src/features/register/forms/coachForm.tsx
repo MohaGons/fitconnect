@@ -1,6 +1,5 @@
 import { useForm } from 'react-hook-form';
 import api from '../../../api/api';
-import { useNavigate } from 'react-router-dom';
 
 import { useKeycloakContext } from '../../../services/useKeycloakContext';
 
@@ -8,7 +7,6 @@ const CoachForm = () => {
   const { register, handleSubmit } = useForm();
      const { keycloak } = useKeycloakContext();
      const userId = keycloak?.tokenParsed?.sub; 
-     const navigate = useNavigate();
   const onSubmit = async (data: any) => {
     try {
       // Gestion du fichier photo
@@ -40,36 +38,61 @@ const CoachForm = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      
-      <input
+      <div>
+      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+      Spécialité
+      </label>
+        <input
         type="text"
-        placeholder="Spécialité"
+        placeholder="Fitness, Nutrition, etc."
         className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
         {...register("specialty", { required: true })}
       />
-      <textarea
-        placeholder="Bio du Coach" 
+      </div>
+      <div>
+      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+      Bio du Coach
+      </label>
+        <textarea
+        placeholder="Parlez-nous de vous" 
         className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
         {...register("bio")}
       />
-      <input
+      </div>
+      <div>
+      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+      Vos Certifications et Diplômes
+      </label>
+        <input
         type="text"
-        placeholder="Vos Certifications et Diplômes"
+        placeholder="Certifications (Ex: Certificat de Coach, Nutritionniste)"
         className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
         {...register("certifications")}
       />
+      </div>
       
-      <input
+      <div>
+      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+      Disponibilité
+      </label>
+         <input
         type="text"
-        placeholder="Disponibilité (Ex: Lundi, Mercredi, Vendredi)"
+        placeholder="Ex: full-time, part-time, weekends"
         className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
         {...register("availability")}
       />
-      <input
+      </div>
+      <div>
+      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+      Photo de Profil
+      </label>
+        <input
         type="file"
         className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
         {...register("photo_url")}
       />
+      </div>
+      
       <button
         type="submit"
         className="bg-orange-600 text-white px-4 py-2 rounded"

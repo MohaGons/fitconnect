@@ -53,7 +53,7 @@ const Inscription: React.FC = () => {
           </h1>
 
           <p className="text-zinc-300 text-sm text-center">
-            Attention : Cela définira l'usage de votre compte !
+           <strong className="text-red-300"> Attention :</strong> Cela définira l'usage de votre compte !
           </p>
           <hr className="w-20 h-0.5 bg-primary my-4 border-none mx-auto" />
           <h2 className="mb-1 text-2xl font-semibold sm:text-2xl text-center">
@@ -106,7 +106,7 @@ const Inscription: React.FC = () => {
         </div>
         
        {/* Dynamic Forms */}
-        <div className="w-full sm:p-12.5 xl:p-17.5">
+        <div className="w-full ">
             <Suspense fallback={<p>Chargement...</p>}>
             {selectedProfile === "COACH" && <CoachForm />}
             {selectedProfile === "CLIENT" && <ClientForm />}

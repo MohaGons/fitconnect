@@ -1,13 +1,11 @@
 import { useForm } from 'react-hook-form';
 import api from '../../../api/api';
 import { useKeycloakContext } from '../../../services/useKeycloakContext';
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
 const ClientForm = () => {
   const { register, handleSubmit } = useForm();
   const { keycloak } = useKeycloakContext();
-  const navigate = useNavigate();
   const userId = keycloak?.tokenParsed?.sub;
 
   const [isLoading, setIsLoading] = useState(false);
@@ -38,42 +36,90 @@ const ClientForm = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div>
+      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+      Date de naissance
+      </label>
       <input
-        type="date"
-        placeholder="Date de naissance"
-        className="border p-2 w-full"
-        {...register('birth_date')}
+      type="date"
+      className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
+      {...register('birth_date')}
       />
-      <input
+      </div>
+      <div>
+      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+      Poids (kg)
+      </label>
+        <input
         type="number"
-        placeholder="Poids (kg)"
-        className="border p-2 w-full"
+        step="0.01"
+        min={0}
+        placeholder='Ex: 70.5'
+        className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
         {...register('weight')}
       />
-      <input
-        type="number"
-        placeholder="Taille (cm)"
-        className="border p-2 w-full"
+      </div>
+      <div>
+      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+      Taille (cm)
+      </label>
+        <input
+       type="number"
+       step="0.01"
+       min={0}
+       placeholder='Ex: 175.5'
+        className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
         {...register('height')}
       />
-      <input
+      </div>
+      <div>
+      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+      Objectifs
+      </label>
+        <input
         type="text"
-        placeholder="Objectif"
-        className="border p-2 w-full"
+        placeholder="Ex: Perte de poids, Prise de masse"
+        className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
         {...register('goal')}
       />
+      </div>
+      <div>
+      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+      Restrictions alimentaires
+          </label>
       <input
         type="text"
-        placeholder="Restrictions alimentaires"
-        className="border p-2 w-full"
+        placeholder="Ex: Végétarien, Allergies"
+        className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
         {...register('dietary_restrictions')}
       />
+      </div>
+      <div>
+        <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+      Problèmes de santé
+          </label>
       <input
         type="text"
-        placeholder="Problèmes de santé"
-        className="border p-2 w-full"
+        placeholder="Ex: Diabète, Hypertension"
+        className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
         {...register('health_issues')}
       />
+      </div>
+      <div>
+
+      </div>
+      <div>
+      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+      Expérience sportive
+          </label>
+        <input
+        type="text"
+        placeholder="Ex: Débutant, Intermédiaire, Avancé"
+        className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
+        {...register('sport_experience')}
+      />
+      </div>
+      
 
       <button
         type="submit"
