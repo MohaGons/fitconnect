@@ -21,6 +21,9 @@ export const KeycloakProvider = ({ children }: { children: React.ReactNode }) =>
   const location = useLocation();
 
   useEffect(() => {
+    if (keycloak.didInitialize) { 
+      return
+    }
     if (!initialized && !initCalled.current) {
       initCalled.current = true;
       keycloak
@@ -53,7 +56,7 @@ export const KeycloakProvider = ({ children }: { children: React.ReactNode }) =>
   );
 
   if (!initialized) {
-    return <div>Chargement...</div>;
+    return ;
   }
 
   return (
