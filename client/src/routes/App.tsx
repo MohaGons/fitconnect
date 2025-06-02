@@ -1,32 +1,109 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import '../index.css';
+
+// Context & Services
+import { KeycloakProvider } from '../services/keycloakContext';
+
+// Layouts
+import AppLayout from "../layout/admin/AppLayout";
+
+// Components
+import { ScrollToTop } from "../components/common/ScrollToTop";
+import ProtectedRoute from "../routes/protectedRoute";
+
+
+
+// Pages d'Authentification
 import Login from "../pages/auth/login";
 import Register from "../pages/auth/register";
-import Dashboard from "../pages/dashboard/dashboard";
-import Coach from "../pages/coach/coach";
-import ProtectedRoute from "./protectedRoute";
-import Home from "../pages/home";
-import { KeycloakProvider } from '../services/keycloakContext';
+import SignUp from "../pages/public/AuthPages/SignUp";
+
+// Pages Admin - Dashboard
+import Dashboard from "../pages/admin/dashboard/dashboard";
+import AdminHome from "../pages/admin/dashboard/Home";
+
+// Pages Admin - Gestion
+import Users from "../pages/admin/Users/Users";
+import Customers from "../pages/admin/Customers/Customers";
+import Coach from "../pages/admin/coach/coach";
+
+// Pages Admin - Planning & Communication
+import Calendar from "../pages/admin/Calendar/Calendar";
+import Chat from "../pages/admin/Chat/Chat";
+
+// Pages Admin - Services
+import Nutrition from "../pages/admin/Nutrition/Nutrition";
+import Programs from "../pages/admin/Programs/Programs";
+import Exercises from "../pages/admin/Exercices/Exerecices";
+
+// Pages Admin - Finances
+import Invoices from "../pages/admin/Invoices/Invoices";
+
+// Pages Admin - Autres
+import InscriptionPage from "../pages/admin/inscription/inscription";
+import NotFound from "../pages/admin/OtherPage/NotFound";
+import Welcome from "../pages/public/Welcome/Welcome";
+import PublicLayout from "../layout/public/PublicLayout";
+import OurTeam from "../pages/public/OurTeams/OurTeam";
+import Prices from "../pages/public/Prices/Prices";
+import Faq from "../pages/public/Faq/Faq";
+import Services from "../pages/public/Services/Services";
 
 const App = () => {
   return (
-    
-      <Router>
-            <KeycloakProvider>
+    <Router>
+      <KeycloakProvider>
+        <ScrollToTop />
         <Routes>
-          {/* public routes here */}
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-
-          {/* protected routes here */}
-          <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/coach" element={<Coach />} />
+          {/* ==================== ROUTES PUBLIQUES ==================== */}
+          <Route element={<PublicLayout />}>
+            <Route path="/" element={<Welcome />} />
+            <Route path="/our-team" element={<OurTeam />} />
+            <Route path="/prices" element={<Prices />} />
+            <Route path="/faq" element={<Faq />} />
+            <Route path="/services" element={<Services />} />
           </Route>
+          
+          {/* ==================== ROUTES D'AUTHENTIFICATION ==================== */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signin" element={<Login />} /> {/* Alias pour compatibilité */}
+          <Route path="/register" element={<Register />} />
+          <Route path="/signup" element={<SignUp />} />
+
+          {/* ==================== ROUTES ADMIN PROTÉGÉES ==================== */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<AppLayout />}>
+              {/* Dashboard Principal */}
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/dashboard/home" element={<AdminHome />} />
+              
+              {/* Gestion des Utilisateurs */}
+              <Route path="/dashboard/users" element={<Users />} />
+              <Route path="/dashboard/customers" element={<Customers />} />
+              <Route path="/coach" element={<Coach />} />
+              
+              {/* Planning & Communication */}
+              <Route path="/dashboard/calendar" element={<Calendar />} />
+              <Route path="/dashboard/chat" element={<Chat />} />
+              
+              {/* Services */}
+              <Route path="/dashboard/nutrition" element={<Nutrition />} />
+              <Route path="/dashboard/programs" element={<Programs />} />
+              <Route path="/dashboard/exercises" element={<Exercises />} />
+              
+              {/* Finances */}
+              <Route path="/dashboard/invoices" element={<Invoices />} />
+              
+              {/* Autres */}
+              <Route path="/inscription" element={<InscriptionPage />} />
+            </Route>
+          </Route>
+
+          {/* ==================== ROUTE 404 ==================== */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
-        </KeycloakProvider>
-      </Router>
+      </KeycloakProvider>
+    </Router>
   );
 };
 
