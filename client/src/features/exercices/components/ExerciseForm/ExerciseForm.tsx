@@ -1,10 +1,15 @@
 import { ReactNode, useState } from "react";
-import {  FaSave } from "react-icons/fa";
+import { FaSave } from "react-icons/fa";
 import Button from "../../../../components/ui/button/Button";
 import Input from "../../../../components/form/input/InputField";
 import TextArea from "../../../../components/form/input/TextArea";
 import Select from "../../../../components/form/Select";
-import { MuscleCategoryLabels, DifficultyLevelLabels, MuscleCategory, DifficultyLevel } from "../../types";
+import {
+  MuscleCategoryLabels,
+  DifficultyLevelLabels,
+  MuscleCategory,
+  DifficultyLevel,
+} from "../../types";
 
 // Type pour le formulaire adapté à l'entité
 interface ExerciseFormData {
@@ -27,13 +32,13 @@ const initialFormState: ExerciseFormData = {
 };
 
 interface ExerciseFormProps {
-    exerciseData?: ExerciseFormData;
-    isSubmitting?: boolean;
-    formError?: string | ReactNode;
-    onSubmit: (formData: ExerciseFormData) => void;
-    onCancel: () => void;
-    mode: "add" | "edit";
-  }
+  exerciseData?: ExerciseFormData;
+  isSubmitting?: boolean;
+  formError?: string | ReactNode;
+  onSubmit: (formData: ExerciseFormData) => void;
+  onCancel: () => void;
+  mode: "add" | "edit";
+}
 
 const ExerciseForm = ({
   exerciseData = initialFormState,
@@ -41,21 +46,25 @@ const ExerciseForm = ({
   formError,
   onSubmit,
   onCancel,
-  mode
+  mode,
 }: ExerciseFormProps) => {
   // État du formulaire
   const [formData, setFormData] = useState<ExerciseFormData>(exerciseData);
 
   // Gestionnaire de changement pour les champs simples
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement >) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
   const handleTextAreaChange = (value: string) => {
-    setFormData(prev => ({ ...prev, description: value }));
+    setFormData((prev) => ({ ...prev, description: value }));
   };
   const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -90,39 +99,42 @@ const ExerciseForm = ({
             className="w-full"
           />
         </div>
-        
+
         {/* Catégorie de muscle */}
         <div>
           <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
             Catégorie de muscle*
           </label>
           <Select
-            options={Object.entries(MuscleCategoryLabels).map(([value, label]) => ({
-              value,
-              label
-            }))}
+            options={Object.entries(MuscleCategoryLabels).map(
+              ([value, label]) => ({
+                value,
+                label,
+              })
+            )}
             defaultValue={formData.muscle_category}
             onChange={(value) => handleSelectChange("muscle_category", value)}
             placeholder="Sélectionner une catégorie"
             className="w-full"
           />
         </div>
-        
+
         {/* Niveau de difficulté */}
         <div>
           <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
             Niveau de difficulté*
           </label>
           <Select
-            options={Object.entries(DifficultyLevelLabels).map(([value, label]) => ({
-              value,
-              label
-            }))}
+            options={Object.entries(DifficultyLevelLabels).map(
+              ([value, label]) => ({
+                value,
+                label,
+              })
+            )}
             defaultValue={formData.difficulty_level}
             onChange={(value) => handleSelectChange("difficulty_level", value)}
             placeholder="Sélectionner un niveau"
             className="w-full"
-            
           />
         </div>
 
@@ -155,12 +167,12 @@ const ExerciseForm = ({
           />
           {formData.image && (
             <div className="mt-2 max-w-xs">
-              <img 
-                src={formData.image} 
-                alt="Prévisualisation" 
+              <img
+                src={formData.image}
+                alt="Prévisualisation"
                 className="max-h-32 object-cover rounded-md"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                  (e.target as HTMLImageElement).src = "/placeholder-image.jpg";
                 }}
               />
             </div>
@@ -184,20 +196,21 @@ const ExerciseForm = ({
 
         {/* Boutons de formulaire */}
         <div className="flex justify-end gap-3">
-          <Button
-            onClick={onCancel}
-            variant="outline"
-            size="md"
-          >
+          <Button onClick={onCancel} variant="outline" size="md">
             Annuler
           </Button>
           <Button
             variant="primary"
             size="md"
+            type="submit"
             disabled={isSubmitting}
             startIcon={<FaSave />}
           >
-            {isSubmitting ? "En cours..." : mode === "add" ? "Ajouter" : "Enregistrer"}
+            {isSubmitting
+              ? "En cours..."
+              : mode === "add"
+              ? "Ajouter"
+              : "Enregistrer"}
           </Button>
         </div>
       </form>

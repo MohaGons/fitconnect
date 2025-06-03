@@ -1,8 +1,18 @@
+import PageBreadcrumb from "../../components/common/PageBreadCrumb";
+import DataTable from "../../features/programs/components/DataTable/DataTable";
 
-function Programs() {
+const Programs: React.FC = () => {
   return (
-    <div>Programs</div>
-  )
-}
+    <div className=" dark:bg-gray-900  ">
+      <PageBreadcrumb pageTitle="Programmes" />
 
-export default Programs
+      <DataTable
+        apiEndpoint="programs"
+        featurePath="programs"
+        searchPlaceholder="Rechercher un programme..."
+      />
+    </div>
+  );
+};
+
+export default Programs;

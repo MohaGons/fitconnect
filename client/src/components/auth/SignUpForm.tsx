@@ -58,7 +58,6 @@ export default function SignUpForm() {
                 </svg>
                 S'inscrire avec Google
               </button>
-             
             </div>
             <div className="relative py-3 sm:py-5">
               <div className="absolute inset-0 flex items-center">
