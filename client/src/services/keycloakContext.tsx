@@ -12,7 +12,7 @@ const contextValue = {
 export const KeycloakContext = createContext(contextValue);
 
 // Liste des routes publiques qui ne nécessitent pas d'authentification
-const publicRoutes = ['/', '/login', '/register', '/about', '/contact'];
+const publicRoutes = ['/', '/welcome','/our-team','/prices','/faq','/services', '/login', '/signin', '/register', '/signup', '/about', '/contact'];
 
 export const KeycloakProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -51,12 +51,13 @@ export const KeycloakProvider = ({ children }: { children: React.ReactNode }) =>
   };
 
   // Vérifier si la route actuelle est publique
-  const isPublicRoute = publicRoutes.some(route => 
-    location.pathname === route || location.pathname.startsWith(route + '/')
-  );
+  const isPublicRoute = publicRoutes.includes(location.pathname);
 
   if (!initialized) {
-    return ;
+    return (
+      <div>
+      </div>
+    );
   }
 
   return (
