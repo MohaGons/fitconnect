@@ -36,6 +36,9 @@ export class ProgramExercise {
   @Column({ nullable: true })
   duration_seconds: number;
 
+  @Column({ nullable: true })
+  rest_seconds: number;
+
   @Column({ type: 'text', nullable: true })
   instructions: string;
 
