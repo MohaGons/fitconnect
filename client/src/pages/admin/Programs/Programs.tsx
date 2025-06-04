@@ -1,5 +1,5 @@
-import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import DataTable from "../../features/programs/components/DataTable/DataTable";
+import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
+import DataTable from "../../../features/programs/components/DataTable/DataTable";
 
 const Programs: React.FC = () => {
   return (
