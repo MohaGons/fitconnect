@@ -41,6 +41,7 @@ import {
 import { MdFitnessCenter } from "react-icons/md";
 import ProgramForm from "../ProgramForm/ProgramForm";
 import TableSkeleton from "../../../../components/common/TableSkeleton";
+import { useCoachId } from "../../../../hooks/useCoachId";
 
 interface Filters {
   page: number;
@@ -95,6 +96,12 @@ export function DataTable({
   initialPageIndex = 0,
 }: DataTableProps) {
   const queryClient = useQueryClient();
+  const {
+    coachId,
+    isLoading: isLoadingCoachId,
+    error: coachIdError,
+  } = useCoachId();
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [pagination, setPagination] = useState<PaginationState>({
@@ -242,7 +249,7 @@ export function DataTable({
       duplicateProgramMutation.mutate({
         id: programToDuplicate,
         name: duplicateName.trim(),
-        coach_id: 1, // TODO: get from auth context
+        coach_id: coachId,
       });
     }
   };
@@ -477,7 +484,7 @@ export function DataTable({
     }
 
     return {
-      coach_id: 1, // TODO: get from auth context
+      coach_id: coachId,
       name: "",
       description: "",
       difficulty_level: "beginner" as DifficultyLevel,
