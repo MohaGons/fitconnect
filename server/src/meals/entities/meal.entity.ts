@@ -52,12 +52,21 @@ export class Meal {
   @JoinColumn({ name: 'plan_id' })
   nutrition_plan: NutritionPlan;
 
-  @OneToMany(() => MealFood, (mealFood) => mealFood.meal)
+  @OneToMany(() => MealFood, (mealFood) => mealFood.meal, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   meal_foods: MealFood[];
 
-  @OneToMany(() => MealSchedule, (mealSchedule) => mealSchedule.meal)
+  @OneToMany(() => MealSchedule, (mealSchedule) => mealSchedule.meal, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   meal_schedules: MealSchedule[];
 
-  @OneToMany(() => MealTracking, (mealTracking) => mealTracking.meal)
+  @OneToMany(() => MealTracking, (mealTracking) => mealTracking.meal, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   meal_trackings: MealTracking[];
 }

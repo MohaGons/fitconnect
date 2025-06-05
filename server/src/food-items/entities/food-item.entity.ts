@@ -38,9 +38,15 @@ export class FoodItem {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @OneToMany(() => MealFood, (mealFood) => mealFood.food_item)
+  @OneToMany(() => MealFood, (mealFood) => mealFood.food_item, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   meal_foods: MealFood[];
 
-  @OneToMany(() => RecipeFood, (recipeFood) => recipeFood.food_item)
+  @OneToMany(() => RecipeFood, (recipeFood) => recipeFood.food_item, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   recipe_foods: RecipeFood[];
 }

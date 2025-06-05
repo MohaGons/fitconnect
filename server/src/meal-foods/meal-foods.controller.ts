@@ -25,6 +25,11 @@ export class MealFoodsController {
     return this.mealFoodsService.findAll();
   }
 
+  @Get('meal/:mealId')
+  findByMealId(@Param('mealId') mealId: string) {
+    return this.mealFoodsService.findByMealId(+mealId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.mealFoodsService.findOne(+id);
@@ -41,5 +46,10 @@ export class MealFoodsController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.mealFoodsService.remove(+id);
+  }
+
+  @Delete('meal/:mealId')
+  removeByMealId(@Param('mealId') mealId: string) {
+    return this.mealFoodsService.removeByMealId(+mealId);
   }
 }

@@ -65,7 +65,11 @@ const navItems: NavItem[] = [
   {
     name: "Nutrition & Repas",
     icon: <GiMeal />,
-    path: "/dashboard/nutrition",
+    subItems: [
+      { name: "Plans nutritionnels", path: "/dashboard/nutrition" },
+      { name: "Repas", path: "/dashboard/meals" },
+      { name: "Ingrédients", path: "/dashboard/ingredients" }
+    ],
   },
   {
     name: "Factures",

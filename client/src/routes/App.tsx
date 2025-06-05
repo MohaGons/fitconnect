@@ -33,6 +33,8 @@ import Chat from "../pages/admin/Chat/Chat";
 
 // Pages Admin - Services
 import Nutrition from "../pages/admin/Nutrition/Nutrition";
+import Meals from "../pages/admin/Meals/Meals";
+import Ingredients from "../pages/admin/Ingredients/Ingredients";
 import Programs from "../pages/admin/Programs/Programs";
 import Exercises from "../pages/admin/Exercices/Exerecices";
 
@@ -88,6 +90,8 @@ const App = () => {
               
               {/* Services */}
               <Route path="/dashboard/nutrition" element={<Nutrition />} />
+              <Route path="/dashboard/meals" element={<Meals />} />
+              <Route path="/dashboard/ingredients" element={<Ingredients />} />
               <Route path="/dashboard/programs" element={<Programs />} />
               <Route path="/dashboard/exercises" element={<Exercises />} />
               
