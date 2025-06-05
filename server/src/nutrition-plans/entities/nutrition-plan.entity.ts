@@ -24,6 +24,9 @@ export class NutritionPlan {
   @Column()
   client_id: number;
 
+  @Column({ nullable: true })
+  name: string;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   creation_date: Date;
 
