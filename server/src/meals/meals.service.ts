@@ -9,7 +9,7 @@ import { MealFood } from '../meal-foods/entities/meal-food.entity';
 interface MealFilters {
   page?: number;
   limit?: number;
-  plan_id?: number;
+  plan_id?: number | null;
   meal_type?: string;
   search?: string;
 }
@@ -36,10 +36,14 @@ export class MealsService {
       .leftJoinAndSelect('nutrition_plan.coach', 'coach');
 
     // Filtrage par plan_id
-    if (filters?.plan_id) {
-      queryBuilder.where('meal.plan_id = :planId', {
-        planId: filters.plan_id,
-      });
+    if (filters?.plan_id !== undefined) {
+      if (filters.plan_id === null) {
+        queryBuilder.where('meal.plan_id IS NULL');
+      } else {
+        queryBuilder.where('meal.plan_id = :planId', {
+          planId: filters.plan_id,
+        });
+      }
     }
 
     // Filtrage par type de repas

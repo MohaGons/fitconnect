@@ -4,12 +4,15 @@ import { Repository } from 'typeorm';
 import { CreateNutritionPlanDto } from './dto/create-nutrition-plan.dto';
 import { UpdateNutritionPlanDto } from './dto/update-nutrition-plan.dto';
 import { NutritionPlan } from './entities/nutrition-plan.entity';
+import { Meal } from '../meals/entities/meal.entity';
 
 @Injectable()
 export class NutritionPlansService {
   constructor(
     @InjectRepository(NutritionPlan)
     private readonly nutritionPlanRepository: Repository<NutritionPlan>,
+    @InjectRepository(Meal)
+    private readonly mealRepository: Repository<Meal>,
   ) {}
 
   async create(
@@ -85,6 +88,10 @@ export class NutritionPlansService {
   }
 
   async remove(id: number): Promise<void> {
+    // 1. Détacher tous les repas associés (plan_id = NULL)
+    await this.mealRepository.update({ plan_id: id }, { plan_id: null });
+
+    // 2. Supprimer le plan nutritionnel
     await this.nutritionPlanRepository.delete(id);
   }
 }

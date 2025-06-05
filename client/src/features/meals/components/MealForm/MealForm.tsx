@@ -9,7 +9,7 @@ import nutritionService from "../../../nutrition/services/nutritionService";
 import MealIngredientsManager from "../MealIngredientsManager/MealIngredientsManager";
 
 interface MealFormData {
-  plan_id: number;
+  plan_id: number | null;
   name: string;
   meal_type?: MealType;
   calories?: number | string;
@@ -50,7 +50,7 @@ const MealForm = ({
   mode,
 }: MealFormProps) => {
   const [formData, setFormData] = useState<MealFormData>({
-    plan_id: mealData?.plan_id || 0,
+    plan_id: mealData?.plan_id || null,
     name: mealData?.name || "",
     meal_type: mealData?.meal_type || undefined,
     calories: mealData?.calories || undefined,
@@ -63,7 +63,7 @@ const MealForm = ({
   const [nutritionPlans, setNutritionPlans] = useState<NutritionPlan[]>([]);
   const [isLoadingPlans, setIsLoadingPlans] = useState(true);
   const [selectedPlanId, setSelectedPlanId] = useState<string>(
-    mealData?.plan_id && mealData.plan_id > 0 ? mealData.plan_id.toString() : ""
+    mealData?.plan_id ? mealData.plan_id.toString() : ""
   );
 
   // État pour gérer les ingrédients temporaires en mode création
@@ -90,12 +90,15 @@ const MealForm = ({
   }, []);
 
   // Créer les options pour le Select
-  const planOptions = nutritionPlans.map(plan => ({
-    value: plan.plan_id.toString(),
-    label: plan.name || `Plan #${plan.plan_id}` + 
-      (plan.client ? ` - ${plan.client.first_name} ${plan.client.last_name}` : '') +
-      (plan.coach ? ` (Coach: ${plan.coach.first_name} ${plan.coach.last_name})` : '')
-  }));
+  const planOptions = [
+    { value: "", label: "Aucun plan (repas libre)" },
+    ...nutritionPlans.map(plan => ({
+      value: plan.plan_id.toString(),
+      label: plan.name || `Plan #${plan.plan_id}` + 
+        (plan.client ? ` - ${plan.client.first_name} ${plan.client.last_name}` : '') +
+        (plan.coach ? ` (Coach: ${plan.coach.first_name} ${plan.coach.last_name})` : '')
+    }))
+  ];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -117,7 +120,7 @@ const MealForm = ({
       setFormData(prev => {
         const newData = {
           ...prev,
-          plan_id: parseInt(value, 10),
+          plan_id: value === "" ? null : parseInt(value, 10),
         };
         console.log('New formData:', newData); // Debug
         return newData;
@@ -167,11 +170,8 @@ const MealForm = ({
     
     console.log('Form data on submit:', formData); // Debug
     
-    // Validation
-    if (!formData.plan_id || formData.plan_id === 0) {
-      alert('Veuillez sélectionner un plan nutritionnel');
-      return;
-    }
+    // Validation (plan optionnel maintenant)
+    // Pas de validation obligatoire sur plan_id car les repas peuvent être orphelins
     
     if (!formData.name.trim()) {
       alert('Veuillez saisir un nom pour le repas');
@@ -184,7 +184,7 @@ const MealForm = ({
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
         {mode === "add" ? "Créer un nouveau repas" : "Modifier le repas"}
       </h2>
 
@@ -198,7 +198,7 @@ const MealForm = ({
         {/* Plan nutritionnel */}
         <div>
           <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
-            Plan nutritionnel*
+            Plan nutritionnel (optionnel)
           </label>
           {isLoadingPlans ? (
             <div className="flex items-center space-x-2">
@@ -247,70 +247,65 @@ const MealForm = ({
         </div>
 
         {/* Informations nutritionnelles */}
-        <div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-            Informations nutritionnelles
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Calories */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Calories (kcal)
-              </label>
-              <Input
-                type="number"
-                name="calories"
-                value={formData.calories || ""}
-                onChange={handleChange}
-                placeholder="Ex: 350"
-                className="w-full"
-              />
-            </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Calories */}
+          <div>
+            <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+              Calories (kcal)
+            </label>
+            <Input
+              type="number"
+              name="calories"
+              value={formData.calories || ""}
+              onChange={handleChange}
+              placeholder="Ex: 350"
+              className="w-full"
+            />
+          </div>
 
-            {/* Protéines */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Protéines (g)
-              </label>
-              <Input
-                type="number"
-                name="protein"
-                value={formData.protein ? String(formData.protein) : ""}
-                onChange={handleChange}
-                placeholder="Ex: 25.5"
-                className="w-full"
-              />
-            </div>
+          {/* Protéines */}
+          <div>
+            <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+              Protéines (g)
+            </label>
+            <Input
+              type="number"
+              name="protein"
+              value={formData.protein ? String(formData.protein) : ""}
+              onChange={handleChange}
+              placeholder="Ex: 25.5"
+              className="w-full"
+            />
+          </div>
 
-            {/* Glucides */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Glucides (g)
-              </label>
-              <Input
-                type="number"
-                name="carbs"
-                value={formData.carbs ? String(formData.carbs) : ""}
-                onChange={handleChange}
-                placeholder="Ex: 45.2"
-                className="w-full"
-              />
-            </div>
+          {/* Glucides */}
+          <div>
+            <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+              Glucides (g)
+            </label>
+            <Input
+              type="number"
+              name="carbs"
+              value={formData.carbs ? String(formData.carbs) : ""}
+              onChange={handleChange}
+              placeholder="Ex: 45.2"
+              className="w-full"
+            />
+          </div>
 
-            {/* Lipides */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Lipides (g)
-              </label>
-              <Input
-                type="number"
-                name="fat"
-                value={formData.fat ? String(formData.fat) : ""}
-                onChange={handleChange}
-                placeholder="Ex: 12.8"
-                className="w-full"
-              />
-            </div>
+          {/* Lipides */}
+          <div>
+            <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+              Lipides (g)
+            </label>
+            <Input
+              type="number"
+              name="fat"
+              value={formData.fat ? String(formData.fat) : ""}
+              onChange={handleChange}
+              placeholder="Ex: 12.8"
+              className="w-full"
+            />
           </div>
         </div>
 
@@ -349,7 +344,7 @@ const MealForm = ({
         </div>
 
         {/* Boutons */}
-        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row justify-end gap-3">
           <Button
             type="button"
             onClick={onCancel}

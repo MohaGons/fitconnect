@@ -99,8 +99,8 @@ const App = () => {
               <Route path="/dashboard/invoices" element={<Invoices />} />
               
               {/* Autres */}
-              <Route path="/inscription" element={<InscriptionPage />} />
             </Route>
+                          <Route path="/inscription" element={<InscriptionPage />} />
           </Route>
 
           {/* ==================== ROUTE 404 ==================== */}

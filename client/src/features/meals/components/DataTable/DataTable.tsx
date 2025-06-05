@@ -39,7 +39,7 @@ interface DataTableProps {
 }
 
 interface MealFormData {
-  plan_id: number;
+  plan_id: number | null;
   name: string;
   meal_type?: MealType;
   calories?: number | string;
@@ -277,6 +277,9 @@ const DataTable = ({
       ),
     }),
     columnHelper.accessor(row => {
+      if (!row.plan_id) {
+        return 'Aucun plan (repas libre)';
+      }
       if (row.nutrition_plan?.name) {
         return row.nutrition_plan.name;
       }
@@ -284,7 +287,12 @@ const DataTable = ({
     }, {
       id: 'nutrition_plan',
       header: 'Plan nutritionnel',
-      cell: info => info.getValue(),
+      cell: info => (
+        <span className={info.getValue() === 'Aucun plan (repas libre)' ? 
+          'text-gray-500 dark:text-gray-400 italic' : ''}>
+          {info.getValue()}
+        </span>
+      ),
     }),
     columnHelper.display({
       id: 'actions',
@@ -628,16 +636,24 @@ const DataTable = ({
                   Plan nutritionnel
                 </label>
                 <p className="text-gray-900 dark:text-white">
-                  {selectedMeal.nutrition_plan?.name || `Plan #${selectedMeal.plan_id}`}
-                  {selectedMeal.nutrition_plan?.client && (
-                    <span className="text-gray-600 dark:text-gray-400 ml-2">
-                      - {selectedMeal.nutrition_plan.client.first_name} {selectedMeal.nutrition_plan.client.last_name}
+                  {!selectedMeal.plan_id ? (
+                    <span className="text-gray-500 dark:text-gray-400 italic">
+                      Aucun plan (repas libre)
                     </span>
-                  )}
-                  {selectedMeal.nutrition_plan?.coach && (
-                    <span className="text-gray-600 dark:text-gray-400 ml-2">
-                      (Coach: {selectedMeal.nutrition_plan.coach.first_name} {selectedMeal.nutrition_plan.coach.last_name})
-                    </span>
+                  ) : (
+                    <>
+                      {selectedMeal.nutrition_plan?.name || `Plan #${selectedMeal.plan_id}`}
+                      {selectedMeal.nutrition_plan?.client && (
+                        <span className="text-gray-600 dark:text-gray-400 ml-2">
+                          - {selectedMeal.nutrition_plan.client.first_name} {selectedMeal.nutrition_plan.client.last_name}
+                        </span>
+                      )}
+                      {selectedMeal.nutrition_plan?.coach && (
+                        <span className="text-gray-600 dark:text-gray-400 ml-2">
+                          (Coach: {selectedMeal.nutrition_plan.coach.first_name} {selectedMeal.nutrition_plan.coach.last_name})
+                        </span>
+                      )}
+                    </>
                   )}
                 </p>
               </div>

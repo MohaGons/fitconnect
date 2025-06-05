@@ -35,7 +35,7 @@ export class MealsController {
     const filters = {
       page: page ? parseInt(page, 10) : undefined,
       limit: limit ? parseInt(limit, 10) : undefined,
-      plan_id: plan_id ? parseInt(plan_id, 10) : undefined,
+      plan_id: plan_id === 'null' ? null : plan_id ? parseInt(plan_id, 10) : undefined,
       meal_type,
       search,
     };

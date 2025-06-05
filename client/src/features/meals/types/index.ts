@@ -31,7 +31,7 @@ export interface MealFood {
 
 export interface Meal {
   meal_id: number;
-  plan_id: number;
+  plan_id: number | null;
   name: string;
   meal_type: MealType | null;
   calories: number | null;
@@ -59,7 +59,7 @@ export interface Meal {
 }
 
 export interface MealCreate {
-  plan_id: number;
+  plan_id: number | null;
   name: string;
   meal_type?: MealType;
   calories?: number;

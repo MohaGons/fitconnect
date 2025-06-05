@@ -18,8 +18,8 @@ export class Meal {
   @PrimaryGeneratedColumn()
   meal_id: number;
 
-  @Column()
-  plan_id: number;
+  @Column({ nullable: true })
+  plan_id: number | null;
 
   @Column()
   name: string;
@@ -48,9 +48,11 @@ export class Meal {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => NutritionPlan, (nutritionPlan) => nutritionPlan.meals)
+  @ManyToOne(() => NutritionPlan, (nutritionPlan) => nutritionPlan.meals, {
+    nullable: true,
+  })
   @JoinColumn({ name: 'plan_id' })
-  nutrition_plan: NutritionPlan;
+  nutrition_plan: NutritionPlan | null;
 
   @OneToMany(() => MealFood, (mealFood) => mealFood.meal, {
     cascade: true,

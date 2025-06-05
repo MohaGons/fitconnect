@@ -51,13 +51,13 @@ const MealIngredientsManager = ({
   });
 
   // Requête pour récupérer la liste des aliments disponibles
-  const { data: availableFoods, isLoading: isLoadingFoods, error: foodsError } = useQuery({
+  const { data: availableFoods } = useQuery({
     queryKey: ['food-items', searchTerm],
-    queryFn: () => {
-      console.log('Fetching foods with searchTerm:', searchTerm);
-      return mealService.getFoodItems(searchTerm || undefined);
-    },
+    queryFn: () => mealService.getFoodItems(searchTerm),
   });
+
+  // Log de débogage pour vérifier les données
+  console.log('[DEBUG] availableFoods:', availableFoods, 'isArray:', Array.isArray(availableFoods));
 
   // Mutation pour ajouter un ingrédient
   const addIngredientMutation = useMutation({
@@ -159,31 +159,17 @@ const MealIngredientsManager = ({
     onRemoveTemporaryIngredient?.(index);
   };
 
-  // Déterminer le mode d'affichage
+  // Déterminer quelle liste d'ingrédients afficher
   const isTemporaryMode = !mealId;
 
-  if (isTemporaryMode && (!temporaryIngredients || temporaryIngredients.length === 0)) {
-    // Affichage pour mode création sans ingrédients
-  }
-
-  const foodOptions = (availableFoods && Array.isArray(availableFoods)) 
-    ? availableFoods.map(food => ({
-        value: food.food_id.toString(),
-        label: `${food.name} ${food.category ? `(${food.category})` : ''}`,
-      })) 
-    : [];
-
-  console.log('Debug foods:', {
-    availableFoods,
-    foodOptions,
-    searchTerm,
-    isLoadingFoods,
-    foodsError
-  });
+  const foodOptions = availableFoods?.map(food => ({
+    value: food.food_id.toString(),
+    label: `${food.name} ${food.category ? `(${food.category})` : ''}`,
+  })) || [];
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
           {isTemporaryMode ? "Ingrédients du repas (à créer)" : "Ingrédients du repas"}
         </h3>
@@ -233,19 +219,9 @@ const MealIngredientsManager = ({
                       food_id: parseInt(value, 10) 
                     }));
                   }}
-                  placeholder={isLoadingFoods ? "Chargement des aliments..." : "Sélectionner un aliment"}
+                  placeholder="Sélectionner un aliment"
                   className="w-full"
                 />
-                {foodsError && (
-                  <p className="text-red-500 text-sm mt-1">
-                    Erreur lors du chargement des aliments
-                  </p>
-                )}
-                {!isLoadingFoods && foodOptions.length === 0 && (
-                  <p className="text-gray-500 text-sm mt-1">
-                    Aucun aliment trouvé {searchTerm ? `pour "${searchTerm}"` : ''}
-                  </p>
-                )}
               </div>
             </div>
 
@@ -287,7 +263,7 @@ const MealIngredientsManager = ({
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row justify-end gap-2 mt-6 pt-4 border-t border-gray-200 dark:border-gray-600">
+          <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
             <Button
               onClick={() => {
                 setIsAddingIngredient(false);
@@ -324,6 +300,7 @@ const MealIngredientsManager = ({
               <TemporaryIngredientItem
                 key={index}
                 ingredient={ingredient}
+                index={index}
                 availableFoods={availableFoods || []}
                 readOnly={readOnly}
                 onUpdate={(updates: Partial<IngredientFormData>) => handleUpdateTemporaryIngredientItem(index, updates)}
@@ -534,6 +511,7 @@ const IngredientItem = ({
 // Composant pour afficher/modifier un ingrédient temporaire
 interface TemporaryIngredientItemProps {
   ingredient: MealFoodCreate;
+  index: number;
   availableFoods: FoodItem[];
   readOnly: boolean;
   onUpdate: (updates: Partial<IngredientFormData>) => void;
@@ -542,6 +520,7 @@ interface TemporaryIngredientItemProps {
 
 const TemporaryIngredientItem = ({
   ingredient,
+  index: _index,
   availableFoods,
   readOnly,
   onUpdate,

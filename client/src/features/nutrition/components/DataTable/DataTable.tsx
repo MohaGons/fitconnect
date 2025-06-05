@@ -99,6 +99,8 @@ const DataTable = ({
     onSuccess: (_data, id) => {
       queryClient.removeQueries({ queryKey: queryKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: queryKeys.lists() });
+      // Invalider aussi le cache des repas car ils peuvent avoir été détachés du plan
+      queryClient.invalidateQueries({ queryKey: ['meals'] });
       setIsDeleteModalOpen(false);
       setPlanToDelete(null);
     },

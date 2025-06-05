@@ -46,6 +46,12 @@ export const mealService = {
     return response.data;
   },
 
+  // Récupérer les repas orphelins (sans plan associé)
+  getOrphanMeals: async (): Promise<Meal[]> => {
+    const response = await apiClient.get<PaginatedResponse<Meal>>(`/meals?plan_id=null`);
+    return response.data.data;
+  },
+
   // Créer un nouveau repas
   createMeal: async (meal: MealCreate): Promise<Meal> => {
     const response = await apiClient.post<Meal>('/meals', meal);
