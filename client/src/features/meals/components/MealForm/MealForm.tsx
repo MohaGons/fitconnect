@@ -183,8 +183,8 @@ const MealForm = ({
   };
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+    <div className="max-w-4xl mx-auto">
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-6">
         {mode === "add" ? "Créer un nouveau repas" : "Modifier le repas"}
       </h2>
 
@@ -247,65 +247,70 @@ const MealForm = ({
         </div>
 
         {/* Informations nutritionnelles */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Calories */}
-          <div>
-            <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
-              Calories (kcal)
-            </label>
-            <Input
-              type="number"
-              name="calories"
-              value={formData.calories || ""}
-              onChange={handleChange}
-              placeholder="Ex: 350"
-              className="w-full"
-            />
-          </div>
+        <div>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+            Informations nutritionnelles
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Calories */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Calories (kcal)
+              </label>
+              <Input
+                type="number"
+                name="calories"
+                value={formData.calories || ""}
+                onChange={handleChange}
+                placeholder="Ex: 350"
+                className="w-full"
+              />
+            </div>
 
-          {/* Protéines */}
-          <div>
-            <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
-              Protéines (g)
-            </label>
-            <Input
-              type="number"
-              name="protein"
-              value={formData.protein ? String(formData.protein) : ""}
-              onChange={handleChange}
-              placeholder="Ex: 25.5"
-              className="w-full"
-            />
-          </div>
+            {/* Protéines */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Protéines (g)
+              </label>
+              <Input
+                type="number"
+                name="protein"
+                value={formData.protein ? String(formData.protein) : ""}
+                onChange={handleChange}
+                placeholder="Ex: 25.5"
+                className="w-full"
+              />
+            </div>
 
-          {/* Glucides */}
-          <div>
-            <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
-              Glucides (g)
-            </label>
-            <Input
-              type="number"
-              name="carbs"
-              value={formData.carbs ? String(formData.carbs) : ""}
-              onChange={handleChange}
-              placeholder="Ex: 45.2"
-              className="w-full"
-            />
-          </div>
+            {/* Glucides */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Glucides (g)
+              </label>
+              <Input
+                type="number"
+                name="carbs"
+                value={formData.carbs ? String(formData.carbs) : ""}
+                onChange={handleChange}
+                placeholder="Ex: 45.2"
+                className="w-full"
+              />
+            </div>
 
-          {/* Lipides */}
-          <div>
-            <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
-              Lipides (g)
-            </label>
-            <Input
-              type="number"
-              name="fat"
-              value={formData.fat ? String(formData.fat) : ""}
-              onChange={handleChange}
-              placeholder="Ex: 12.8"
-              className="w-full"
-            />
+            {/* Lipides */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Lipides (g)
+              </label>
+              <Input
+                type="number"
+                name="fat"
+                value={formData.fat ? String(formData.fat) : ""}
+                onChange={handleChange}
+                placeholder="Ex: 12.8"
+                className="w-full"
+              />
+            </div>
           </div>
         </div>
 
@@ -344,12 +349,13 @@ const MealForm = ({
         </div>
 
         {/* Boutons */}
-        <div className="flex justify-end space-x-3">
+        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-700">
           <Button
             type="button"
             onClick={onCancel}
             variant="outline"
             size="md"
+            className="w-full sm:w-auto"
           >
             Annuler
           </Button>
@@ -359,6 +365,7 @@ const MealForm = ({
             size="md"
             startIcon={<FaSave />}
             disabled={isSubmitting || isLoadingPlans}
+            className="w-full sm:w-auto"
           >
             {isSubmitting ? "Enregistrement..." : 
              mode === "add" ? "Créer le repas" : "Enregistrer"}

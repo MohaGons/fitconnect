@@ -68,8 +68,8 @@ export const mealService = {
   // Récupérer tous les aliments avec recherche optionnelle
   getFoodItems: async (search?: string): Promise<FoodItem[]> => {
     const params = search ? `?search=${encodeURIComponent(search)}` : '';
-    const response = await apiClient.get<FoodItem[]>(`/food-items${params}`);
-    return response.data;
+    const response = await apiClient.get<{data: FoodItem[], total: number, page: number, limit: number}>(`/food-items${params}`);
+    return response.data.data; // Extraire le tableau depuis la propriété 'data'
   },
 
   // Récupérer un aliment par son ID

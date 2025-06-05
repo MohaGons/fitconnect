@@ -51,9 +51,12 @@ const MealIngredientsManager = ({
   });
 
   // Requête pour récupérer la liste des aliments disponibles
-  const { data: availableFoods } = useQuery({
+  const { data: availableFoods, isLoading: isLoadingFoods, error: foodsError } = useQuery({
     queryKey: ['food-items', searchTerm],
-    queryFn: () => mealService.getFoodItems(searchTerm),
+    queryFn: () => {
+      console.log('Fetching foods with searchTerm:', searchTerm);
+      return mealService.getFoodItems(searchTerm || undefined);
+    },
   });
 
   // Mutation pour ajouter un ingrédient
@@ -156,22 +159,31 @@ const MealIngredientsManager = ({
     onRemoveTemporaryIngredient?.(index);
   };
 
-  // Déterminer quelle liste d'ingrédients afficher
+  // Déterminer le mode d'affichage
   const isTemporaryMode = !mealId;
-  const ingredientsToDisplay = isTemporaryMode ? temporaryIngredients : mealIngredients;
 
   if (isTemporaryMode && (!temporaryIngredients || temporaryIngredients.length === 0)) {
     // Affichage pour mode création sans ingrédients
   }
 
-  const foodOptions = availableFoods?.map(food => ({
-    value: food.food_id.toString(),
-    label: `${food.name} ${food.category ? `(${food.category})` : ''}`,
-  })) || [];
+  const foodOptions = (availableFoods && Array.isArray(availableFoods)) 
+    ? availableFoods.map(food => ({
+        value: food.food_id.toString(),
+        label: `${food.name} ${food.category ? `(${food.category})` : ''}`,
+      })) 
+    : [];
+
+  console.log('Debug foods:', {
+    availableFoods,
+    foodOptions,
+    searchTerm,
+    isLoadingFoods,
+    foodsError
+  });
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
           {isTemporaryMode ? "Ingrédients du repas (à créer)" : "Ingrédients du repas"}
         </h3>
@@ -182,6 +194,7 @@ const MealIngredientsManager = ({
             size="sm"
             startIcon={<FaPlus />}
             disabled={isAddingIngredient}
+            className="w-full sm:w-auto"
           >
             Ajouter un ingrédient
           </Button>
@@ -195,9 +208,9 @@ const MealIngredientsManager = ({
             Ajouter un ingrédient
           </h4>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div className="space-y-4">
             {/* Sélection de l'aliment */}
-            <div className="md:col-span-2">
+            <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Aliment*
               </label>
@@ -220,48 +233,61 @@ const MealIngredientsManager = ({
                       food_id: parseInt(value, 10) 
                     }));
                   }}
-                  placeholder="Sélectionner un aliment"
+                  placeholder={isLoadingFoods ? "Chargement des aliments..." : "Sélectionner un aliment"}
+                  className="w-full"
+                />
+                {foodsError && (
+                  <p className="text-red-500 text-sm mt-1">
+                    Erreur lors du chargement des aliments
+                  </p>
+                )}
+                {!isLoadingFoods && foodOptions.length === 0 && (
+                  <p className="text-gray-500 text-sm mt-1">
+                    Aucun aliment trouvé {searchTerm ? `pour "${searchTerm}"` : ''}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Quantité et Unité */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Quantité */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Quantité*
+                </label>
+                <Input
+                  type="number"
+                  step={0.1}
+                  value={newIngredient.quantity}
+                  onChange={(e) => setNewIngredient(prev => ({ 
+                    ...prev, 
+                    quantity: e.target.value 
+                  }))}
+                  placeholder="Ex: 150"
+                  className="w-full"
+                />
+              </div>
+
+              {/* Unité */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Unité*
+                </label>
+                <Select
+                  options={FOOD_UNITS}
+                  defaultValue={newIngredient.unit}
+                  onChange={(value) => setNewIngredient(prev => ({ 
+                    ...prev, 
+                    unit: value 
+                  }))}
                   className="w-full"
                 />
               </div>
             </div>
-
-            {/* Quantité */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Quantité*
-              </label>
-              <Input
-                type="number"
-                step={0.1}
-                value={newIngredient.quantity}
-                onChange={(e) => setNewIngredient(prev => ({ 
-                  ...prev, 
-                  quantity: e.target.value 
-                }))}
-                placeholder="Ex: 150"
-                className="w-full"
-              />
-            </div>
-
-            {/* Unité */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Unité*
-              </label>
-              <Select
-                options={FOOD_UNITS}
-                defaultValue={newIngredient.unit}
-                onChange={(value) => setNewIngredient(prev => ({ 
-                  ...prev, 
-                  unit: value 
-                }))}
-                className="w-full"
-              />
-            </div>
           </div>
 
-          <div className="flex justify-end space-x-2 mt-4">
+          <div className="flex flex-col sm:flex-row justify-end gap-2 mt-6 pt-4 border-t border-gray-200 dark:border-gray-600">
             <Button
               onClick={() => {
                 setIsAddingIngredient(false);
@@ -271,6 +297,7 @@ const MealIngredientsManager = ({
               variant="outline"
               size="sm"
               startIcon={<FaTimes />}
+              className="w-full sm:w-auto"
             >
               Annuler
             </Button>
@@ -280,6 +307,7 @@ const MealIngredientsManager = ({
               size="sm"
               startIcon={<FaSave />}
               disabled={addIngredientMutation.isPending}
+              className="w-full sm:w-auto"
             >
               {addIngredientMutation.isPending ? "Ajout..." : "Ajouter"}
             </Button>
@@ -296,7 +324,6 @@ const MealIngredientsManager = ({
               <TemporaryIngredientItem
                 key={index}
                 ingredient={ingredient}
-                index={index}
                 availableFoods={availableFoods || []}
                 readOnly={readOnly}
                 onUpdate={(updates: Partial<IngredientFormData>) => handleUpdateTemporaryIngredientItem(index, updates)}
@@ -507,7 +534,6 @@ const IngredientItem = ({
 // Composant pour afficher/modifier un ingrédient temporaire
 interface TemporaryIngredientItemProps {
   ingredient: MealFoodCreate;
-  index: number;
   availableFoods: FoodItem[];
   readOnly: boolean;
   onUpdate: (updates: Partial<IngredientFormData>) => void;
@@ -516,7 +542,6 @@ interface TemporaryIngredientItemProps {
 
 const TemporaryIngredientItem = ({
   ingredient,
-  index,
   availableFoods,
   readOnly,
   onUpdate,
