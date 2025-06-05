@@ -14,6 +14,7 @@ export const KeycloakContext = createContext(contextValue);
 // Liste des routes publiques qui ne nécessitent pas d'authentification
 const publicRoutes = ['/', '/welcome','/our-team','/prices','/faq','/services', '/login', '/signin', '/register', '/signup', '/about', '/contact'];
 
+
 export const KeycloakProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [initialized, setInitialized] = useState(false);
