@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Coach } from './entities/coach.entity';
@@ -7,7 +7,6 @@ import { UpdateCoachDto } from './dto/update-coach.dto';
 
 @Injectable()
 export class CoachesService {
-
   constructor(
     @InjectRepository(Coach)
     private readonly coachRepository: Repository<Coach>,
@@ -16,6 +15,19 @@ export class CoachesService {
   async create(createCoachDto: CreateCoachDto): Promise<Coach> {
     const coach = this.coachRepository.create(createCoachDto);
     return await this.coachRepository.save(coach);
+  }
+
+  async findByUserId(userId: string): Promise<{ coach_id: number }> {
+    const coach = await this.coachRepository.findOne({
+      where: { user_id: userId },
+      select: ['coach_id'], // Ne récupérer que le coach_id pour des raisons de performance
+    });
+
+    if (!coach) {
+      throw new NotFoundException(`Coach with user_id ${userId} not found`);
+    }
+
+    return { coach_id: coach.coach_id };
   }
 
   findAll() {

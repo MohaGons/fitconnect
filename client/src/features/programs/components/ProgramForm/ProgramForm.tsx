@@ -1,9 +1,8 @@
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useState, useEffect, useMemo } from "react";
 import {
   FaSave,
   FaPlus,
   FaMinus,
-  FaGripVertical,
   FaArrowUp,
   FaArrowDown,
 } from "react-icons/fa";
@@ -23,6 +22,7 @@ import {
 } from "../../types";
 import exercicesService from "../../../exercices/services/exercicesService";
 import { MuscleCategoryLabels } from "../../../exercices/types";
+import { useCoachId } from "../../../../hooks/useCoachId";
 
 // Type pour le formulaire adapté à l'entité
 interface ProgramFormData {
@@ -43,15 +43,15 @@ interface ProgramFormData {
   }[];
 }
 
-// État initial du formulaire
-const initialFormState: ProgramFormData = {
-  coach_id: 1, // TODO: get from auth context
+// États initial du formulaire - coach_id sera maintenant dynamique
+const getInitialFormState = (coachId: number): ProgramFormData => ({
+  coach_id: coachId,
   name: "",
   description: "",
   difficulty_level: "beginner" as DifficultyLevel,
   category: "strength" as ProgramCategory,
   exercises: [],
-};
+});
 
 interface ProgramFormProps {
   programData?: ProgramFormData;
@@ -63,20 +63,25 @@ interface ProgramFormProps {
 }
 
 const ProgramForm = ({
-  programData = initialFormState,
+  programData,
   isSubmitting = false,
   formError,
   onSubmit,
   onCancel,
   mode,
 }: ProgramFormProps) => {
-  console.log("🏗️ ProgramForm component rendered/re-rendered", {
-    mode,
-    isSubmitting,
-  });
+  const { coachId } = useCoachId();
+
+  // Utiliser useMemo pour éviter la recréation à chaque render
+  const initialFormState = useMemo(() => {
+    const state = getInitialFormState(coachId);
+    return state;
+  }, [coachId]);
 
   // États du formulaire
-  const [formData, setFormData] = useState<ProgramFormData>(programData);
+  const [formData, setFormData] = useState<ProgramFormData>(
+    programData || initialFormState
+  );
   const [exercisesList, setExercisesList] = useState<ProgramFormExercise[]>([]);
   const [isExerciseModalOpen, setIsExerciseModalOpen] = useState(false);
   const [selectedExerciseForEdit, setSelectedExerciseForEdit] = useState<
@@ -84,16 +89,7 @@ const ProgramForm = ({
   >(null);
 
   // Log when exercise modal state changes
-  useEffect(() => {
-    console.log("🎭 Exercise modal state changed:", isExerciseModalOpen);
-  }, [isExerciseModalOpen]);
-
-  // Log when component unmounts
-  useEffect(() => {
-    return () => {
-      console.log("💀 ProgramForm component unmounting");
-    };
-  }, []);
+  useEffect(() => {}, [isExerciseModalOpen]);
 
   // État temporaire pour l'ajout d'exercice
   const [tempExercise, setTempExercise] = useState({
@@ -140,12 +136,13 @@ const ProgramForm = ({
 
   // Mise à jour des données du programme au changement de props
   useEffect(() => {
-    console.log(
-      "📥 ProgramData prop changed, updating form data:",
-      programData
-    );
-    setFormData(programData);
-  }, [programData]);
+    if (programData) {
+      setFormData(programData);
+    } else if (mode === "add") {
+      // Seulement réinitialiser en mode ajout si pas de programData
+      setFormData(initialFormState);
+    }
+  }, [programData, mode, initialFormState]);
 
   // Gestionnaires de changement pour les champs simples
   const handleChange = (
@@ -202,14 +199,7 @@ const ProgramForm = ({
 
   // Ajouter un exercice
   const handleAddExercise = () => {
-    console.log("➕ handleAddExercise called - Adding exercise to list");
-    console.log("🔍 Current tempExercise:", tempExercise);
-
     if (!tempExercise.exercise_id || tempExercise.exercise_id === 0) {
-      console.log(
-        "⚠️ No exercise selected, aborting. exercise_id:",
-        tempExercise.exercise_id
-      );
       return;
     }
 
@@ -217,11 +207,8 @@ const ProgramForm = ({
       (e) => e.exercise_id === tempExercise.exercise_id
     );
     if (!exerciseDetail) {
-      console.log("⚠️ Exercise detail not found, aborting");
       return;
     }
-
-    console.log("✅ Adding exercise:", exerciseDetail.name);
 
     const newExercise: ProgramFormExercise = {
       exercise_id: tempExercise.exercise_id,
@@ -238,7 +225,6 @@ const ProgramForm = ({
 
     const updatedList = [...exercisesList, newExercise];
     setExercisesList(updatedList);
-    console.log("📝 Updated exercises list length:", updatedList.length);
 
     // Mettre à jour formData
     setFormData((prev) => ({
@@ -267,7 +253,6 @@ const ProgramForm = ({
     });
 
     setIsExerciseModalOpen(false);
-    console.log("✅ Exercise added successfully, modal closed");
   };
 
   // Modifier un exercice existant
@@ -351,12 +336,10 @@ const ProgramForm = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("🚀 handleSubmit called - Form submission");
     onSubmit(formData);
   };
 
   const handleAddExerciseClick = () => {
-    console.log("🎯 handleAddExerciseClick called - Opening exercise modal");
     setSelectedExerciseForEdit(null);
     setTempExercise({
       exercise_id: 0,
@@ -368,42 +351,29 @@ const ProgramForm = ({
       instructions: "",
     });
     setIsExerciseModalOpen(true);
-    console.log(
-      "✅ Exercise modal should be open now, isExerciseModalOpen:",
-      true
-    );
   };
 
   const handleEditExerciseClick = (index: number) => () => {
-    console.log(`✏️ handleEditExerciseClick called for index: ${index}`);
     handleEditExercise(index);
   };
 
   const handleRemoveExerciseClick = (index: number) => () => {
-    console.log(`🗑️ handleRemoveExerciseClick called for index: ${index}`);
     handleRemoveExercise(index);
   };
 
   const handleCancelClick = () => {
-    console.log("❌ handleCancelClick called - Canceling form");
     onCancel();
   };
 
   const handleSubmitClick = () => {
-    console.log("💾 handleSubmitClick called - Submitting form via button");
     onSubmit(formData);
   };
 
   const handleCloseModalClick = () => {
-    console.log("🔒 handleCloseModalClick called - Closing exercise modal");
     setIsExerciseModalOpen(false);
   };
 
   const handleSaveExerciseClick = () => {
-    console.log("💾 handleSaveExerciseClick called");
-    console.log("🔍 selectedExerciseForEdit:", selectedExerciseForEdit);
-    console.log("🔍 tempExercise:", tempExercise);
-
     selectedExerciseForEdit !== null
       ? handleSaveExerciseEdit()
       : handleAddExercise();
@@ -425,12 +395,6 @@ const ProgramForm = ({
           ]
         })`,
       })) || [];
-
-  console.log(
-    "📋 Available exercise options:",
-    exerciseOptions.length,
-    exerciseOptions
-  );
 
   return (
     <div>
@@ -694,7 +658,6 @@ const ProgramForm = ({
                   }
                   onChange={(value) =>
                     setTempExercise((prev) => {
-                      console.log("🎯 Exercise selection changed:", value);
                       return {
                         ...prev,
                         exercise_id: Number(value),
