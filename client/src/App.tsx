@@ -19,6 +19,7 @@ import Exerecices from "./pages/Exercices/Exerecices";
 import Login from "./pages/auth/login"
 import ProtectedRoute from "./routes/protectedRoute";
 import InscriptionPage from "./pages/inscription/inscription";
+import SignIn from "./pages/AuthPages/SignIn";
 
 export default function App() {
   return (
@@ -29,6 +30,8 @@ export default function App() {
         <Routes>
           {/* Dashboard Layout */}
            <Route index path="/" element={<FrontHome />} />
+              <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
           <Route element={<AppLayout />}>
             <Route element={<ProtectedRoute />}>
             <Route path="/dashboard/home" element={<Home />} />
@@ -47,8 +50,7 @@ export default function App() {
             <Route path="/inscription" element={<InscriptionPage />} />
           </Route>
           {/* Auth Layout */}
-          <Route path="/signin" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
+       
 
           {/* Fallback Route */}
           <Route path="*" element={<NotFound />} />

@@ -98,6 +98,7 @@ services:
       - db
     volumes:
       - ./realm-export:/opt/keycloak/data/import
+      - ./keycloak-theme/mytheme:/opt/keycloak/themes/mytheme 
     networks:
       - app-network
 

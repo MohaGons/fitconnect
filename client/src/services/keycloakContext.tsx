@@ -12,7 +12,7 @@ const contextValue = {
 export const KeycloakContext = createContext(contextValue);
 
 // Liste des routes publiques qui ne nécessitent pas d'authentification
-const publicRoutes = ['/', '/login', '/register', '/about', '/contact'];
+const publicRoutes = ['/', '/login', '/register', '/about', '/contact','/signin','/signup'];
 
 export const KeycloakProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
