@@ -36,72 +36,93 @@ const ClientForm = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div>
-      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
-      Date de naissance
+
+  {/* Date de naissance + Genre */}
+  <div className="flex flex-wrap gap-4">
+    <div className="flex-1 min-w-[200px]">
+      <label className="block text-sm font-medium">
+        Date de naissance
       </label>
       <input
-      type="date"
-      className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
-      {...register('birth_date')}
+        type="date"
+        className="w-full mt-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+        {...register('birth_date')}
       />
-      </div>
-      <div>
-      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
-      Poids (kg)
+    </div>
+    <div className="flex-1 min-w-[200px]">
+      <label className="block text-sm font-medium">
+        Genre
       </label>
-        <input
+      <select
+        className="w-full mt-1 px-4 py-2 text-sm border rounded-md bg-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+        {...register('gender')}
+      >
+        <option value="">Sélectionnez</option>
+        <option value="Homme">Homme</option>
+        <option value="Femme">Femme</option>
+      </select>
+    </div>
+  </div>
+
+  {/* Poids + Taille */}
+  <div className="flex flex-wrap gap-4">
+    <div className="flex-1 min-w-[200px]">
+      <label className="block text-sm font-medium">
+        Poids (kg)
+      </label>
+      <input
         type="number"
         step="0.01"
         min={0}
-        placeholder='Ex: 70.5'
-        className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
+        placeholder="Ex: 70.5"
+        className="w-full mt-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
         {...register('weight')}
       />
-      </div>
-      <div>
-      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
-      Taille (cm)
+    </div>
+    <div className="flex-1 min-w-[200px]">
+      <label className="block text-sm font-medium">
+        Taille (cm)
       </label>
-        <input
-       type="number"
-       step="0.01"
-       min={0}
-       placeholder='Ex: 175.5'
-        className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
+      <input
+        type="number"
+        step="0.01"
+        min={0}
+        placeholder="Ex: 175.5"
+        className="w-full mt-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
         {...register('height')}
       />
-      </div>
+    </div>
+  </div>
       <div>
-      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+      <label className="block text-sm font-medium">
       Objectifs
       </label>
         <input
         type="text"
         placeholder="Ex: Perte de poids, Prise de masse"
-        className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
+        className="w-full mt-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
         {...register('goal')}
       />
       </div>
       <div>
-      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+      <label className="block text-sm font-medium">
       Restrictions alimentaires
           </label>
       <input
         type="text"
         placeholder="Ex: Végétarien, Allergies"
-        className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
+        className="w-full mt-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
         {...register('dietary_restrictions')}
       />
       </div>
       <div>
-        <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+        <label className="block text-sm font-medium">
       Problèmes de santé
           </label>
       <input
         type="text"
         placeholder="Ex: Diabète, Hypertension"
-        className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
+        className="w-full mt-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
         {...register('health_issues')}
       />
       </div>
@@ -109,13 +130,13 @@ const ClientForm = () => {
 
       </div>
       <div>
-      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+      <label className="block text-sm font-medium">
       Expérience sportive
           </label>
         <input
         type="text"
         placeholder="Ex: Débutant, Intermédiaire, Avancé"
-        className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
+        className="w-full mt-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
         {...register('sport_experience')}
       />
       </div>
@@ -124,14 +145,12 @@ const ClientForm = () => {
       <button
         type="submit"
         disabled={isLoading}
-        className="bg-orange-600 text-white px-4 py-2 rounded"
+        className="w-full px-4 py-2 text-sm font-medium text-white bg-orange-500 rounded-md hover:bg-orange-600"
       >
-        {isLoading ? 'Traitement en cours...' : 'Enregistrer Client'}
+        Enregistrer
       </button>
 
-      {isLoading && (
-        <div className="text-center text-sm text-gray-500">Veuillez patienter...</div>
-      )}
+     
     </form>
   );
 };

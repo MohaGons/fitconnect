@@ -37,7 +37,18 @@
 
         <h1 class="mb-2 text-2xl font-semibold">Connexion</h1>
         <p class="mb-6 text-sm text-gray-500">Entrez votre email et mot de passe pour vous connecter</p>
-        
+      <#if message??>
+  <div id="error-message" class="relative mb-4 p-3 text-sm bg-red-400 text-black rounded">
+    Une erreur est survenue. Veuillez réessayer !
+    <button 
+      onclick="document.getElementById('error-message').style.display='none'"
+      class="absolute top-1 right-2 text-2xl text-black hover:text-white font-bold"
+      aria-label="Fermer"
+    >
+      &times;
+    </button>
+  </div>
+</#if>
         <div class="grid grid-cols-1">
           <button class="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 ">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
