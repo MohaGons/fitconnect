@@ -206,7 +206,8 @@ const Header: React.FC = () => {
 
               {/* Mobile menu button */}
               <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                onClick={() => setMobileMenuOpen(prev => !prev)}
+
                 className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
               >
                 {mobileMenuOpen ? (

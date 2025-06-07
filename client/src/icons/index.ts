@@ -57,6 +57,10 @@ import { ReactComponent as Gym } from "./gym.svg?react";
 import { ReactComponent as Motivation } from "./motivation.svg?react";
 import { ReactComponent as Fitness } from "./fitness.svg?react";
 import { ReactComponent as Nutrition } from "./nutrition.svg?react";
+import { ReactComponent as Juice } from "./juice.svg?react";
+import { ReactComponent as Yoga } from "./yoga.svg?react";
+import { ReactComponent as Health } from "./health.svg?react";
+import { ReactComponent as Heart } from "./heart.svg?react";
 
 
 
@@ -120,6 +124,9 @@ export {
   Gym,
   Motivation,
   Fitness,
-  Nutrition
-  
+  Nutrition,
+  Juice,
+  Yoga,
+  Health,
+  Heart
 };
