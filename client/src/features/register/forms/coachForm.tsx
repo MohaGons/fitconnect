@@ -39,65 +39,65 @@ const CoachForm = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
-      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+      <label className="block text-sm font-medium">
       Spécialité
       </label>
         <input
         type="text"
         placeholder="Fitness, Nutrition, etc."
-        className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
+        className="w-full mt-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
         {...register("specialty", { required: true })}
       />
       </div>
       <div>
-      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+      <label className="block text-sm font-medium">
       Bio du Coach
       </label>
         <textarea
         placeholder="Parlez-nous de vous" 
-        className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
+        className="w-full mt-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
         {...register("bio")}
       />
       </div>
       <div>
-      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+      <label className="block text-sm font-medium">
       Vos Certifications et Diplômes
       </label>
         <input
         type="text"
         placeholder="Certifications (Ex: Certificat de Coach, Nutritionniste)"
-        className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
+        className="w-full mt-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
         {...register("certifications")}
       />
       </div>
       
       <div>
-      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+      <label className="block text-sm font-medium">
       Disponibilité
       </label>
          <input
         type="text"
         placeholder="Ex: full-time, part-time, weekends"
-        className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
+        className="w-full mt-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
         {...register("availability")}
       />
       </div>
       <div>
-      <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
+      <label className="block text-sm font-medium">
       Photo de Profil
       </label>
         <input
         type="file"
-        className="border p-2 w-full border-zinc-300 focus:outline-none focus:border-orange-500"
+        className="w-full mt-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
         {...register("photo_url")}
       />
       </div>
       
       <button
         type="submit"
-        className="bg-orange-600 text-white px-4 py-2 rounded"
+        className="w-full px-4 py-2 text-sm font-medium text-white bg-orange-500 rounded-md hover:bg-orange-600"
       >
-        Enregistrer Coach
+        Enregistrer
       </button>
     </form>
   );
