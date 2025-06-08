@@ -17,17 +17,22 @@ export class CoachesService {
     return await this.coachRepository.save(coach);
   }
 
-  async findByUserId(userId: string): Promise<{ coach_id: number }> {
+  async findByUserId(
+    userId: string,
+  ): Promise<{ coach_id: number; subscription_status: string }> {
     const coach = await this.coachRepository.findOne({
       where: { user_id: userId },
-      select: ['coach_id'], // Ne récupérer que le coach_id pour des raisons de performance
+      select: ['coach_id', 'subscription_status'], // Récupérer coach_id + subscription_status
     });
 
     if (!coach) {
       throw new NotFoundException(`Coach with user_id ${userId} not found`);
     }
 
-    return { coach_id: coach.coach_id };
+    return {
+      coach_id: coach.coach_id,
+      subscription_status: coach.subscription_status,
+    };
   }
 
   findAll() {
@@ -44,5 +49,31 @@ export class CoachesService {
 
   remove(id: number) {
     return `This action removes a #${id} coach`;
+  }
+
+  async updateSubscriptionStatus(
+    coachId: number,
+    status: string,
+    paymentIntentId?: string,
+  ): Promise<Coach> {
+    const coach = await this.coachRepository.findOne({
+      where: { coach_id: coachId },
+    });
+
+    if (!coach) {
+      throw new NotFoundException(`Coach with id ${coachId} not found`);
+    }
+
+    coach.subscription_status = status;
+
+    if (status === 'active') {
+      coach.subscription_activated_at = new Date();
+    }
+
+    if (paymentIntentId) {
+      coach.stripe_payment_intent_id = paymentIntentId;
+    }
+
+    return await this.coachRepository.save(coach);
   }
 }
