@@ -49,8 +49,8 @@ import { StripeModule } from './stripe/stripe.module';
         password: configService.get('DB_PASSWORD', 'postgres'),
         database: configService.get('DB_DATABASE', 'fitness_platform_db'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize:
-          configService.get('NODE_ENV', 'development') !== 'production',
+        synchronize:true, // Set to false in production
+          //configService.get('NODE_ENV', 'development') !== 'production',
       }),
     }),
     AuthModule,
