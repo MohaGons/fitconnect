@@ -7,14 +7,19 @@ const ClientForm = () => {
   const { register, handleSubmit } = useForm();
   const { keycloak } = useKeycloakContext();
   const userId = keycloak?.tokenParsed?.sub;
+  const firstName = keycloak?.tokenParsed?.given_name;
+  const lastName = keycloak?.tokenParsed?.family_name;
+  const email = keycloak?.tokenParsed?.email;
 
   const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = async (data: any) => {
     try {
       setIsLoading(true);
-
       data.user_id = userId;
+      data.firstName = firstName;
+      data.lastName = lastName;
+      data.email = email;
       await api.post('/clients', data);
 
       // Attribution du rôle "CLIENT"
@@ -25,8 +30,6 @@ const ClientForm = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Attendre 3 secondes avant redirection
-      await new Promise((resolve) => setTimeout(resolve, 3000));
       window.location.href = '/dashboard/home';
     } catch (err) {
       console.error(err);
@@ -55,7 +58,7 @@ const ClientForm = () => {
       </label>
       <select
         className="w-full mt-1 px-4 py-2 text-sm border rounded-md bg-white focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
-        {...register('gender')}
+        {...register('gendre')}
       >
         <option value="">Sélectionnez</option>
         <option value="Homme">Homme</option>
