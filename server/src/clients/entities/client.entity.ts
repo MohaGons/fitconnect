@@ -26,6 +26,18 @@ export class Client {
   @Column({ type: 'date', nullable: true })
   birth_date: Date;
 
+  @Column({ type: 'text', nullable: true })
+  gendre: String;
+
+  @Column({ type: 'text', nullable: true })
+  firstName: String;
+
+  @Column({ type: 'text', nullable: true })
+  lastName: String;
+
+   @Column({ type: 'text', nullable: true })
+  email: String;
+
   @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
   weight: number;
 

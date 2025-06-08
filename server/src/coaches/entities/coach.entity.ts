@@ -27,6 +27,18 @@ export class Coach {
   bio: string;
 
   @Column({ type: 'text', nullable: true })
+  gendre: String;
+
+  @Column({ type: 'text', nullable: true })
+  firstName: String;
+
+  @Column({ type: 'text', nullable: true })
+  lastName: String;
+
+   @Column({ type: 'text', nullable: true })
+  email: String;
+
+  @Column({ type: 'text', nullable: true })
   certifications: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
