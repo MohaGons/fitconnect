@@ -2,6 +2,7 @@ import apiClient from "../api/axios";
 
 export interface CoachIdResponse {
   coach_id: number;
+  subscription_status: string;
 }
 
 export const coachesService = {

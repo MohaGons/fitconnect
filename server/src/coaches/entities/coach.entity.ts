@@ -18,7 +18,7 @@ export class Coach {
   coach_id: number;
 
   @Column({ type: 'uuid' })
-  user_id: string;  // UUID venant de Keycloak
+  user_id: string; // UUID venant de Keycloak
 
   @Column()
   specialty: string;
@@ -37,6 +37,23 @@ export class Coach {
 
   @Column({ type: 'text', nullable: true })
   photo_url: string;
+
+  // Champs pour le système de paiement plateforme
+  @Column({
+    type: 'enum',
+    enum: ['free', 'active', 'expired'],
+    default: 'free',
+  })
+  subscription_status: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  subscription_activated_at: Date;
+
+  @Column({ nullable: true })
+  stripe_customer_id: string;
+
+  @Column({ nullable: true })
+  stripe_payment_intent_id: string;
 
   @CreateDateColumn()
   created_at: Date;

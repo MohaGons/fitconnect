@@ -6,7 +6,7 @@ export const useCoachId = () => {
   const { keycloak } = useKeycloakContext();
   const userId = keycloak?.tokenParsed?.sub;
 
-  const { data, isLoading, error, isError } = useQuery({
+  const { data, isLoading, error, isError, refetch } = useQuery({
     queryKey: ["coach-id", userId],
     queryFn: async () => {
       try {
@@ -23,12 +23,17 @@ export const useCoachId = () => {
 
   // Retourner le coach_id ou 1 comme fallback
   const coachId = data?.coach_id || 1;
+  const subscriptionStatus = data?.subscription_status || "free";
+  const hasActiveSubscription = subscriptionStatus === "active";
 
   return {
     coachId,
+    subscriptionStatus,
+    hasActiveSubscription,
     isLoading,
     error,
     isError,
     isAuthenticated: !!keycloak?.authenticated,
+    refetch,
   };
 };

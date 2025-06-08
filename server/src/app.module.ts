@@ -27,10 +27,11 @@ import { MessagesModule } from './messages/messages.module';
 import { ClientGoalsModule } from './client-goals/client-goals.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ReviewsModule } from './reviews/reviews.module';
-import { UserProfileModule, } from './user-profile/user-profile.module';
+import { UserProfileModule } from './user-profile/user-profile.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { StorageModule } from './storage/storage.module';
+import { StripeModule } from './stripe/stripe.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { StorageModule } from './storage/storage.module';
     AuthModule,
     KeycloakModule,
     StorageModule,
+    StripeModule,
     UsersModule,
     CoachesModule,
     ClientsModule,
