@@ -68,9 +68,8 @@
     <#else>
       Une erreur s'est produite. Veuillez réessayer.
     </#if>
-
-  </div>
-</#if>
+    </div>
+    </#if>
 
 
     
@@ -81,19 +80,18 @@
              <div>
             <label for="username" class="block text-sm font-medium">Nom d'utilisateur <span class="text-red-500">*</span></label>
             <input id="username" name="username" type="text" value="${(register.formData.username!'')}" class="w-full mt-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500" />
-          </div>
-         <div class="flex gap-4">
-  <div class="w-1/2">
-    <label for="firstName" class="block text-sm font-medium">Prénom <span class="text-red-500">*</span></label>
-    <input id="firstName" name="firstName" type="text" value="${(register.formData.firstName!'')}" class="mt-1 w-full px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500" />
-  </div>
+            </div>
+            <div class="flex gap-4">
+            <div class="w-1/2">
+                <label for="firstName" class="block text-sm font-medium">Prénom <span class="text-red-500">*</span></label>
+                <input id="firstName" name="firstName" type="text" value="${(register.formData.firstName!'')}" class="mt-1 w-full px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500" />
+            </div>
 
-  <div class="w-1/2">
-    <label for="lastName" class="block text-sm font-medium">Nom <span class="text-red-500">*</span></label>
-    <input id="lastName" name="lastName" type="text" value="${(register.formData.lastName!'')}" class="mt-1 w-full px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500" />
-  </div>
-</div>
-
+            <div class="w-1/2">
+                <label for="lastName" class="block text-sm font-medium">Nom <span class="text-red-500">*</span></label>
+                <input id="lastName" name="lastName" type="text" value="${(register.formData.lastName!'')}" class="mt-1 w-full px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500" />
+            </div>
+            </div>
 
           <div>
             <label for="email" class="block text-sm font-medium">Email <span class="text-red-500">*</span></label>

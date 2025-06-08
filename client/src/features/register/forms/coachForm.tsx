@@ -4,9 +4,12 @@ import api from '../../../api/api';
 import { useKeycloakContext } from '../../../services/useKeycloakContext';
 
 const CoachForm = () => {
-  const { register, handleSubmit } = useForm();
-     const { keycloak } = useKeycloakContext();
-     const userId = keycloak?.tokenParsed?.sub; 
+    const { register, handleSubmit } = useForm();
+    const { keycloak } = useKeycloakContext();
+    const userId = keycloak?.tokenParsed?.sub; 
+    const firstName = keycloak?.tokenParsed?.given_name;
+    const lastName = keycloak?.tokenParsed?.family_name;
+    const email = keycloak?.tokenParsed?.email;
   const onSubmit = async (data: any) => {
     try {
       // Gestion du fichier photo
@@ -21,6 +24,9 @@ const CoachForm = () => {
         data.image = filename;
       }
       data.user_id = userId;
+      data.firstName = firstName;
+      data.lastName = lastName;
+      data.email = email;
       await api.post('/coaches', data);
        // 2. Assigner le rôle "COACH"
        const token = keycloak.token;
