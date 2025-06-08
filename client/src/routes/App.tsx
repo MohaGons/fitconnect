@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import '../index.css';
+import "../index.css";
 
 // Context & Services
-import { KeycloakProvider } from '../services/keycloakContext';
+import { KeycloakProvider } from "../services/keycloakContext";
 
 // Layouts
 import AppLayout from "../layout/admin/AppLayout";
@@ -10,8 +10,6 @@ import AppLayout from "../layout/admin/AppLayout";
 // Components
 import { ScrollToTop } from "../components/common/ScrollToTop";
 import ProtectedRoute from "../routes/protectedRoute";
-
-
 
 // Pages d'Authentification
 import Login from "../pages/auth/login";
@@ -29,7 +27,6 @@ import Coach from "../pages/admin/coach/coach";
 
 // Pages Admin - Planning & Communication
 import Calendar from "../pages/admin/Calendar/Calendar";
-import Chat from "../pages/admin/Chat/Chat";
 
 // Pages Admin - Services
 import Nutrition from "../pages/admin/Nutrition/Nutrition";
@@ -50,6 +47,7 @@ import OurTeam from "../pages/public/OurTeams/OurTeam";
 import Prices from "../pages/public/Prices/Prices";
 import Faq from "../pages/public/Faq/Faq";
 import Services from "../pages/public/Services/Services";
+import Chat from "../pages/admin/Chat";
 
 const App = () => {
   return (
@@ -65,44 +63,42 @@ const App = () => {
             <Route path="/faq" element={<Faq />} />
             <Route path="/services" element={<Services />} />
           </Route>
-          
           {/* ==================== ROUTES D'AUTHENTIFICATION ==================== */}
           <Route path="/login" element={<Login />} />
-          <Route path="/signin" element={<Login />} /> {/* Alias pour compatibilité */}
+          <Route path="/signin" element={<Login />} />{" "}
+          {/* Alias pour compatibilité */}
           <Route path="/register" element={<Register />} />
           <Route path="/signup" element={<SignUp />} />
-
           {/* ==================== ROUTES ADMIN PROTÉGÉES ==================== */}
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               {/* Dashboard Principal */}
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/dashboard/home" element={<AdminHome />} />
-              
+
               {/* Gestion des Utilisateurs */}
               <Route path="/dashboard/users" element={<Users />} />
               <Route path="/dashboard/customers" element={<Customers />} />
               <Route path="/coach" element={<Coach />} />
-              
+
               {/* Planning & Communication */}
               <Route path="/dashboard/calendar" element={<Calendar />} />
               <Route path="/dashboard/chat" element={<Chat />} />
-              
+
               {/* Services */}
               <Route path="/dashboard/nutrition" element={<Nutrition />} />
               <Route path="/dashboard/meals" element={<Meals />} />
               <Route path="/dashboard/ingredients" element={<Ingredients />} />
               <Route path="/dashboard/programs" element={<Programs />} />
               <Route path="/dashboard/exercises" element={<Exercises />} />
-              
+
               {/* Finances */}
               <Route path="/dashboard/invoices" element={<Invoices />} />
-              
+
               {/* Autres */}
             </Route>
-                          <Route path="/inscription" element={<InscriptionPage />} />
+            <Route path="/inscription" element={<InscriptionPage />} />
           </Route>
-
           {/* ==================== ROUTE 404 ==================== */}
           <Route path="*" element={<NotFound />} />
         </Routes>
