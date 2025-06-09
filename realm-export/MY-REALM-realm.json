@@ -408,329 +408,6 @@
   "webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister" : false,
   "webAuthnPolicyPasswordlessAcceptableAaguids" : [ ],
   "webAuthnPolicyPasswordlessExtraOrigins" : [ ],
-  "users" : [ {
-    "id" : "4865941f-8267-4a57-9676-dff2069ec6b1",
-    "username" : "ilyeskabrine0@gmail.com",
-    "firstName" : "Ilyes",
-    "lastName" : "KABRINE",
-    "email" : "ilyeskabrine0@gmail.com",
-    "emailVerified" : false,
-    "createdTimestamp" : 1745913338647,
-    "enabled" : true,
-    "totp" : false,
-    "credentials" : [ {
-      "id" : "92c659c6-f0ba-4622-8192-c97188b78573",
-      "type" : "password",
-      "createdDate" : 1745913339061,
-      "secretData" : "{\"value\":\"lmMyVQ5ZfNvTRhSIPdFzDRJLR1ex4otizesRvlUWEVdtkEB8Gc63YHCP6QHaDxAAxod7AXNoKryKK964O4m0Yg==\",\"salt\":\"+jzGoUYn7+4+b1DpCHeYDQ==\",\"additionalParameters\":{}}",
-      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
-    } ],
-    "disableableCredentialTypes" : [ ],
-    "requiredActions" : [ ],
-    "realmRoles" : [ "COACH", "default-roles-my-realm" ],
-    "notBefore" : 0,
-    "groups" : [ ]
-  }, {
-    "id" : "e2951b7a-c4ad-402d-8183-29be7f68692a",
-    "username" : "ilyeskabrine100@gmail.com",
-    "firstName" : "Ilyes",
-    "lastName" : "KABRINE",
-    "email" : "ilyeskabrine100@gmail.com",
-    "emailVerified" : false,
-    "createdTimestamp" : 1746965628624,
-    "enabled" : true,
-    "totp" : false,
-    "credentials" : [ {
-      "id" : "06ab32c3-63a1-4cda-849b-e80e431914d2",
-      "type" : "password",
-      "createdDate" : 1746965629128,
-      "secretData" : "{\"value\":\"NFt3UD4/NiNjXTRR6JAWdAUxSI4D0TAutXLndUmL8/WXWhDROW324hGk+fQnTICSxdq1VcH3bBG2AITLGj7RAg==\",\"salt\":\"BD634TZM55cIgSX/VtrH+w==\",\"additionalParameters\":{}}",
-      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
-    } ],
-    "disableableCredentialTypes" : [ ],
-    "requiredActions" : [ ],
-    "realmRoles" : [ "COACH", "default-roles-my-realm" ],
-    "notBefore" : 0,
-    "groups" : [ ]
-  }, {
-    "id" : "fc8f3e39-7367-4f6c-bf52-ded27f6db46d",
-    "username" : "ilyeskabrine1010@gmail.com",
-    "firstName" : "Ilyes",
-    "lastName" : "KABRINE",
-    "email" : "ilyeskabrine1010@gmail.com",
-    "emailVerified" : false,
-    "createdTimestamp" : 1747433123346,
-    "enabled" : true,
-    "totp" : false,
-    "credentials" : [ {
-      "id" : "b78d9eef-8e78-457c-8fa5-fcdd656c9f3d",
-      "type" : "password",
-      "createdDate" : 1747433124041,
-      "secretData" : "{\"value\":\"X3L0SCcAyVi+AS1iJ2bz2iHPAFnEhB4+GhWU0rU1MgJP4LSB3us5l6iePZeCNLZwdcHCGrj58J7UWaZV2cNPrA==\",\"salt\":\"Cf9y2Egv4uQzebdpIv2S9g==\",\"additionalParameters\":{}}",
-      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
-    } ],
-    "disableableCredentialTypes" : [ ],
-    "requiredActions" : [ ],
-    "realmRoles" : [ "CLIENT", "default-roles-my-realm" ],
-    "notBefore" : 0,
-    "groups" : [ ]
-  }, {
-    "id" : "7a29fa69-520c-491b-8bac-d311ca6e4e8d",
-    "username" : "ilyeskabrine10@gmail.com",
-    "firstName" : "Ilyes",
-    "lastName" : "KABRINE",
-    "email" : "ilyeskabrine10@gmail.com",
-    "emailVerified" : false,
-    "createdTimestamp" : 1746001112764,
-    "enabled" : true,
-    "totp" : false,
-    "credentials" : [ {
-      "id" : "ced6244a-bd5f-4620-a4ae-bc334539a85f",
-      "type" : "password",
-      "createdDate" : 1746001113256,
-      "secretData" : "{\"value\":\"MSlsOpipQCy9E75+X19ZMtTzg4oPpF27P1RB9nx+iQSmIXJeGLSWj0C7xHSU9fRd52bhF+91WJGai6skZWorRg==\",\"salt\":\"GZ3MeDVAxaPb7hv4r5hP9Q==\",\"additionalParameters\":{}}",
-      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
-    } ],
-    "disableableCredentialTypes" : [ ],
-    "requiredActions" : [ ],
-    "realmRoles" : [ "COACH", "default-roles-my-realm" ],
-    "notBefore" : 0,
-    "groups" : [ ]
-  }, {
-    "id" : "03d9a47c-d56a-4563-ac30-05bae6a215f4",
-    "username" : "ilyeskabrine12@gmail.com",
-    "firstName" : "Ilyes",
-    "lastName" : "KABRINE",
-    "email" : "ilyeskabrine12@gmail.com",
-    "emailVerified" : false,
-    "createdTimestamp" : 1747484753486,
-    "enabled" : true,
-    "totp" : false,
-    "credentials" : [ {
-      "id" : "986fcbf9-4ffc-4538-a28c-f65f39ed87a0",
-      "type" : "password",
-      "createdDate" : 1747484753950,
-      "secretData" : "{\"value\":\"E1DAc03eA99nL/xsa92Krp3TNruwrRH7PSzWTVrvWG34cxwEo3lU/A2sEpVuy+JBgXtdTKKlj76T3M1OZnZpbg==\",\"salt\":\"Ma8FtETSLGy2vtiU+DSpPQ==\",\"additionalParameters\":{}}",
-      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
-    } ],
-    "disableableCredentialTypes" : [ ],
-    "requiredActions" : [ ],
-    "realmRoles" : [ "COACH", "CLIENT", "default-roles-my-realm" ],
-    "notBefore" : 0,
-    "groups" : [ ]
-  }, {
-    "id" : "af05e9d1-f0a5-4a1a-a6c6-61f1e6c4236d",
-    "username" : "ilyeskabrine200@gmail.com",
-    "firstName" : "Ilyes",
-    "lastName" : "KABRINE",
-    "email" : "ilyeskabrine200@gmail.com",
-    "emailVerified" : false,
-    "createdTimestamp" : 1746986647207,
-    "enabled" : true,
-    "totp" : false,
-    "credentials" : [ {
-      "id" : "0f5ba70c-b795-4e6d-a261-fe081f333a33",
-      "type" : "password",
-      "createdDate" : 1746986647817,
-      "secretData" : "{\"value\":\"2Oim9PtiUJo7ZnzR5iP+QSNIkD81KFK811BIvw6vxacNwJa6dFPSfULiV0FTMLFzLjPbUgFdm6ZPL3ODd1HhxA==\",\"salt\":\"TkWQO53H64RVPxyks/BNDg==\",\"additionalParameters\":{}}",
-      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
-    } ],
-    "disableableCredentialTypes" : [ ],
-    "requiredActions" : [ ],
-    "realmRoles" : [ "COACH", "default-roles-my-realm" ],
-    "notBefore" : 0,
-    "groups" : [ ]
-  }, {
-    "id" : "20841602-a475-4536-9398-26d1056fdd3a",
-    "username" : "ilyeskabrine220@gmail.com",
-    "firstName" : "Ilyes",
-    "lastName" : "KABRINE",
-    "email" : "ilyeskabrine220@gmail.com",
-    "emailVerified" : false,
-    "createdTimestamp" : 1746889309089,
-    "enabled" : true,
-    "totp" : false,
-    "credentials" : [ {
-      "id" : "99e3f41a-86be-4e23-b64c-c070dbdc89e1",
-      "type" : "password",
-      "createdDate" : 1746889309586,
-      "secretData" : "{\"value\":\"RsCrV86D+mFw9/bHXvstJ3z8H2d00Hdej3ViyHI2c9s1iXzLCAs7xXEKFmb9cjZpPndoLEOEqhBj6rtSz8i7IA==\",\"salt\":\"jtZoJMqTWQVb20LBhf9/yQ==\",\"additionalParameters\":{}}",
-      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
-    } ],
-    "disableableCredentialTypes" : [ ],
-    "requiredActions" : [ ],
-    "realmRoles" : [ "default-roles-my-realm" ],
-    "notBefore" : 0,
-    "groups" : [ ]
-  }, {
-    "id" : "35d5b8fb-8ce2-49dc-a646-288444972be4",
-    "username" : "ilyeskabrine300@gmail.com",
-    "firstName" : "Ilyes",
-    "lastName" : "KABRINE",
-    "email" : "ilyeskabrine300@gmail.com",
-    "emailVerified" : false,
-    "createdTimestamp" : 1747001050785,
-    "enabled" : true,
-    "totp" : false,
-    "credentials" : [ {
-      "id" : "833091e9-f418-464b-90f1-bb4c4e98d538",
-      "type" : "password",
-      "createdDate" : 1747001051315,
-      "secretData" : "{\"value\":\"VlyLvwWxJFe0zbpDmI7f5/uANVOBbpLNqJ73sqx6K45aeR0vGC9tr6NuLng75c5VituXby9iZ76EmeZnSP+eBg==\",\"salt\":\"rdBkG0ppXsptAs7tvqJZng==\",\"additionalParameters\":{}}",
-      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
-    } ],
-    "disableableCredentialTypes" : [ ],
-    "requiredActions" : [ ],
-    "realmRoles" : [ "COACH", "default-roles-my-realm" ],
-    "notBefore" : 0,
-    "groups" : [ ]
-  }, {
-    "id" : "0f3e7116-b5fe-4fb3-811a-1e3a2153cd93",
-    "username" : "ilyeskabrine550@gmail.com",
-    "firstName" : "Ilyes",
-    "lastName" : "KABRINE",
-    "email" : "ilyeskabrine550@gmail.com",
-    "emailVerified" : false,
-    "createdTimestamp" : 1747475013431,
-    "enabled" : true,
-    "totp" : false,
-    "credentials" : [ {
-      "id" : "03affdb0-3ebe-4dbf-9961-fbf251091230",
-      "type" : "password",
-      "createdDate" : 1747475013890,
-      "secretData" : "{\"value\":\"V5EHtfqdy+tTEFn4luIV4CRURFBFeFN8mPNz+7wCmnEYKEC8JeqlJdjwwDVe/zht0hM2+zzIXz24ZyUwcNBcGw==\",\"salt\":\"4C8n+8WQ6PvfQkTVIac3fg==\",\"additionalParameters\":{}}",
-      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
-    } ],
-    "disableableCredentialTypes" : [ ],
-    "requiredActions" : [ ],
-    "realmRoles" : [ "default-roles-my-realm" ],
-    "notBefore" : 0,
-    "groups" : [ ]
-  }, {
-    "id" : "c184dfa7-7c7f-4c45-8f13-12f2a02dfa0e",
-    "username" : "ilyeskabrine5@gmail.com",
-    "firstName" : "Ilyes",
-    "lastName" : "KABRINE",
-    "email" : "ilyeskabrine5@gmail.com",
-    "emailVerified" : false,
-    "createdTimestamp" : 1747082805768,
-    "enabled" : true,
-    "totp" : false,
-    "credentials" : [ {
-      "id" : "a978f9ee-5046-4c80-b9ec-89a9ccd169c9",
-      "type" : "password",
-      "createdDate" : 1747082806362,
-      "secretData" : "{\"value\":\"bH5202I7nSnc7XeNP4+xM/RGJMzEUsvkiWTOa3AYnZNC86r4e3fN8aikTV9iUpZshTugzsAE8+cKn8jm2oIQ6g==\",\"salt\":\"X54kDyE2/SyeCD8560G79A==\",\"additionalParameters\":{}}",
-      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
-    } ],
-    "disableableCredentialTypes" : [ ],
-    "requiredActions" : [ ],
-    "realmRoles" : [ "COACH", "default-roles-my-realm" ],
-    "notBefore" : 0,
-    "groups" : [ ]
-  }, {
-    "id" : "3f8add74-b48a-44ab-b85e-b5c7fa91391a",
-    "username" : "ilyeskabrine660@gmail.com",
-    "firstName" : "Ilyes",
-    "lastName" : "KABRINE",
-    "email" : "ilyeskabrine660@gmail.com",
-    "emailVerified" : false,
-    "createdTimestamp" : 1747083849140,
-    "enabled" : true,
-    "totp" : false,
-    "credentials" : [ {
-      "id" : "f8f00f7d-07d4-4bb0-8453-ba6a609dc1e5",
-      "type" : "password",
-      "createdDate" : 1747083849779,
-      "secretData" : "{\"value\":\"zf/rAeAhcdnYkeZgxOBvePuriQ/N0MmggrPPddhU8kFQv5NGKqQuh75b26ZK90hPcumH+RhNd9AZYLYO+93Irw==\",\"salt\":\"YGPtLcdAexsWxZFAtx876w==\",\"additionalParameters\":{}}",
-      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
-    } ],
-    "disableableCredentialTypes" : [ ],
-    "requiredActions" : [ ],
-    "realmRoles" : [ "COACH", "default-roles-my-realm" ],
-    "notBefore" : 0,
-    "groups" : [ ]
-  }, {
-    "id" : "ab2e135c-5b06-4047-8e89-43102a968987",
-    "username" : "ilyeskabrine990@gmail.com",
-    "firstName" : "Ilyes",
-    "lastName" : "KABRINE",
-    "email" : "ilyeskabrine990@gmail.com",
-    "emailVerified" : false,
-    "createdTimestamp" : 1747084115067,
-    "enabled" : true,
-    "totp" : false,
-    "credentials" : [ {
-      "id" : "a1b383ec-acdd-442d-97cb-8d0390cdb0b8",
-      "type" : "password",
-      "createdDate" : 1747084115489,
-      "secretData" : "{\"value\":\"VCh6w3wiXZaqVKcb8PainuF8tt40tTM+fSYZ5u+wrK8qT+FEpZcYVXUzvtmOhDERdR2E/4NJbqzRnU2Wk061Ng==\",\"salt\":\"h0ibrChe5o7J4haPonzoxA==\",\"additionalParameters\":{}}",
-      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
-    } ],
-    "disableableCredentialTypes" : [ ],
-    "requiredActions" : [ ],
-    "realmRoles" : [ "COACH", "default-roles-my-realm" ],
-    "notBefore" : 0,
-    "groups" : [ ]
-  }, {
-    "id" : "f700a73f-84c0-48d2-a705-b2ac2307d867",
-    "username" : "ilyeskabrine9970@gmail.com",
-    "firstName" : "Ilyes",
-    "lastName" : "KABRINE",
-    "email" : "ilyeskabrine9970@gmail.com",
-    "emailVerified" : false,
-    "createdTimestamp" : 1747087440615,
-    "enabled" : true,
-    "totp" : false,
-    "credentials" : [ {
-      "id" : "f6f65f3d-6a5a-4955-87d8-95a87fe0da92",
-      "type" : "password",
-      "createdDate" : 1747087441121,
-      "secretData" : "{\"value\":\"SG4n9ZRij3bHJAmU4/QqA19WWNGr6g/D6lxvgASvJfRJrk6asBdmRCfZABwixy7ijtPca9mbXHJ6F6q+QcWBtg==\",\"salt\":\"2ITq+8lCCfGePSap9KhJAw==\",\"additionalParameters\":{}}",
-      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
-    } ],
-    "disableableCredentialTypes" : [ ],
-    "requiredActions" : [ ],
-    "realmRoles" : [ "default-roles-my-realm" ],
-    "notBefore" : 0,
-    "groups" : [ ]
-  }, {
-    "id" : "a0982bb5-eb88-434e-9638-b6741d0397ee",
-    "username" : "service-account-admin-cli",
-    "emailVerified" : false,
-    "createdTimestamp" : 1746897367935,
-    "enabled" : true,
-    "totp" : false,
-    "serviceAccountClientId" : "admin-cli",
-    "credentials" : [ ],
-    "disableableCredentialTypes" : [ ],
-    "requiredActions" : [ ],
-    "realmRoles" : [ "default-roles-my-realm" ],
-    "clientRoles" : {
-      "realm-management" : [ "query-users", "view-authorization", "view-users", "query-clients", "manage-authorization", "view-realm", "manage-identity-providers", "manage-clients", "realm-admin", "manage-users", "manage-realm", "view-clients", "manage-events", "query-groups", "impersonation", "create-client", "query-realms", "view-events", "view-identity-providers" ],
-      "broker" : [ "read-token" ],
-      "account" : [ "view-groups", "manage-account", "manage-account-links", "view-profile", "delete-account", "view-consent", "view-applications", "manage-consent" ]
-    },
-    "notBefore" : 0,
-    "groups" : [ ]
-  }, {
-    "id" : "b6f63fcd-3d38-4a64-9d02-b5f961561e58",
-    "username" : "service-account-my-nest-client",
-    "emailVerified" : false,
-    "createdTimestamp" : 1746925452739,
-    "enabled" : true,
-    "totp" : false,
-    "serviceAccountClientId" : "my-nest-client",
-    "credentials" : [ ],
-    "disableableCredentialTypes" : [ ],
-    "requiredActions" : [ ],
-    "realmRoles" : [ "default-roles-my-realm" ],
-    "clientRoles" : {
-      "my-nest-client" : [ "uma_protection" ]
-    },
-    "notBefore" : 0,
-    "groups" : [ ]
-  } ],
   "scopeMappings" : [ {
     "clientScope" : "offline_access",
     "roles" : [ "offline_access" ]
@@ -837,6 +514,7 @@
     "protocol" : "openid-connect",
     "attributes" : {
       "client.secret.creation.time" : "1746889227",
+      "post.logout.redirect.uris" : "+",
       "oauth2.device.authorization.grant.enabled" : "false",
       "backchannel.logout.revoke.offline.tokens" : "false",
       "use.refresh.tokens" : "true",
@@ -862,6 +540,7 @@
       "config" : {
         "user.session.note" : "clientHost",
         "introspection.token.claim" : "true",
+        "userinfo.token.claim" : "true",
         "id.token.claim" : "true",
         "access.token.claim" : "true",
         "claim.name" : "clientHost",
@@ -876,6 +555,7 @@
       "config" : {
         "user.session.note" : "client_id",
         "introspection.token.claim" : "true",
+        "userinfo.token.claim" : "true",
         "id.token.claim" : "true",
         "access.token.claim" : "true",
         "claim.name" : "client_id",
@@ -890,6 +570,7 @@
       "config" : {
         "user.session.note" : "clientAddress",
         "introspection.token.claim" : "true",
+        "userinfo.token.claim" : "true",
         "id.token.claim" : "true",
         "access.token.claim" : "true",
         "claim.name" : "clientAddress",
@@ -918,7 +599,9 @@
     "publicClient" : false,
     "frontchannelLogout" : false,
     "protocol" : "openid-connect",
-    "attributes" : { },
+    "attributes" : {
+      "post.logout.redirect.uris" : "+"
+    },
     "authenticationFlowBindingOverrides" : { },
     "fullScopeAllowed" : false,
     "nodeReRegistrationTimeout" : 0,
@@ -953,6 +636,7 @@
       "oidc.ciba.grant.enabled" : "false",
       "client.secret.creation.time" : "1746880701",
       "backchannel.logout.session.required" : "true",
+      "post.logout.redirect.uris" : "+",
       "oauth2.device.authorization.grant.enabled" : "false",
       "display.on.consent.screen" : "false",
       "backchannel.logout.revoke.offline.tokens" : "false"
@@ -969,6 +653,7 @@
       "config" : {
         "user.session.note" : "clientHost",
         "introspection.token.claim" : "true",
+        "userinfo.token.claim" : "true",
         "id.token.claim" : "true",
         "access.token.claim" : "true",
         "claim.name" : "clientHost",
@@ -983,6 +668,7 @@
       "config" : {
         "user.session.note" : "client_id",
         "introspection.token.claim" : "true",
+        "userinfo.token.claim" : "true",
         "id.token.claim" : "true",
         "access.token.claim" : "true",
         "claim.name" : "client_id",
@@ -997,6 +683,7 @@
       "config" : {
         "user.session.note" : "clientAddress",
         "introspection.token.claim" : "true",
+        "userinfo.token.claim" : "true",
         "id.token.claim" : "true",
         "access.token.claim" : "true",
         "claim.name" : "clientAddress",
@@ -1033,6 +720,7 @@
       "oidc.ciba.grant.enabled" : "false",
       "client.secret.creation.time" : "1746880093",
       "backchannel.logout.session.required" : "true",
+      "post.logout.redirect.uris" : "+",
       "oauth2.device.authorization.grant.enabled" : "false",
       "display.on.consent.screen" : "false",
       "backchannel.logout.revoke.offline.tokens" : "false"
@@ -1062,7 +750,9 @@
     "publicClient" : false,
     "frontchannelLogout" : false,
     "protocol" : "openid-connect",
-    "attributes" : { },
+    "attributes" : {
+      "post.logout.redirect.uris" : "+"
+    },
     "authenticationFlowBindingOverrides" : { },
     "fullScopeAllowed" : false,
     "nodeReRegistrationTimeout" : 0,
@@ -1149,6 +839,7 @@
       "config" : {
         "introspection.token.claim" : "true",
         "multivalued" : "true",
+        "userinfo.token.claim" : "true",
         "user.attribute" : "foo",
         "id.token.claim" : "true",
         "access.token.claim" : "true",
@@ -1223,7 +914,8 @@
       "config" : {
         "id.token.claim" : "true",
         "introspection.token.claim" : "true",
-        "access.token.claim" : "true"
+        "access.token.claim" : "true",
+        "userinfo.token.claim" : "true"
       }
     } ]
   }, {
@@ -1620,6 +1312,10 @@
     "strictTransportSecurity" : "max-age=31536000; includeSubDomains"
   },
   "smtpServer" : { },
+  "loginTheme" : "mytheme",
+  "accountTheme" : "",
+  "adminTheme" : "",
+  "emailTheme" : "",
   "eventsEnabled" : false,
   "eventsListeners" : [ "jboss-logging" ],
   "enabledEventTypes" : [ ],
@@ -1645,7 +1341,7 @@
       "subType" : "authenticated",
       "subComponents" : { },
       "config" : {
-        "allowed-protocol-mapper-types" : [ "oidc-sha256-pairwise-sub-mapper", "oidc-usermodel-property-mapper", "oidc-address-mapper", "saml-user-attribute-mapper", "saml-role-list-mapper", "saml-user-property-mapper", "oidc-full-name-mapper", "oidc-usermodel-attribute-mapper" ]
+        "allowed-protocol-mapper-types" : [ "saml-user-property-mapper", "saml-user-attribute-mapper", "saml-role-list-mapper", "oidc-address-mapper", "oidc-sha256-pairwise-sub-mapper", "oidc-usermodel-property-mapper", "oidc-usermodel-attribute-mapper", "oidc-full-name-mapper" ]
       }
     }, {
       "id" : "13d37b5e-519b-4d82-b345-3277ef9c215d",
@@ -1677,7 +1373,7 @@
       "subType" : "anonymous",
       "subComponents" : { },
       "config" : {
-        "allowed-protocol-mapper-types" : [ "oidc-full-name-mapper", "oidc-sha256-pairwise-sub-mapper", "saml-role-list-mapper", "oidc-usermodel-property-mapper", "oidc-usermodel-attribute-mapper", "saml-user-property-mapper", "saml-user-attribute-mapper", "oidc-address-mapper" ]
+        "allowed-protocol-mapper-types" : [ "saml-role-list-mapper", "saml-user-attribute-mapper", "oidc-sha256-pairwise-sub-mapper", "oidc-usermodel-property-mapper", "oidc-full-name-mapper", "oidc-usermodel-attribute-mapper", "saml-user-property-mapper", "oidc-address-mapper" ]
       }
     }, {
       "id" : "1c8ad012-efa3-4833-818f-86aba04062da",
@@ -2310,8 +2006,8 @@
     "cibaExpiresIn" : "120",
     "cibaAuthRequestedUserHint" : "login_hint",
     "oauth2DeviceCodeLifespan" : "600",
-    "oauth2DevicePollingInterval" : "5",
     "clientOfflineSessionMaxLifespan" : "0",
+    "oauth2DevicePollingInterval" : "5",
     "clientSessionIdleTimeout" : "0",
     "parRequestUriLifespan" : "60",
     "clientSessionMaxLifespan" : "0",
