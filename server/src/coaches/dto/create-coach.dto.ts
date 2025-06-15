@@ -1,15 +1,26 @@
-import {
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsUUID,
-  IsNumber,
-} from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsUUID, IsNumber , Matches } from 'class-validator';
 
 export class CreateCoachDto {
   @IsUUID()
   @IsNotEmpty()
   user_id: string;
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^(Homme|Femme)$/)
+  gendre?: string;
+
+  @IsOptional()
+  @IsString()
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  lastName?: string;
+
+  @IsOptional()
+  @IsString()
+  email?: string;
 
   @IsString()
   @IsNotEmpty()

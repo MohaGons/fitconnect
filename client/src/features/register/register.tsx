@@ -1,9 +1,7 @@
-
-import React, { lazy,useEffect, Suspense, useState } from "react";
+import React, { lazy, Suspense, useState } from "react";
 import { useKeycloakContext } from '../../services/useKeycloakContext';
 import CoachImage from "../../assets/coach2.jpg";
 import ComanyImage from "../../assets/client.jpg";
-import { Link } from "react-router-dom";
 
 const CoachForm = lazy(() => import('./forms/coachForm'));
 const ClientForm = lazy(() => import('./forms/clientForm'));
@@ -15,6 +13,10 @@ const Inscription: React.FC = () => {
     const token = keycloak?.token;
     const roles = keycloak?.tokenParsed?.realm_access?.roles || []; 
     const userId = keycloak?.tokenParsed?.sub; 
+
+     const handleLogout = () => {
+    keycloak.logout();
+    };
 
   
   const profiles = [
@@ -113,6 +115,15 @@ const Inscription: React.FC = () => {
             </Suspense>
         </div>
        
+          <div className="mt-4 text-center">
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="text-sm text-orange-600 underline hover:text-orange-800"
+        >
+          Continuer plus tard
+        </button>
+      </div>
 
       </div>
 

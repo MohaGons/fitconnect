@@ -27,6 +27,18 @@ export class Coach {
   bio: string;
 
   @Column({ type: 'text', nullable: true })
+  gendre: String;
+
+  @Column({ type: 'text', nullable: true })
+  firstName: String;
+
+  @Column({ type: 'text', nullable: true })
+  lastName: String;
+
+   @Column({ type: 'text', nullable: true })
+  email: String;
+
+  @Column({ type: 'text', nullable: true })
   certifications: string;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
@@ -37,6 +49,23 @@ export class Coach {
 
   @Column({ type: 'text', nullable: true })
   photo_url: string;
+
+  // Champs pour le système de paiement plateforme
+  @Column({
+    type: 'enum',
+    enum: ['free', 'active', 'expired'],
+    default: 'free',
+  })
+  subscription_status: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  subscription_activated_at: Date;
+
+  @Column({ nullable: true })
+  stripe_customer_id: string;
+
+  @Column({ nullable: true })
+  stripe_payment_intent_id: string;
 
   @CreateDateColumn()
   created_at: Date;

@@ -37,6 +37,7 @@ import Exercises from "../pages/admin/Exercices/Exerecices";
 
 // Pages Admin - Finances
 import Invoices from "../pages/admin/Invoices/Invoices";
+import Payment from "../pages/admin/payment/Payment";
 
 // Pages Admin - Autres
 import InscriptionPage from "../pages/admin/inscription/inscription";
@@ -94,6 +95,7 @@ const App = () => {
 
               {/* Finances */}
               <Route path="/dashboard/invoices" element={<Invoices />} />
+              <Route path="/dashboard/payment" element={<Payment />} />
 
               {/* Autres */}
             </Route>

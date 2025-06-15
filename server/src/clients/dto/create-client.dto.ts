@@ -1,10 +1,4 @@
-import {
-  IsUUID,
-  IsOptional,
-  IsDateString,
-  IsNumberString,
-  IsString,
-} from 'class-validator';
+import { IsUUID, IsOptional, IsDateString, IsNumberString, IsString , Matches} from 'class-validator';
 
 export class CreateClientDto {
   @IsUUID()
@@ -13,6 +7,23 @@ export class CreateClientDto {
   @IsOptional()
   @IsDateString()
   birth_date?: string;
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^(Homme|Femme)$/)
+  gendre?: string;
+
+  @IsOptional()
+  @IsString()
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  lastName?: string;
+
+  @IsOptional()
+  @IsString()
+  email?: string;
 
   @IsOptional()
   @IsNumberString()
