@@ -16,7 +16,7 @@ export class StripeService {
     currency: string = 'eur',
   ): Promise<Stripe.PaymentIntent> {
     return await this.stripe.paymentIntents.create({
-      amount: amount * 100, // Stripe utilise les centimes
+      amount, // Le montant est déjà en centimes
       currency,
       metadata: {
         type: 'coach_subscription',

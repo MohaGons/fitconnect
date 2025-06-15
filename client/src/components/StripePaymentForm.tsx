@@ -27,7 +27,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 }) => {
   const stripe = useStripe();
   const elements = useElements();
-  const { coachId } = useCoachId();
+  const { coachId, isLoading: isCoachLoading } = useCoachId();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -35,6 +35,11 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
     if (!stripe || !elements) {
       onError(STRIPE_ERRORS.MISSING_ELEMENTS);
+      return;
+    }
+
+    if (isCoachLoading) {
+      onError("Chargement des informations du coach en cours...");
       return;
     }
 
@@ -59,7 +64,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
         // Confirmer le paiement côté backend
         const result = await stripeService.confirmPayment({
           paymentIntentId,
-          coachId,
+          coachId: Number(coachId), // S'assurer que coachId est un nombre
         });
 
         if (result.success) {
@@ -69,6 +74,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
         }
       }
     } catch (err) {
+      console.error("Erreur de paiement:", err);
       onError(STRIPE_ERRORS.UNEXPECTED_ERROR);
     } finally {
       setIsLoading(false);
@@ -83,16 +89,16 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
       <button
         type="submit"
-        disabled={!stripe || isLoading}
+        disabled={!stripe || isLoading || isCoachLoading}
         className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 text-white font-medium py-3 px-6 rounded-lg transition-colors"
       >
-        {isLoading ? (
+        {isLoading || isCoachLoading ? (
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
             Traitement...
           </div>
         ) : (
-          `Payer ${STRIPE_CONFIG.SUBSCRIPTION_AMOUNT}€`
+          `Payer ${STRIPE_CONFIG.SUBSCRIPTION_AMOUNT.toLocaleString("fr-FR")} €`
         )}
       </button>
     </form>
