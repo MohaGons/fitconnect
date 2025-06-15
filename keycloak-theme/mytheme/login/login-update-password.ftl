@@ -60,7 +60,7 @@
 
 
         <form action="${url.loginAction}" method="post" class="space-y-4">
-        <div>
+        <div class="relative">
             <label for="username" class="block mb-1 text-sm font-medium text-gray-700">Nouveau mot de passe</label>
             <input type="password" id="password-new" name="password-new" required
                 class="w-full px-4 py-2 text-sm bg-white border border-gray-300 rounded-md 
@@ -75,7 +75,7 @@
               </svg>
             </button>
         </div>
-        <div>
+        <div class="relative">
             <label for="username" class="block mb-1 text-sm font-medium text-gray-700">Confirmer le mot de passe</label>
             <input type="password" id="password-confirm" name="password-confirm" required
                     class="w-full px-4 py-2 text-sm bg-white border border-gray-300 rounded-md 
