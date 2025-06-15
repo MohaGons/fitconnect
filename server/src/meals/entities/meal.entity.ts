@@ -71,4 +71,5 @@ export class Meal {
     onDelete: 'CASCADE',
   })
   meal_trackings: MealTracking[];
+  total_calories: number | undefined;
 }

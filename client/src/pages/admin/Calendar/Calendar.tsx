@@ -1,8 +1,12 @@
+import CalendarContainer from "../../../features/calendarEvent/components/CalendarContainer";
 
-const Calendar = () => {
+
+const Calendar: React.FC = () => {
+  
+
   return (
-    <div>Calendar</div>
-  )
-}
+   <div><CalendarContainer/></div>
+  );
+};
 
-export default Calendar
+export default Calendar;

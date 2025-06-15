@@ -16,10 +16,8 @@ export class UserProfileController {
       //userId: user?.sub,
     };
   }
-    @Get('profile')
-    getProfile() {
-        return {
-            }
-    }
-
+  @Get('profile')
+  getProfile() {
+    return {};
+  }
 }

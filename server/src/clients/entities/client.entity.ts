@@ -57,7 +57,10 @@ export class Client {
   @OneToMany(() => Session, (session) => session.client)
   sessions: Session[];
 
-  @OneToMany(() => ProgressTracking, (progressTracking) => progressTracking.client)
+  @OneToMany(
+    () => ProgressTracking,
+    (progressTracking) => progressTracking.client,
+  )
   progress_trackings: ProgressTracking[];
 
   @OneToMany(() => ProgressPhoto, (progressPhoto) => progressPhoto.client)

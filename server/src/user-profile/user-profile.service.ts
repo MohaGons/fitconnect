@@ -16,26 +16,36 @@ export class UserProfileService {
 
   // Méthode pour vérifier si le profil est complété
   async isProfileCompleted(userId: string): Promise<boolean> {
-    const coach = await this.coachRepository.findOne({ where: { user_id: userId } });
+    const coach = await this.coachRepository.findOne({
+      where: { user_id: userId },
+    });
     if (coach) {
-      return true;  
+      return true;
     }
 
-    const client = await this.clientRepository.findOne({ where: { user_id: userId } });
+    const client = await this.clientRepository.findOne({
+      where: { user_id: userId },
+    });
     if (client) {
-      return true;  
+      return true;
     }
 
-    return false;  
+    return false;
   }
 
-  async findProfileByUserId(userId: string): Promise<{ type: 'coach' | 'client'; profile: Coach | Client } | null> {
-    const coach = await this.coachRepository.findOne({ where: { user_id: userId } });
+  async findProfileByUserId(
+    userId: string,
+  ): Promise<{ type: 'coach' | 'client'; profile: Coach | Client } | null> {
+    const coach = await this.coachRepository.findOne({
+      where: { user_id: userId },
+    });
     if (coach) {
       return { type: 'coach', profile: coach };
     }
 
-    const client = await this.clientRepository.findOne({ where: { user_id: userId } });
+    const client = await this.clientRepository.findOne({
+      where: { user_id: userId },
+    });
     if (client) {
       return { type: 'client', profile: client };
     }

@@ -14,7 +14,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         cache: true,
         rateLimit: true,
         jwksRequestsPerMinute: 5,
-        jwksUri: 'http://localhost:8081/realms/MY-REALM/protocol/openid-connect/certs',
+        jwksUri:
+          'http://localhost:8081/realms/MY-REALM/protocol/openid-connect/certs',
       }),
     });
   }

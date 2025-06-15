@@ -43,7 +43,10 @@ export class MealFoodsService {
     return mealFood;
   }
 
-  async update(id: number, updateMealFoodDto: UpdateMealFoodDto): Promise<MealFood> {
+  async update(
+    id: number,
+    updateMealFoodDto: UpdateMealFoodDto,
+  ): Promise<MealFood> {
     const mealFood = await this.findOne(id);
     Object.assign(mealFood, updateMealFoodDto);
     return await this.mealFoodRepository.save(mealFood);

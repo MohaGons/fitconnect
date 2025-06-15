@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsOptional, IsString, IsUUID, IsNumber } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  IsNumber,
+} from 'class-validator';
 
 export class CreateCoachDto {
   @IsUUID()

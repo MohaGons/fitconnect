@@ -97,10 +97,10 @@ export class FoodItemsService {
 
   async remove(id: number): Promise<void> {
     const foodItem = await this.findOne(id);
-    
+
     // Supprimer d'abord toutes les associations avec les repas
     await this.mealFoodRepository.delete({ food_id: id });
-    
+
     // Ensuite supprimer l'ingrédient
     await this.foodItemRepository.remove(foodItem);
   }

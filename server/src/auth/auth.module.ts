@@ -5,7 +5,7 @@ import { AuthController } from './auth.controller';
 import { KeycloakModule } from '../keycloak/keycloak.module';
 
 @Module({
-  imports: [PassportModule,KeycloakModule],
+  imports: [PassportModule, KeycloakModule],
   controllers: [AuthController],
   providers: [JwtStrategy],
 })

@@ -28,7 +28,9 @@ export class MealsService {
     return await this.mealRepository.save(meal);
   }
 
-  async findAll(filters?: MealFilters): Promise<{ data: Meal[]; total: number }> {
+  async findAll(
+    filters?: MealFilters,
+  ): Promise<{ data: Meal[]; total: number }> {
     const queryBuilder = this.mealRepository
       .createQueryBuilder('meal')
       .leftJoinAndSelect('meal.nutrition_plan', 'nutrition_plan')
@@ -61,7 +63,8 @@ export class MealsService {
 
     // Filtrage par recherche
     if (filters?.search) {
-      const whereCondition = 'meal.name ILIKE :search OR meal.instructions ILIKE :search';
+      const whereCondition =
+        'meal.name ILIKE :search OR meal.instructions ILIKE :search';
       if (filters.plan_id || filters.meal_type) {
         queryBuilder.andWhere(whereCondition, {
           search: `%${filters.search}%`,
@@ -102,7 +105,11 @@ export class MealsService {
   async findOne(id: number): Promise<Meal> {
     const meal = await this.mealRepository.findOne({
       where: { meal_id: id },
-      relations: ['nutrition_plan', 'nutrition_plan.client', 'nutrition_plan.coach'],
+      relations: [
+        'nutrition_plan',
+        'nutrition_plan.client',
+        'nutrition_plan.coach',
+      ],
     });
 
     if (!meal) {
@@ -120,10 +127,10 @@ export class MealsService {
 
   async remove(id: number): Promise<void> {
     const meal = await this.findOne(id);
-    
+
     // Supprimer d'abord toutes les associations avec les ingrédients
     await this.mealFoodRepository.delete({ meal_id: id });
-    
+
     // Ensuite supprimer le repas
     await this.mealRepository.remove(meal);
   }

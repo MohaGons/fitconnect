@@ -26,8 +26,9 @@ import { ProgressPhotosModule } from './progress-photos/progress-photos.module';
 import { MessagesModule } from './messages/messages.module';
 import { ClientGoalsModule } from './client-goals/client-goals.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { CalendarEventsModule } from './calendar-events/calendar-events.module';
 import { ReviewsModule } from './reviews/reviews.module';
-import { UserProfileModule, } from './user-profile/user-profile.module';
+import { UserProfileModule } from './user-profile/user-profile.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { StorageModule } from './storage/storage.module';
@@ -80,6 +81,7 @@ import { StorageModule } from './storage/storage.module';
     NotificationsModule,
     ReviewsModule,
     UserProfileModule,
+    CalendarEventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

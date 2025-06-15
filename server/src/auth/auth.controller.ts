@@ -1,4 +1,3 @@
-
 import { Controller, Post, Body, UseGuards, Headers } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { KeycloakService } from '../keycloak/keycloak.service';
@@ -12,7 +11,7 @@ export class AuthController {
   async chooseRole(@Body() body: { role: string }, @Headers() headers: any) {
     const token = headers.authorization?.split(' ')[1];
     const userId = await this.keycloakService.getUserIdFromToken(token);
-    
+
     if (!userId) {
       throw new Error('User ID not found in token');
     }
@@ -24,7 +23,7 @@ export class AuthController {
       await this.keycloakService.assignClientRole(userId);
       return { message: 'Role CLIENT assigned successfully' };
     }
-    
+
     throw new Error('Invalid role');
   }
 }

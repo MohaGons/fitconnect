@@ -20,7 +20,7 @@ export class CoachesService {
   async findByUserId(userId: string): Promise<{ coach_id: number }> {
     const coach = await this.coachRepository.findOne({
       where: { user_id: userId },
-      select: ['coach_id'], // Ne récupérer que le coach_id pour des raisons de performance
+      select: ['coach_id'],
     });
 
     if (!coach) {

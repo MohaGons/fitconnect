@@ -18,7 +18,7 @@ export class Coach {
   coach_id: number;
 
   @Column({ type: 'uuid' })
-  user_id: string;  // UUID venant de Keycloak
+  user_id: string; // UUID venant de Keycloak
 
   @Column()
   specialty: string;
