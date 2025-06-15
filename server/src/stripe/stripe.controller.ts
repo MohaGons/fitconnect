@@ -1,15 +1,8 @@
 import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { StripeService } from './stripe.service';
 import { CoachesService } from '../coaches/coaches.service';
-
-export class CreatePaymentIntentDto {
-  amount: number;
-}
-
-export class ConfirmPaymentDto {
-  paymentIntentId: string;
-  coachId: number;
-}
+import { CreatePaymentIntentDto } from './dto/create-payment-intent.dto';
+import { ConfirmPaymentDto } from './dto/confirm-payment.dto';
 
 @Controller('stripe')
 export class StripeController {

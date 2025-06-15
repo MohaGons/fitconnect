@@ -19,8 +19,9 @@ export interface ConfirmPaymentResponse {
 
 export const stripeService = {
   async createPaymentIntent(amount: number): Promise<PaymentIntentResponse> {
+    const amountInCents = Math.round(amount * 100);
     const response = await apiClient.post("/stripe/create-payment-intent", {
-      amount,
+      amount: amountInCents,
     });
     return response.data;
   },
