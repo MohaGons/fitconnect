@@ -8,32 +8,32 @@ const ProtectedRoute = () => {
 
   const [checking, setChecking] = useState(true);
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
-  const inscriptionRoute = ['/inscription'];
 
   useEffect(() => {
-    if (!initialized) return;
+  if (!initialized) return;
 
-    if (!keycloak.authenticated) {
-      setRedirectPath('/login');
-      setChecking(false);
-      return;
-    }
-
-    if (inscriptionRoute.includes(location.pathname)) {
-      setChecking(false);
-      return;
-    }
-
-    const roles = keycloak.tokenParsed?.realm_access?.roles || [];
-
-    if (roles.includes('ADMIN')) {
-      setRedirectPath('/admin-profile');
-    }else if (!roles.includes('COACH') && !roles.includes('CLIENT')) {
-      setRedirectPath('/inscription');
-    } 
-
+  if (!keycloak?.authenticated) {
+    setRedirectPath('/login');
     setChecking(false);
-  }, [initialized, keycloak]);
+    return;
+  }
+
+  const roles = keycloak.tokenParsed?.realm_access?.roles || [];
+
+  if (roles.includes('ADMIN')) {
+    setRedirectPath('/admin-profile');
+  } else if (!roles.includes('COACH') && !roles.includes('CLIENT')) {
+    if (location.pathname !== '/inscription') {
+      setRedirectPath('/inscription');
+    } else {
+      setRedirectPath(null); // évite la boucle
+    }
+  }
+
+  setChecking(false);
+}, [initialized, keycloak?.authenticated, location.pathname]);
+
+
 
   if (checking || !initialized) {
     return <div style={{ textAlign: 'center', marginTop: '2rem' }}>Chargement...</div>;
@@ -42,7 +42,6 @@ const ProtectedRoute = () => {
   if (redirectPath) {
     return <Navigate to={redirectPath} state={{ from: location }} replace />;
   }
-
 
   return <Outlet />;
 };
