@@ -27,9 +27,9 @@ services:
     image: node:latest
     container_name: react-app
     working_dir: /usr/src/app
-    command: sh -c "npm install && npm run dev"
+    command: sh -c "npm install && npm run dev -- --host"
     ports:
-      - "5173:5173" 
+      - "5173:5173"
     volumes:
       - ./client:/usr/src/app
     environment:
@@ -69,17 +69,33 @@ services:
       - db
     networks:
       - app-network
+
   uptime-kuma:
     image: louislam/uptime-kuma:latest
     container_name: uptime-kuma
     restart: always
     ports:
-      - "3001:3001"
+      - "3002:3001"
     volumes:
-      - ./uptime-kuma:/app/uptime-kuma  
-      - /var/run/docker.sock:/var/run/docker.sock 
+      - ./uptime-kuma:/app/uptime-kuma
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - app-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.3
+    container_name: keycloak
+    command: start-dev
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db
+    networks:
+      - app-network
+
 volumes:
   postgres-data:
 

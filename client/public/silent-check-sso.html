@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Silent SSO</title>
+  </head>
+  <body>
+    <script>
+      parent.postMessage(location.href, location.origin);
+    </script>
+  </body>
+</html>
+<!-- This file is used for silent SSO. It is loaded in an iframe to check if the user is already authenticated. -->
+<!-- If the user is authenticated, the server will redirect to the redirect_uri with an authorization code. -->
