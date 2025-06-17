@@ -1,12 +1,18 @@
 import React, { useState } from "react";
-import { useCoachId } from "../../../hooks/useCoachId";
+import { useUserRole } from "../../../hooks/useUserRole";
 import { stripeService } from "../../../services/stripeService";
 import StripePaymentForm from "../../../components/StripePaymentForm";
 import { STRIPE_CONFIG } from "../../../constants/stripe";
 
 const Payment: React.FC = () => {
-  const { subscriptionStatus, hasActiveSubscription, isLoading, refetch } =
-    useCoachId();
+  const {
+    subscriptionStatus,
+    hasActiveSubscription,
+    isLoading,
+    refetch,
+    isCoach,
+    isClient,
+  } = useUserRole();
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [paymentData, setPaymentData] = useState<{
     clientSecret: string;
@@ -43,6 +49,24 @@ const Payment: React.FC = () => {
     setError(errorMessage);
     setShowPaymentForm(false);
   };
+
+  // Redirection pour les clients - ils n'ont pas besoin de payer
+  if (isClient) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+          <div className="text-blue-600 text-6xl mb-4">ℹ️</div>
+          <h1 className="text-2xl font-bold text-blue-800 mb-2">
+            Accès Gratuit
+          </h1>
+          <p className="text-blue-600">
+            En tant que client, vous avez accès gratuit à toutes les
+            fonctionnalités de la plateforme !
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
