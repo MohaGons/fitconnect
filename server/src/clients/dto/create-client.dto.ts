@@ -1,4 +1,11 @@
-import { IsUUID, IsOptional, IsDateString, IsNumberString, IsString , Matches} from 'class-validator';
+import {
+  IsUUID,
+  IsOptional,
+  IsDateString,
+  IsNumberString,
+  IsString,
+  Matches,
+} from 'class-validator';
 
 export class CreateClientDto {
   @IsUUID()

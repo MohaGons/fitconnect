@@ -35,7 +35,7 @@ export class Coach {
   @Column({ type: 'text', nullable: true })
   lastName: String;
 
-   @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text', nullable: true })
   email: String;
 
   @Column({ type: 'text', nullable: true })
