@@ -35,20 +35,36 @@ export class CoachesService {
     };
   }
 
-  findAll() {
-    return `This action returns all coaches`;
+  async findAll(): Promise<Coach[]> {
+    return await this.coachRepository.find({
+      order: { created_at: 'DESC' },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} coach`;
+  async findOne(id: number): Promise<Coach> {
+    const coach = await this.coachRepository.findOne({
+      where: { coach_id: id },
+    });
+
+    if (!coach) {
+      throw new NotFoundException(`Coach with id ${id} not found`);
+    }
+
+    return coach;
   }
 
-  update(id: number, updateCoachDto: UpdateCoachDto) {
-    return `This action updates a #${id} coach`;
+  async update(id: number, updateCoachDto: UpdateCoachDto): Promise<Coach> {
+    const coach = await this.findOne(id);
+    Object.assign(coach, updateCoachDto);
+    return await this.coachRepository.save(coach);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} coach`;
+  async remove(id: number): Promise<void> {
+    const result = await this.coachRepository.delete(id);
+
+    if (result.affected === 0) {
+      throw new NotFoundException(`Coach with id ${id} not found`);
+    }
   }
 
   async updateSubscriptionStatus(

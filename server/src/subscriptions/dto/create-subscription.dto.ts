@@ -4,8 +4,10 @@ import {
   IsDateString,
   IsString,
   IsOptional,
+  IsEnum,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { SubscriptionStatus } from '../entities/subscription.entity';
 
 export class CreateSubscriptionDto {
   @ApiProperty({ description: 'ID du client' })
@@ -18,23 +20,24 @@ export class CreateSubscriptionDto {
   @IsNumber()
   coach_id: number;
 
-  @ApiProperty({ description: 'Date de début de la subscription' })
-  @IsNotEmpty()
+  @ApiPropertyOptional({ description: 'Date de début de la subscription' })
+  @IsOptional()
   @IsDateString()
-  start_date: string;
+  start_date?: string;
 
-  @ApiProperty({ description: 'Date de fin de la subscription' })
-  @IsNotEmpty()
+  @ApiPropertyOptional({ description: 'Date de fin de la subscription' })
+  @IsOptional()
   @IsDateString()
-  end_date: string;
+  end_date?: string;
 
   @ApiPropertyOptional({
     description: 'Statut de la subscription',
-    default: 'active',
+    enum: SubscriptionStatus,
+    default: SubscriptionStatus.ACTIVE,
   })
   @IsOptional()
-  @IsString()
-  status?: string;
+  @IsEnum(SubscriptionStatus)
+  status?: SubscriptionStatus;
 
   @ApiProperty({ description: 'Montant de la subscription' })
   @IsNotEmpty()

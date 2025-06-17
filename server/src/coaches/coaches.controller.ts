@@ -44,6 +44,11 @@ export class CoachesController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Récupérer tous les coachs' })
+  @ApiResponse({
+    status: 200,
+    description: 'Coachs récupérés avec succès',
+  })
   findAll() {
     return this.coachesService.findAll();
   }
