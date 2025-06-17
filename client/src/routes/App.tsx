@@ -24,6 +24,7 @@ import AdminHome from "../pages/admin/dashboard/Home";
 import Users from "../pages/admin/Users/Users";
 import Customers from "../pages/admin/Customers/Customers";
 import Coach from "../pages/admin/coach/coach";
+import Coaches from "../pages/admin/Coaches/Coaches";
 
 // Pages Admin - Planning & Communication
 import Calendar from "../pages/admin/Calendar/Calendar";
@@ -80,6 +81,7 @@ const App = () => {
               {/* Gestion des Utilisateurs */}
               <Route path="/dashboard/users" element={<Users />} />
               <Route path="/dashboard/customers" element={<Customers />} />
+              <Route path="/dashboard/coaches" element={<Coaches />} />
               <Route path="/coach" element={<Coach />} />
 
               {/* Planning & Communication */}

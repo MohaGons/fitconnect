@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useKeycloakContext } from "../services/useKeycloakContext";
 import coachesService from "../services/coachesService";
 import clientsService from "../services/clientsService";
+import subscriptionsService from "../services/subscriptionsService";
 
 export const useUserRole = () => {
   const { keycloak } = useKeycloakContext();
@@ -32,6 +33,20 @@ export const useUserRole = () => {
     },
     enabled: !!userId && !!keycloak?.authenticated && isClient,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: 1,
+  });
+
+  // Hook pour récupérer le nombre de demandes en attente (coachs seulement)
+  const pendingRequestsQuery = useQuery({
+    queryKey: ["pending-requests-count", coachQuery.data?.coach_id],
+    queryFn: async () => {
+      const requests = await subscriptionsService.getPendingRequestsByCoach(
+        coachQuery.data!.coach_id
+      );
+      return requests.length;
+    },
+    enabled: !!coachQuery.data?.coach_id && isCoach,
+    staleTime: 1000 * 30, // 30 secondes - plus fréquent pour les notifications
     retry: 1,
   });
 
@@ -71,6 +86,7 @@ export const useUserRole = () => {
   const refetch = () => {
     if (isCoach) {
       coachQuery.refetch();
+      pendingRequestsQuery.refetch();
     } else if (isClient) {
       clientQuery.refetch();
     }
@@ -98,5 +114,8 @@ export const useUserRole = () => {
 
     // Backward compatibility avec useCoachId
     coachId: isCoach ? userId_entity : null,
+
+    // Nombre de demandes en attente (pour les coachs)
+    pendingRequestsCount: isCoach ? pendingRequestsQuery.data || 0 : 0,
   };
 };

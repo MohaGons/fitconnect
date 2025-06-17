@@ -10,7 +10,10 @@ import { CreateCalendarEventDto } from './dto/create-calendar-event.dto';
 import { UpdateCalendarEventDto } from './dto/update-calendar-event.dto';
 import { Client } from '../clients/entities/client.entity';
 import { Coach } from '../coaches/entities/coach.entity';
-import { Subscription } from '../subscriptions/entities/subscription.entity';
+import {
+  Subscription,
+  SubscriptionStatus,
+} from '../subscriptions/entities/subscription.entity';
 import { Program } from '../programs/entities/program.entity';
 import { Meal } from '../meals/entities/meal.entity';
 
@@ -55,7 +58,7 @@ export class CalendarEventsService {
       where: {
         coach_id: createCalendarEventDto.coach_id,
         client_id: createCalendarEventDto.client_id,
-        status: 'active',
+        status: SubscriptionStatus.ACTIVE,
       },
     });
     if (!subscription) {
@@ -196,7 +199,9 @@ export class CalendarEventsService {
         'subscription.client_id = client.client_id',
       )
       .where('subscription.coach_id = :coachId', { coachId })
-      .andWhere('subscription.status = :status', { status: 'active' })
+      .andWhere('subscription.status = :status', {
+        status: SubscriptionStatus.ACTIVE,
+      })
       .getMany();
 
     return clients;
@@ -206,7 +211,7 @@ export class CalendarEventsService {
     const subscriptions = await this.subscriptionRepository.find({
       where: {
         coach_id: coachId,
-        status: 'active',
+        status: SubscriptionStatus.ACTIVE,
       },
       relations: ['client'],
       order: { start_date: 'DESC' },
