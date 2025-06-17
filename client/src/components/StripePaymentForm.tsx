@@ -7,7 +7,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { stripeService } from "../services/stripeService";
-import { useCoachId } from "../hooks/useCoachId";
+import { useUserRole } from "../hooks/useUserRole";
 import { STRIPE_CONFIG, STRIPE_ERRORS } from "../constants/stripe";
 
 const stripePromise = loadStripe(STRIPE_CONFIG.PUBLISHABLE_KEY);
@@ -27,7 +27,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 }) => {
   const stripe = useStripe();
   const elements = useElements();
-  const { coachId, isLoading: isCoachLoading } = useCoachId();
+  const { coachId, isLoading: isUserLoading } = useUserRole();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -38,8 +38,8 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       return;
     }
 
-    if (isCoachLoading) {
-      onError("Chargement des informations du coach en cours...");
+    if (isUserLoading) {
+      onError("Chargement des informations de l'utilisateur en cours...");
       return;
     }
 
@@ -89,10 +89,10 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
       <button
         type="submit"
-        disabled={!stripe || isLoading || isCoachLoading}
+        disabled={!stripe || isLoading || isUserLoading}
         className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 text-white font-medium py-3 px-6 rounded-lg transition-colors"
       >
-        {isLoading || isCoachLoading ? (
+        {isLoading || isUserLoading ? (
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
             Traitement...

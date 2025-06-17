@@ -16,7 +16,7 @@ import {
   UserCircleIcon,
 } from "../../icons";
 import { useSidebar } from "../../context/SidebarContext";
-import { useCoachId } from "../../hooks/useCoachId";
+import { useUserRole } from "../../hooks/useUserRole";
 
 type NavItem = {
   name: string;
@@ -86,7 +86,20 @@ const navItems: NavItem[] = [
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
-  const { hasActiveSubscription, isLoading: isCoachLoading } = useCoachId();
+  const {
+    hasActiveSubscription,
+    isLoading: isUserLoading,
+    isCoach,
+  } = useUserRole();
+
+  // Filtrer les éléments de navigation selon le rôle
+  const filteredNavItems = navItems.filter((item) => {
+    // Masquer "Paiement" pour les clients
+    if (item.name === "Paiement" && !isCoach) {
+      return false;
+    }
+    return true;
+  });
 
   const [openSubmenu, setOpenSubmenu] = useState<{
     type: "main";
@@ -106,7 +119,7 @@ const AppSidebar: React.FC = () => {
   useEffect(() => {
     let submenuMatched = false;
     ["main"].forEach(() => {
-      const items = navItems;
+      const items = filteredNavItems;
       items.forEach((nav, index) => {
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
@@ -141,12 +154,16 @@ const AppSidebar: React.FC = () => {
 
   // Fonction pour vérifier si un élément est désactivé
   const isItemDisabled = (itemName: string) => {
+    // Les clients ont toujours accès, seuls les coachs doivent payer
+    if (!isCoach) return false;
+
+    // Pour les coachs, vérifier l'abonnement (sauf pour la page de paiement)
     return !hasActiveSubscription && itemName !== "Paiement";
   };
 
   const handleSubmenuToggle = (index: number, menuType: "main") => {
     // Empêcher l'ouverture du submenu si l'élément est désactivé
-    const item = navItems[index];
+    const item = filteredNavItems[index];
     if (isItemDisabled(item.name)) {
       return;
     }
@@ -407,7 +424,7 @@ const AppSidebar: React.FC = () => {
                   <HorizontaLDots className="size-6" />
                 )}
               </h2>
-              {renderMenuItems(navItems, "main")}
+              {renderMenuItems(filteredNavItems, "main")}
             </div>
           </div>
         </nav>
