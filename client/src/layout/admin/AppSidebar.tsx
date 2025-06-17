@@ -23,6 +23,7 @@ type NavItem = {
   icon: React.ReactNode;
   path?: string;
   subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  badgeCount?: number;
 };
 
 const navItems: NavItem[] = [
@@ -90,16 +91,31 @@ const AppSidebar: React.FC = () => {
     hasActiveSubscription,
     isLoading: isUserLoading,
     isCoach,
+    pendingRequestsCount,
   } = useUserRole();
 
-  // Filtrer les éléments de navigation selon le rôle
-  const filteredNavItems = navItems.filter((item) => {
-    // Masquer "Paiement" pour les clients
-    if (item.name === "Paiement" && !isCoach) {
-      return false;
-    }
-    return true;
-  });
+  // Adapter les éléments de navigation selon le rôle
+  const adaptedNavItems = navItems
+    .filter((item) => {
+      // Masquer "Paiement" pour les clients
+      if (item.name === "Paiement" && !isCoach) {
+        return false;
+      }
+      return true;
+    })
+    .map((item) => {
+      // Adapter l'onglet "Clients/Coach" selon le rôle
+      if (item.name === "Clients") {
+        return {
+          ...item,
+          name: isCoach ? "Clients" : "Coach",
+          path: isCoach ? "/dashboard/customers" : "/dashboard/coaches",
+          // Ajouter le nombre de demandes en attente pour les coachs
+          badgeCount: isCoach ? pendingRequestsCount : undefined,
+        };
+      }
+      return item;
+    });
 
   const [openSubmenu, setOpenSubmenu] = useState<{
     type: "main";
@@ -119,7 +135,7 @@ const AppSidebar: React.FC = () => {
   useEffect(() => {
     let submenuMatched = false;
     ["main"].forEach(() => {
-      const items = filteredNavItems;
+      const items = adaptedNavItems;
       items.forEach((nav, index) => {
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
@@ -163,7 +179,7 @@ const AppSidebar: React.FC = () => {
 
   const handleSubmenuToggle = (index: number, menuType: "main") => {
     // Empêcher l'ouverture du submenu si l'élément est désactivé
-    const item = filteredNavItems[index];
+    const item = adaptedNavItems[index];
     if (isItemDisabled(item.name)) {
       return;
     }
@@ -269,16 +285,28 @@ const AppSidebar: React.FC = () => {
                   }`}
                 >
                   <span
-                    className={`menu-item-icon-size ${
+                    className={`menu-item-icon-size relative ${
                       isActive(nav.path)
                         ? "menu-item-icon-active"
                         : "menu-item-icon-inactive"
                     }`}
                   >
                     {nav.icon}
+                    {nav.badgeCount && nav.badgeCount > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                        {nav.badgeCount > 99 ? "99+" : nav.badgeCount}
+                      </span>
+                    )}
                   </span>
                   {(isExpanded || isHovered || isMobileOpen) && (
-                    <span className="menu-item-text">{nav.name}</span>
+                    <div className="flex items-center justify-between w-full">
+                      <span className="menu-item-text">{nav.name}</span>
+                      {nav.badgeCount && nav.badgeCount > 0 && (
+                        <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold ml-2">
+                          {nav.badgeCount > 99 ? "99+" : nav.badgeCount}
+                        </span>
+                      )}
+                    </div>
                   )}
                 </Link>
               ))
@@ -424,7 +452,7 @@ const AppSidebar: React.FC = () => {
                   <HorizontaLDots className="size-6" />
                 )}
               </h2>
-              {renderMenuItems(filteredNavItems, "main")}
+              {renderMenuItems(adaptedNavItems, "main")}
             </div>
           </div>
         </nav>

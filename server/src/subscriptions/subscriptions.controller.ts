@@ -7,11 +7,14 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { SubscriptionsService } from './subscriptions.service';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
+import { CreateCoachingRequestDto } from './dto/create-coaching-request.dto';
+import { UpdateSubscriptionStatusDto } from './dto/update-subscription-status.dto';
 import { Subscription } from './entities/subscription.entity';
 
 @ApiTags('subscriptions')
@@ -132,5 +135,109 @@ export class SubscriptionsController {
   })
   remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.subscriptionsService.remove(id);
+  }
+
+  // Nouveaux endpoints pour les demandes de coaching
+  @Post('coaching-request')
+  @ApiOperation({
+    summary: 'Créer une demande de coaching (client vers coach)',
+  })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Demande de coaching créée avec succès',
+    type: Subscription,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Demande déjà existante ou coach inactif',
+  })
+  createCoachingRequest(
+    @Body() createCoachingRequestDto: CreateCoachingRequestDto,
+  ): Promise<Subscription> {
+    return this.subscriptionsService.createCoachingRequest(
+      createCoachingRequestDto,
+    );
+  }
+
+  @Patch(':id/status')
+  @ApiOperation({ summary: 'Accepter ou refuser une demande de coaching' })
+  @ApiParam({ name: 'id', description: 'ID de la demande' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Statut de la demande mis à jour avec succès',
+    type: Subscription,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Demande non modifiable ou données manquantes',
+  })
+  updateSubscriptionStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateStatusDto: UpdateSubscriptionStatusDto,
+  ): Promise<Subscription> {
+    return this.subscriptionsService.updateSubscriptionStatus(
+      id,
+      updateStatusDto,
+    );
+  }
+
+  @Get('coach/:coachId/pending-requests')
+  @ApiOperation({ summary: 'Récupérer les demandes en attente pour un coach' })
+  @ApiParam({ name: 'coachId', description: 'ID du coach' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Demandes en attente récupérées avec succès',
+    type: [Subscription],
+  })
+  getPendingRequestsByCoach(
+    @Param('coachId', ParseIntPipe) coachId: number,
+  ): Promise<Subscription[]> {
+    return this.subscriptionsService.getPendingRequestsByCoach(coachId);
+  }
+
+  @Get('coach/:coachId/active-clients')
+  @ApiOperation({ summary: 'Récupérer les clients actifs pour un coach' })
+  @ApiParam({ name: 'coachId', description: 'ID du coach' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Clients actifs récupérés avec succès',
+    type: [Subscription],
+  })
+  getActiveClientsByCoach(
+    @Param('coachId', ParseIntPipe) coachId: number,
+  ): Promise<Subscription[]> {
+    return this.subscriptionsService.getActiveClientsByCoach(coachId);
+  }
+
+  @Get('client/:clientId/active-coach')
+  @ApiOperation({ summary: 'Récupérer le coach actif pour un client' })
+  @ApiParam({ name: 'clientId', description: 'ID du client' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Coach actif récupéré avec succès',
+    type: Subscription,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Aucun coach actif trouvé pour ce client',
+  })
+  getActiveCoachByClient(
+    @Param('clientId', ParseIntPipe) clientId: number,
+  ): Promise<Subscription | null> {
+    return this.subscriptionsService.getActiveCoachByClient(clientId);
+  }
+
+  @Get('client/:clientId/requests')
+  @ApiOperation({ summary: "Récupérer toutes les demandes d'un client" })
+  @ApiParam({ name: 'clientId', description: 'ID du client' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Demandes du client récupérées avec succès',
+    type: [Subscription],
+  })
+  getClientRequests(
+    @Param('clientId', ParseIntPipe) clientId: number,
+  ): Promise<Subscription[]> {
+    return this.subscriptionsService.getClientRequests(clientId);
   }
 }
