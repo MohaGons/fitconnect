@@ -25,9 +25,10 @@ export class CalendarApiService {
     return response.data;
   }
 
-  static async getCoachClients(coachId: number): Promise<any[]> {
+  static async getCoachClients(coachId: number): Promise<ClientInfo[]> {
     const response = await apiClient.get(`/calendar-events/coach/${coachId}/clients`);
     return response.data;
+   
   }
 
   static async getCoachEvents(coachId: number, startDate?: string, endDate?: string): Promise<ApiCalendarEvent[]> {

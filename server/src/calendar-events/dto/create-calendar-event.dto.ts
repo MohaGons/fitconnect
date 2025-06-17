@@ -1,12 +1,12 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsString,
   IsEnum,
-  IsDateString,
   IsOptional,
   IsNumber,
   Min,
+  Matches,
 } from 'class-validator';
 
 export class CreateCalendarEventDto {
@@ -46,24 +46,27 @@ export class CreateCalendarEventDto {
   type: 'session' | 'meal';
 
   @ApiProperty({
-    description: 'Date et heure de début',
+    description: 'Date et heure de début (ISO 8601)',
     example: '2024-01-15T10:00:00.000Z',
   })
   @IsNotEmpty()
-  @IsDateString()
-  start_datetime: Date;
-
-  @ApiProperty({
-    required: false,
-    description: 'Date et heure de fin (optionnel)',
+  @IsString()
+  @Matches(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/, {
+    message: 'start_datetime must be a valid ISO 8601 date string',
+  })
+  start_datetime: string;
+  @ApiPropertyOptional({
+    description: 'Date et heure de fin (optionnel, ISO 8601)',
     example: '2024-01-15T11:00:00.000Z',
   })
   @IsOptional()
-  @IsDateString()
-  end_datetime?: Date;
+  @IsString()
+  @Matches(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/, {
+    message: 'end_datetime must be a valid ISO 8601 date string',
+  })
+  end_datetime?: string;
 
-  @ApiProperty({
-    required: false,
+  @ApiPropertyOptional({
     description: "Statut de l'événement",
     example: 'planned',
     default: 'planned',
@@ -72,8 +75,7 @@ export class CreateCalendarEventDto {
   @IsString()
   status?: string;
 
-  @ApiProperty({
-    required: false,
+  @ApiPropertyOptional({
     description: 'Notes du coach',
     example: 'Attention aux échauffements',
   })
@@ -81,8 +83,7 @@ export class CreateCalendarEventDto {
   @IsString()
   coach_notes?: string;
 
-  @ApiProperty({
-    required: false,
+  @ApiPropertyOptional({
     description: 'Notes du client',
     example: 'Séance difficile mais motivante',
   })
@@ -91,8 +92,7 @@ export class CreateCalendarEventDto {
   client_notes?: string;
 
   // Session-specific fields
-  @ApiProperty({
-    required: false,
+  @ApiPropertyOptional({
     description: 'Type de séance (pour les événements de type session)',
     example: 'musculation',
   })
@@ -100,8 +100,7 @@ export class CreateCalendarEventDto {
   @IsString()
   session_type?: string;
 
-  @ApiProperty({
-    required: false,
+  @ApiPropertyOptional({
     description: 'Durée de la séance',
     example: '60 min',
   })
@@ -109,8 +108,7 @@ export class CreateCalendarEventDto {
   @IsString()
   duration?: string;
 
-  @ApiProperty({
-    required: false,
+  @ApiPropertyOptional({
     description: 'ID du programme associé (pour les séances)',
     example: 1,
   })
@@ -119,9 +117,7 @@ export class CreateCalendarEventDto {
   @Min(1)
   program_id?: number;
 
-  // Meal-specific fields
-  @ApiProperty({
-    required: false,
+  @ApiPropertyOptional({
     description: 'Type de repas (pour les événements de type meal)',
     example: 'dejeuner',
   })
@@ -129,8 +125,7 @@ export class CreateCalendarEventDto {
   @IsString()
   meal_type?: string;
 
-  @ApiProperty({
-    required: false,
+  @ApiPropertyOptional({
     description: 'Nombre de calories du repas',
     example: 450,
   })
@@ -139,8 +134,7 @@ export class CreateCalendarEventDto {
   @Min(0)
   calories?: number;
 
-  @ApiProperty({
-    required: false,
+  @ApiPropertyOptional({
     description: 'ID du repas associé (pour les repas)',
     example: 1,
   })

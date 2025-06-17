@@ -47,8 +47,6 @@ export class CalendarEventsController {
     return this.calendarEventsService.create(createCalendarEventDto);
   }
 
-  // ✅ ROUTES SPÉCIALISÉES AVANT LES ROUTES GÉNÉRIQUES
-
   @Post('schedule/session')
   @ApiOperation({
     summary: "Planifier une séance à partir d'un programme existant",
@@ -69,7 +67,6 @@ export class CalendarEventsController {
   async scheduleSession(
     @Body() scheduleSessionDto: ScheduleSessionDto,
   ): Promise<CalendarEvent> {
-    // Récupérer le programme pour obtenir les informations
     const program = await this.calendarEventsService.getProgram(
       scheduleSessionDto.program_id,
     );
@@ -77,15 +74,14 @@ export class CalendarEventsController {
       throw new NotFoundException('Programme non trouvé');
     }
 
-    // Créer l'événement avec les données du programme
     const createEventDto: CreateCalendarEventDto = {
       coach_id: scheduleSessionDto.coach_id,
       client_id: scheduleSessionDto.client_id,
       title: program.name,
       type: 'session',
-      start_datetime: new Date(scheduleSessionDto.start_datetime),
+      start_datetime: new Date(scheduleSessionDto.start_datetime).toISOString(),
       end_datetime: scheduleSessionDto.end_datetime
-        ? new Date(scheduleSessionDto.end_datetime)
+        ? new Date(scheduleSessionDto.end_datetime).toISOString()
         : undefined,
       status: scheduleSessionDto.status || 'planned',
       coach_notes: scheduleSessionDto.coach_notes,
@@ -115,7 +111,6 @@ export class CalendarEventsController {
   async scheduleMeal(
     @Body() scheduleMealDto: ScheduleMealDto,
   ): Promise<CalendarEvent> {
-    // Récupérer le repas pour obtenir les informations
     const meal = await this.calendarEventsService.getMeal(
       scheduleMealDto.meal_id,
     );
@@ -123,15 +118,14 @@ export class CalendarEventsController {
       throw new NotFoundException('Repas non trouvé');
     }
 
-    // Créer l'événement avec les données du repas
     const createEventDto: CreateCalendarEventDto = {
       coach_id: scheduleMealDto.coach_id,
       client_id: scheduleMealDto.client_id,
       title: meal.name,
       type: 'meal',
-      start_datetime: new Date(scheduleMealDto.start_datetime),
+      start_datetime: new Date(scheduleMealDto.start_datetime).toISOString(),
       end_datetime: scheduleMealDto.end_datetime
-        ? new Date(scheduleMealDto.end_datetime)
+        ? new Date(scheduleMealDto.end_datetime).toISOString()
         : undefined,
       status: scheduleMealDto.status || 'planned',
       coach_notes: scheduleMealDto.coach_notes,
@@ -315,8 +309,6 @@ export class CalendarEventsController {
       parsedPlanId,
     );
   }
-
-  // ✅ ROUTES GÉNÉRIQUES À LA FIN
 
   @Get(':id')
   @ApiOperation({ summary: 'Récupérer un événement par ID' })

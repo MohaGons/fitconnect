@@ -84,6 +84,8 @@ export interface ScheduleMealDto {
 export interface ClientInfo {
   client_id: number;
   user_id: string;
+  firstName?: string;
+  lastName?: string;
   created_at: string;
   updated_at: string;
 }
@@ -103,7 +105,7 @@ export interface Program {
   coach_id: number;
   name: string;
   description?: string;
-  category?: string; // musculation, cardio, hiit, yoga
+  category?: string;
   difficulty_level?: string;
   duration_weeks?: number;
   sessions_per_week?: number;

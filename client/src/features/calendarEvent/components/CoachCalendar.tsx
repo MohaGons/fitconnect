@@ -27,7 +27,7 @@ import {
 } from "../services/calendarApiService";
 import PageMeta from "../../../components/common/PageMeta";
 import { Modal } from "../../../components/ui/modal";
-import { CreateEventDto, UpdateEventDto, ScheduleSessionDto, ScheduleMealDto, Program, Meal } from "../types";
+import { CreateEventDto, UpdateEventDto, ScheduleSessionDto, ScheduleMealDto, Program, Meal, ClientInfo } from "../types";
 
 interface CalendarEvent extends EventInput {
   extendedProps: {
@@ -46,14 +46,9 @@ interface CalendarEvent extends EventInput {
   };
 }
 
-interface Client {
-  client_id: number;
-  user_id: string;
-}
-
 const CoachCalendar: React.FC = () => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [clients, setClients] = useState<Client[]>([]);
+  const [clients, setClients] = useState<ClientInfo[]>([]);
   const [programs, setPrograms] = useState<Program[]>([]);
   const [meals, setMeals] = useState<Meal[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
@@ -311,14 +306,13 @@ const CoachCalendar: React.FC = () => {
       setSaving(true);
       setError(null);
 
-      const startDateTime = eventTime 
-        ? `${eventDate}T${eventTime}:00.000Z`
-        : `${eventDate}T12:00:00.000Z`;
+     const startDateTime = eventTime 
+  ? `${eventDate}T${eventTime}:00Z`
+  : `${eventDate}T12:00:00Z`;
 
       let newEvent;
 
       if (selectedEvent) {
-        // Mode modification
         const updateData: UpdateEventDto = {
           title: eventType === 'session' ? sessionTitle : mealTitle,
           start_datetime: startDateTime,
@@ -347,9 +341,7 @@ const CoachCalendar: React.FC = () => {
 
         setSuccessMessage('Événement modifié avec succès');
       } else {
-        // Mode création
         if (eventType === 'session' && useExistingProgram && selectedProgram) {
-          // Utiliser scheduleSession pour planifier à partir d'un programme
           const scheduleData: ScheduleSessionDto = {
             coach_id: coachId,
             client_id: Number(selectedClient),
@@ -362,7 +354,6 @@ const CoachCalendar: React.FC = () => {
 
           newEvent = await CalendarApiService.scheduleSession(scheduleData);
         } else if (eventType === 'meal' && useExistingMeal && selectedMeal) {
-          // Utiliser scheduleMeal pour planifier à partir d'un repas
           const scheduleData: ScheduleMealDto = {
             coach_id: coachId,
             client_id: Number(selectedClient),
@@ -614,7 +605,7 @@ const CoachCalendar: React.FC = () => {
               resetModalFields();
             }
           }}
-          className="max-w-[700px] p-6"
+          className="max-w-[800px] p-6"
         >
           <div className="flex flex-col">
             <div className="mb-6">
@@ -651,71 +642,103 @@ const CoachCalendar: React.FC = () => {
               </div>
             )}
 
-            {/* Sélection du client */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                <Users className="w-4 h-4 inline mr-2" />
-                Client *
-              </label>
-              <select
-                value={selectedClient}
-                onChange={(e) => setSelectedClient(Number(e.target.value) || '')}
-                className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 dark:text-white focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-gray-700"
-                disabled={saving}
-              >
-                <option value="">Sélectionner un client</option>
-                {clients.map(client => (
-                  <option key={client.client_id} value={client.client_id}>
-                    {client.user_id}
-                  </option>
-                ))}
-              </select>
+            {/* Client et Type d'événement - Horizontal */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              {/* Sélection du client */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <Users className="w-4 h-4 inline mr-2" />
+                  Client *
+                </label>
+                <select
+                  value={selectedClient}
+                  onChange={(e) => setSelectedClient(Number(e.target.value) || '')}
+                  className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 dark:text-white focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-gray-700"
+                  disabled={saving}
+                >
+                  <option value="">Sélectionner un client</option>
+                  {clients.map(client => (
+                    <option key={client.client_id} value={client.client_id}>
+                      {client.firstName} {client.lastName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Type d'événement */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Type d'événement *
+                </label>
+                <div className="flex gap-3">
+                  <label className="flex items-center cursor-pointer flex-1">
+                    <input
+                      type="radio"
+                      name="eventType"
+                      value="session"
+                      checked={eventType === 'session'}
+                      onChange={(e) => setEventType(e.target.value as 'session')}
+                      className="sr-only"
+                      disabled={saving || !!selectedEvent}
+                    />
+                    <div className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border-2 transition-colors w-full ${
+                      eventType === 'session' 
+                        ? 'border-orange-500 bg-orange-50 text-orange-700' 
+                        : 'border-gray-300 text-gray-700'
+                    }`}>
+                      <Dumbbell className="w-4 h-4" />
+                      <span className="text-sm font-medium">Séance</span>
+                    </div>
+                  </label>
+                  <label className="flex items-center cursor-pointer flex-1">
+                    <input
+                      type="radio"
+                      name="eventType"
+                      value="meal"
+                      checked={eventType === 'meal'}
+                      onChange={(e) => setEventType(e.target.value as 'meal')}
+                      className="sr-only"
+                      disabled={saving || !!selectedEvent}
+                    />
+                    <div className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border-2 transition-colors w-full ${
+                      eventType === 'meal' 
+                        ? 'border-green-500 bg-green-50 text-green-700' 
+                        : 'border-gray-300 text-gray-700'
+                    }`}>
+                      <Utensils className="w-4 h-4" />
+                      <span className="text-sm font-medium">Repas</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
             </div>
 
-            {/* Type d'événement */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                Type d'événement *
-              </label>
-              <div className="flex gap-4">
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="radio"
-                    name="eventType"
-                    value="session"
-                    checked={eventType === 'session'}
-                    onChange={(e) => setEventType(e.target.value as 'session')}
-                    className="sr-only"
-                    disabled={saving || !!selectedEvent}
-                  />
-                  <div className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-colors ${
-                    eventType === 'session' 
-                      ? 'border-orange-500 bg-orange-50 text-orange-700' 
-                      : 'border-gray-300 text-gray-700'
-                  }`}>
-                    <Dumbbell className="w-4 h-4" />
-                    Séance
-                  </div>
+            {/* Date et heure - Horizontal */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Date *
                 </label>
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="radio"
-                    name="eventType"
-                    value="meal"
-                    checked={eventType === 'meal'}
-                    onChange={(e) => setEventType(e.target.value as 'meal')}
-                    className="sr-only"
-                    disabled={saving || !!selectedEvent}
-                  />
-                  <div className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-colors ${
-                    eventType === 'meal' 
-                      ? 'border-green-500 bg-green-50 text-green-700' 
-                      : 'border-gray-300 text-gray-700'
-                  }`}>
-                    <Utensils className="w-4 h-4" />
-                    Repas
-                  </div>
+                <input
+                  type="date"
+                  value={eventDate}
+                  onChange={(e) => setEventDate(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 dark:text-white focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-gray-700"
+                  disabled={saving}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Heure (optionnel)
                 </label>
+                <input
+                  type="time"
+                  value={eventTime}
+                  onChange={(e) => setEventTime(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 dark:text-white focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-gray-700"
+                  disabled={saving}
+                />
               </div>
             </div>
 
@@ -746,7 +769,7 @@ const CoachCalendar: React.FC = () => {
                           : 'border-gray-300 text-gray-700'
                       }`}>
                         <Book className="w-4 h-4" />
-                        Utiliser un programme existant
+                        <span className="text-sm font-medium">Utiliser un programme existant</span>
                       </div>
                     </label>
                   </div>
@@ -754,29 +777,31 @@ const CoachCalendar: React.FC = () => {
 
                 {useExistingProgram && !selectedEvent ? (
                   <>
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Programme *
-                      </label>
-                      <select
-                        value={selectedProgram}
-                        onChange={(e) => setSelectedProgram(Number(e.target.value) || '')}
-                        className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 dark:text-white focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-gray-700"
-                        disabled={saving}
-                      >
-                        <option value="">Sélectionner un programme</option>
-                        {programs.map(program => (
-                          <option key={program.program_id} value={program.program_id}>
-                            {program.name} - {program.category}
-                          </option>
-                        ))}
-                      </select>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                      <div className="lg:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Programme *
+                        </label>
+                        <select
+                          value={selectedProgram}
+                          onChange={(e) => setSelectedProgram(Number(e.target.value) || '')}
+                          className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 dark:text-white focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-gray-700"
+                          disabled={saving}
+                        >
+                          <option value="">Sélectionner un programme</option>
+                          {programs.map(program => (
+                            <option key={program.program_id} value={program.program_id}>
+                              {program.name} - {program.category}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
 
                     {/* Affichage des informations du programme sélectionné */}
                     {selectedProgram && (
                       <div className="mb-4 p-4 bg-orange-50 rounded-lg">
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-xs font-medium text-gray-600 mb-1">
                               Nom de la séance
@@ -811,25 +836,41 @@ const CoachCalendar: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Nom de la séance *
-                      </label>
-                      <input
-                        type="text"
-                        value={sessionTitle}
-                        onChange={(e) => setSessionTitle(e.target.value)}
-                        placeholder="Ex: Séance Jambes, HIIT Full Body..."
-                        className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 dark:text-white focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-gray-700"
-                        disabled={saving}
-                      />
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+                      <div className="lg:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Nom de la séance *
+                        </label>
+                        <input
+                          type="text"
+                          value={sessionTitle}
+                          onChange={(e) => setSessionTitle(e.target.value)}
+                          placeholder="Ex: Séance Jambes, HIIT Full Body..."
+                          className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 dark:text-white focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-gray-700"
+                          disabled={saving}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Durée
+                        </label>
+                        <input
+                          type="text"
+                          value={sessionDuration}
+                          onChange={(e) => setSessionDuration(e.target.value)}
+                          placeholder="Ex: 60 min"
+                          className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 dark:text-white focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-gray-700"
+                          disabled={saving}
+                        />
+                      </div>
                     </div>
 
                     <div className="mb-4">
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                         Type de séance *
                       </label>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                         {Object.entries(sessionTypes).map(([key, type]) => (
                           <label key={key} className="flex items-center cursor-pointer">
                             <input
@@ -841,31 +882,17 @@ const CoachCalendar: React.FC = () => {
                               className="sr-only"
                               disabled={saving}
                             />
-                            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-colors w-full ${
+                            <div className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-2 transition-colors w-full ${
                               sessionType === key 
                                 ? 'border-orange-500 bg-orange-50 text-orange-700' 
                                 : 'border-gray-300 text-gray-700'
                             }`}>
                               {type.icon}
-                              {type.label}
+                              <span className="text-sm font-medium">{type.label}</span>
                             </div>
                           </label>
                         ))}
                       </div>
-                    </div>
-
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Durée
-                      </label>
-                      <input
-                        type="text"
-                        value={sessionDuration}
-                        onChange={(e) => setSessionDuration(e.target.value)}
-                        placeholder="Ex: 60 min, 1h30..."
-                        className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 dark:text-white focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-gray-700"
-                        disabled={saving}
-                      />
                     </div>
                   </>
                 )}
@@ -900,7 +927,7 @@ const CoachCalendar: React.FC = () => {
                           : 'border-gray-300 text-gray-700'
                       }`}>
                         <Apple className="w-4 h-4" />
-                        Utiliser un repas existant
+                        <span className="text-sm font-medium">Utiliser un repas existant</span>
                       </div>
                     </label>
                   </div>
@@ -930,7 +957,7 @@ const CoachCalendar: React.FC = () => {
                     {/* Affichage des informations du repas sélectionné */}
                     {selectedMeal && (
                       <div className="mb-4 p-4 bg-green-50 rounded-lg">
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
                             <label className="block text-xs font-medium text-gray-600 mb-1">
                               Nom du repas
@@ -957,21 +984,21 @@ const CoachCalendar: React.FC = () => {
                   </>
                 ) : (
                   <>
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Nom du repas *
-                      </label>
-                      <input
-                        type="text"
-                        value={mealTitle}
-                        onChange={(e) => setMealTitle(e.target.value)}
-                        placeholder="Ex: Salade de quinoa, Smoothie protéiné..."
-                        className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 dark:text-white focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-gray-700"
-                        disabled={saving}
-                      />
-                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Nom du repas *
+                        </label>
+                        <input
+                          type="text"
+                          value={mealTitle}
+                          onChange={(e) => setMealTitle(e.target.value)}
+                          placeholder="Ex: Salade de quinoa..."
+                          className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 dark:text-white focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-gray-700"
+                          disabled={saving}
+                        />
+                      </div>
 
-                    <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Type de repas *
@@ -1009,35 +1036,6 @@ const CoachCalendar: React.FC = () => {
                 )}
               </>
             )}
-
-            {/* Date et heure */}
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Date *
-                </label>
-                <input
-                  type="date"
-                  value={eventDate}
-                  onChange={(e) => setEventDate(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 dark:text-white focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-gray-700"
-                  disabled={saving}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Heure (optionnel)
-                </label>
-                <input
-                  type="time"
-                  value={eventTime}
-                  onChange={(e) => setEventTime(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 dark:text-white focus:border-orange-300 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-gray-700"
-                  disabled={saving}
-                />
-              </div>
-            </div>
 
             {/* Notes */}
             <div className="mb-6">

@@ -64,14 +64,14 @@ export class CalendarEventsService {
       );
     }
 
-    const eventData: CreateCalendarEventDto = {
+    // Convert string dates to Date objects
+    const eventData = {
       ...createCalendarEventDto,
       start_datetime: new Date(createCalendarEventDto.start_datetime),
+      end_datetime: createCalendarEventDto.end_datetime
+        ? new Date(createCalendarEventDto.end_datetime)
+        : undefined,
     };
-
-    if (createCalendarEventDto.end_datetime) {
-      eventData.end_datetime = new Date(createCalendarEventDto.end_datetime);
-    }
 
     const calendarEvent = this.calendarEventRepository.create(eventData);
     return this.calendarEventRepository.save(calendarEvent);
@@ -158,10 +158,14 @@ export class CalendarEventsService {
     } else {
       const updateData: UpdateCalendarEventDto = { ...updateCalendarEventDto };
       if (updateData.start_datetime) {
-        updateData.start_datetime = new Date(updateData.start_datetime);
+        updateData.start_datetime = new Date(
+          updateData.start_datetime,
+        ).toISOString();
       }
       if (updateData.end_datetime) {
-        updateData.end_datetime = new Date(updateData.end_datetime);
+        updateData.end_datetime = new Date(
+          updateData.end_datetime,
+        ).toISOString();
       }
 
       Object.assign(event, updateData);
@@ -197,6 +201,14 @@ export class CalendarEventsService {
       )
       .where('subscription.coach_id = :coachId', { coachId })
       .andWhere('subscription.status = :status', { status: 'active' })
+      .select([
+        'client.client_id',
+        'client.user_id',
+        'client.firstName',
+        'client.lastName',
+        'client.email',
+      ])
+      .distinctOn(['client.client_id'])
       .getMany();
 
     return clients;
@@ -215,6 +227,9 @@ export class CalendarEventsService {
     return subscriptions.map((sub) => ({
       client_id: sub.client.client_id,
       user_id: sub.client.user_id,
+      firstName: sub.client.firstName,
+      lastName: sub.client.lastName,
+      email: sub.client.email,
       subscription_type: sub.subscription_type,
       subscription_status: sub.status,
       start_date: sub.start_date,
@@ -232,6 +247,13 @@ export class CalendarEventsService {
         'subscription.client_id = client.client_id',
       )
       .where('subscription.coach_id = :coachId', { coachId })
+      .select([
+        'client.client_id',
+        'client.user_id',
+        'client.firstName',
+        'client.lastName',
+        'client.email',
+      ])
       .distinctOn(['client.client_id'])
       .getMany();
 
@@ -260,8 +282,6 @@ export class CalendarEventsService {
 
     return queryBuilder.getMany();
   }
-
-  // Nouvelles méthodes pour la planification
 
   async getProgram(programId: number): Promise<Program | null> {
     return this.programRepository.findOne({
