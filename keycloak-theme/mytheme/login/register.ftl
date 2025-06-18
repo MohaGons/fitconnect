@@ -55,7 +55,6 @@
     >
       &times;
     </button>
-
     <#-- Affichage du bon message -->
     <#if message.summary == "emailExistsMessage">
       Cette adresse email est déjà utilisée.
@@ -63,7 +62,7 @@
       Ce nom d'utilisateur est déjà pris.
     <#elseif message.summary == "invalidPasswordConfirmMessage">
       La confirmation du mot de passe ne correspond pas.
-    <#elseif message.summary == "invalidPasswordMessage">
+    <#elseif message.summary?contains("invalidPasswordMin")>
       Le mot de passe est invalide.
     <#else>
       Une erreur s'est produite. Veuillez réessayer.
@@ -98,13 +97,15 @@
             <input id="email" name="email" type="email" value="${(register.formData.email!'')}" class="w-full mt-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500" />
           </div>
 
-           <div class="relative">
+           <div>
             <label for="password" class="block mb-1 text-sm font-medium text-gray-700">Mot de passe</label>
+              <div class="text-xs mb-2 font-medium text-gray-500">Doit contenir minimum (12 caractères, 1 chiffre,1 lettre et 1 symbole)</div>
+            <div class="relative">
             <input type="password" id="password" name="password"
                 class="w-full px-4 py-2 pr-10 text-sm bg-white border border-gray-300 rounded-md 
                 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500" />
             <button type="button" id="togglePassword" 
-              class="absolute top-9 right-3 text-gray-400 hover:text-gray-600 focus:outline-none" aria-label="Afficher/Cacher le mot de passe">
+              class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 focus:outline-none" aria-label="Afficher/Cacher le mot de passe">
               <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                   d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -112,11 +113,12 @@
                   d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
               </svg>
             </button>
+            </div>
           </div>
         
 
            <div class="relative">
-            <label for="password-confirm" class="block mb-1 text-sm font-medium text-gray-700">Mot de passe</label>
+            <label for="password-confirm" class="block mb-1 text-sm font-medium text-gray-700">Confirmation de mot de passe</label>
             <input type="password" id="password-confirm" name="password-confirm"
                 class="w-full px-4 py-2 pr-10 text-sm bg-white border border-gray-300 rounded-md 
                 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500" />
