@@ -6,7 +6,6 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
-import { Message } from '../../messages/entities/message.entity';
 import { Notification } from '../../notifications/entities/notification.entity';
 
 @Entity('users')
@@ -43,12 +42,6 @@ export class User {
 
   @UpdateDateColumn()
   updated_at: Date;
-
-  @OneToMany(() => Message, (message) => message.sender)
-  sent_messages: Message[];
-
-  @OneToMany(() => Message, (message) => message.recipient)
-  received_messages: Message[];
 
   @OneToMany(() => Notification, (notification) => notification.user)
   notifications: Notification[];
