@@ -40,7 +40,7 @@
            Veuillez réessayer plus tard.
         </p>
 
-        <a href="${url.loginUrl}" 
+        <a href="http://localhost:5173/login"
            class="inline-block px-6 py-3 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition">
           Retour à la connexion
         </a>

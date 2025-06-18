@@ -38,6 +38,7 @@
         <h1 class="mb-2 text-2xl font-semibold">Définir un nouveau mot de passe</h1>
         <p class="mb-6 text-sm text-gray-500">Veuillez saisir votre nouveau mot de passe ci-dessous.</p>
 
+        <#if message?has_content && message.summary?has_content>
         <div id="error-message" class="mb-4 p-3 text-sm text-white bg-red-400 rounded relative">
     
         <button 
@@ -52,11 +53,15 @@
           La confirmation du mot de passe ne correspond pas.
         <#elseif message.summary == "invalidPasswordMessage">
           Le mot de passe est invalide.
+        <#elseif message.summary == "expiredActionTokenSessionExistsMessage">
+          Votre lien de réinitialisation est expiré ou déjà utilisé.
+        <#elseif message.summary == "resetPasswordMessage">
+            Veuillez définir un nouveau mot de passe pour votre compte.
         <#else>
           Une erreur s'est produite. Veuillez réessayer.
         </#if>
         </div>
-
+        </#if>
 
 
         <form action="${url.loginAction}" method="post" class="space-y-4">
@@ -76,13 +81,13 @@
             </button>
         </div>
         <div class="relative">
-            <label for="username" class="block mb-1 text-sm font-medium text-gray-700">Confirmer le mot de passe</label>
+            <label for="password-confirm" class="block mb-1 text-sm font-medium text-gray-700">Confirmer le mot de passe</label>
             <input type="password" id="password-confirm" name="password-confirm" required
                     class="w-full px-4 py-2 text-sm bg-white border border-gray-300 rounded-md 
                     focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"/>
-            <button type="button" id="togglePassword" 
+            <button type="button" id="toggleConfirmPassword" 
               class="absolute top-9 right-3 text-gray-400 hover:text-gray-600 focus:outline-none" aria-label="Afficher/Cacher le mot de passe">
-              <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg id="eyeIconConfirmPassword" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                   d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -97,7 +102,7 @@
 
         <p class="mt-6 text-sm text-center text-gray-700">
           Vous avez déjà un compte ? 
-          <a href="${url.loginUrl}" class="text-orange-500 hover:text-orange-600">Se connecter</a>
+          <a href="http://localhost:5173/login" class="text-orange-500 hover:text-orange-600">Se connecter</a>
         </p>
       </div>
     </div>
