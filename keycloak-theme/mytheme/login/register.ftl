@@ -55,7 +55,6 @@
     >
       &times;
     </button>
-
     <#-- Affichage du bon message -->
     <#if message.summary == "emailExistsMessage">
       Cette adresse email est déjà utilisée.
@@ -63,7 +62,7 @@
       Ce nom d'utilisateur est déjà pris.
     <#elseif message.summary == "invalidPasswordConfirmMessage">
       La confirmation du mot de passe ne correspond pas.
-    <#elseif message.summary == "invalidPasswordMessage">
+    <#elseif message.summary?contains("invalidPasswordMin")>
       Le mot de passe est invalide.
     <#else>
       Une erreur s'est produite. Veuillez réessayer.
@@ -100,7 +99,7 @@
 
            <div>
             <label for="password" class="block mb-1 text-sm font-medium text-gray-700">Mot de passe</label>
-              <div class="text-xs mb-2 text-gray-500">Doit contenir minimum (12 caractères, 1 chiffre,1 lettre et 1 symbole)</div>
+              <div class="text-xs mb-2 font-medium text-gray-500">Doit contenir minimum (12 caractères, 1 chiffre,1 lettre et 1 symbole)</div>
             <div class="relative">
             <input type="password" id="password" name="password"
                 class="w-full px-4 py-2 pr-10 text-sm bg-white border border-gray-300 rounded-md 

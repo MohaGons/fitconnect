@@ -67,6 +67,7 @@
         <form action="${url.loginAction}" method="post" class="space-y-4">
         <div class="relative">
             <label for="username" class="block mb-1 text-sm font-medium text-gray-700">Nouveau mot de passe</label>
+            <div class="text-xs mb-2 font-medium text-gray-500">Doit contenir minimum (12 caractères, 1 chiffre,1 lettre et 1 symbole)</div>
             <input type="password" id="password-new" name="password-new" required
                 class="w-full px-4 py-2 text-sm bg-white border border-gray-300 rounded-md 
                 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"/>

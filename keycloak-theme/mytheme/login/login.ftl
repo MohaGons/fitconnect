@@ -38,6 +38,7 @@
         <h1 class="mb-2 text-2xl font-semibold">Connexion</h1>
         <p class="mb-6 text-sm text-gray-500">Entrez votre email et mot de passe pour vous connecter</p>
       <#if message??>
+      <p> ${message.summary} </p>
       <div id="error-message" class="relative mb-4 p-3 text-sm bg-red-400 text-black rounded">
         Une erreur est survenue. Veuillez réessayer !
         <button 
