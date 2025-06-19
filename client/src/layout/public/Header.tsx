@@ -13,6 +13,7 @@ const Header: React.FC = () => {
     { name: "Tarifs", href: "/prices" },
     { name: "Faq", href: "/faq" },
     { name: "Services", href: "/services" },
+    { name: "Contact", href: "/contact" },
   ];
 
   const isActiveLink = (href: string) => {

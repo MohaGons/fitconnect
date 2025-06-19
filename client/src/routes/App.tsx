@@ -49,6 +49,9 @@ import OurTeam from "../pages/public/OurTeams/OurTeam";
 import Prices from "../pages/public/Prices/Prices";
 import Faq from "../pages/public/Faq/Faq";
 import Services from "../pages/public/Services/Services";
+import Cgu from "../pages/public/Cgu/Cgu";
+import Cgv from "../pages/public/Cgv/Cgv";
+import Contact from "../pages/public/Contact/Contact";
 import Chat from "../pages/admin/Chat";
 
 const App = () => {
@@ -64,6 +67,9 @@ const App = () => {
             <Route path="/prices" element={<Prices />} />
             <Route path="/faq" element={<Faq />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/cgu" element={<Cgu />} />
+            <Route path="/cgv" element={<Cgv />} />
+            <Route path="/contact" element={<Contact />} />
           </Route>
           {/* ==================== ROUTES D'AUTHENTIFICATION ==================== */}
           <Route path="/login" element={<Login />} />
