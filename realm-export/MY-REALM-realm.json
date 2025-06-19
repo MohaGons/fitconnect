@@ -409,6 +409,63 @@
   "webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister" : false,
   "webAuthnPolicyPasswordlessAcceptableAaguids" : [ ],
   "webAuthnPolicyPasswordlessExtraOrigins" : [ ],
+  "users" : [ {
+    "id" : "6f1aee2c-04a0-4516-aab8-99c6d37d8d69",
+    "username" : "admin",
+    "firstName" : "ilyes",
+    "lastName" : "kabrine",
+    "email" : "ilyeskabrine0@gmail.com",
+    "emailVerified" : true,
+    "createdTimestamp" : 1750286309664,
+    "enabled" : true,
+    "totp" : false,
+    "credentials" : [ {
+      "id" : "c964aa9b-ad65-4ada-b89d-1732f70c2eca",
+      "type" : "password",
+      "createdDate" : 1750286310101,
+      "secretData" : "{\"value\":\"FfvVdQiUX3XHAV8tY3Zl7Kq8uYajXbzwtw8sR/gBv54L1BPYkrIqJB+Cxs1CBbEEzlTLcfmlQiTCOcu9VrZumQ==\",\"salt\":\"T6fAJhvW2n2bp+AgZu2kEA==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":210000,\"algorithm\":\"pbkdf2-sha512\",\"additionalParameters\":{}}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "COACH", "default-roles-my-realm" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
+    "id" : "9bbb96a4-9a57-42c0-bb34-23eceb507fbf",
+    "username" : "service-account-admin-cli",
+    "emailVerified" : false,
+    "createdTimestamp" : 1750284937015,
+    "enabled" : true,
+    "totp" : false,
+    "serviceAccountClientId" : "admin-cli",
+    "credentials" : [ ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-my-realm" ],
+    "clientRoles" : {
+      "realm-management" : [ "query-users", "view-authorization", "view-users", "query-clients", "manage-authorization", "view-realm", "manage-identity-providers", "manage-clients", "realm-admin", "manage-users", "manage-realm", "view-clients", "manage-events", "query-groups", "impersonation", "create-client", "query-realms", "view-events", "view-identity-providers" ],
+      "my-nest-client" : [ "uma_protection" ],
+      "broker" : [ "read-token" ],
+      "account" : [ "view-groups", "manage-account", "manage-account-links", "view-profile", "delete-account", "view-consent", "view-applications", "manage-consent" ]
+    },
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
+    "id" : "3d98f052-5468-45d2-8063-c082b3f63d7b",
+    "username" : "service-account-my-nest-client",
+    "emailVerified" : false,
+    "createdTimestamp" : 1750284937160,
+    "enabled" : true,
+    "totp" : false,
+    "serviceAccountClientId" : "my-nest-client",
+    "credentials" : [ ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-my-realm" ],
+    "notBefore" : 0,
+    "groups" : [ ]
+  } ],
   "scopeMappings" : [ {
     "clientScope" : "offline_access",
     "roles" : [ "offline_access" ]
@@ -1355,7 +1412,7 @@
       "subType" : "authenticated",
       "subComponents" : { },
       "config" : {
-        "allowed-protocol-mapper-types" : [ "oidc-sha256-pairwise-sub-mapper", "oidc-address-mapper", "oidc-full-name-mapper", "saml-role-list-mapper", "oidc-usermodel-property-mapper", "saml-user-property-mapper", "saml-user-attribute-mapper", "oidc-usermodel-attribute-mapper" ]
+        "allowed-protocol-mapper-types" : [ "oidc-address-mapper", "saml-user-property-mapper", "saml-role-list-mapper", "oidc-usermodel-attribute-mapper", "oidc-sha256-pairwise-sub-mapper", "oidc-full-name-mapper", "oidc-usermodel-property-mapper", "saml-user-attribute-mapper" ]
       }
     }, {
       "id" : "13d37b5e-519b-4d82-b345-3277ef9c215d",
@@ -1387,7 +1444,7 @@
       "subType" : "anonymous",
       "subComponents" : { },
       "config" : {
-        "allowed-protocol-mapper-types" : [ "oidc-full-name-mapper", "oidc-address-mapper", "oidc-usermodel-attribute-mapper", "oidc-sha256-pairwise-sub-mapper", "saml-role-list-mapper", "saml-user-property-mapper", "oidc-usermodel-property-mapper", "saml-user-attribute-mapper" ]
+        "allowed-protocol-mapper-types" : [ "oidc-address-mapper", "oidc-usermodel-property-mapper", "saml-user-property-mapper", "oidc-usermodel-attribute-mapper", "saml-user-attribute-mapper", "oidc-full-name-mapper", "oidc-sha256-pairwise-sub-mapper", "saml-role-list-mapper" ]
       }
     }, {
       "id" : "1c8ad012-efa3-4833-818f-86aba04062da",
