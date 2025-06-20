@@ -113,6 +113,11 @@ export class ClientsService {
       sport_experience: client.sport_experience,
       created_at: client.created_at,
       updated_at: client.updated_at,
+      firstName: client.firstName,
+      lastName: client.lastName,  
+      email: client.email,
+      gendre: client.gendre,
+      photo: client.photo,
     };
   }
 }

@@ -49,7 +49,8 @@ export class CreateCoachDto {
   @IsOptional()
   availability?: string;
 
-  @IsString()
+
   @IsOptional()
-  photo_url?: string;
+  @IsString()
+  photo: string;
 }

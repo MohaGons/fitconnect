@@ -47,8 +47,8 @@ export class Coach {
   @Column({ type: 'text', nullable: true })
   availability: string;
 
-  @Column({ type: 'text', nullable: true })
-  photo_url: string;
+  @Column({ type: 'text', nullable: true }) 
+  photo: string; 
 
   // Champs pour le système de paiement plateforme
   @Column({
