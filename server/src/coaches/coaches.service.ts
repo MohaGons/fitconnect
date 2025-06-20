@@ -53,6 +53,15 @@ export class CoachesService {
     return coach;
   }
 
+
+async getCoachProfile(userId: string) {
+  const coachProfile = await this.coachRepository.findOne({ where: { user_id: userId } });
+  if (!coachProfile) {
+    throw new NotFoundException(`Coach non trouvé pour l'userId: ${userId}`);
+  }
+  return coachProfile;
+}
+
   async update(id: number, updateCoachDto: UpdateCoachDto): Promise<Coach> {
     const coach = await this.findOne(id);
     Object.assign(coach, updateCoachDto);

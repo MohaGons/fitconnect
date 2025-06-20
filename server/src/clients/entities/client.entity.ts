@@ -44,6 +44,9 @@ export class Client {
   @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
   height: number;
 
+  @Column({ type: 'text', nullable: true }) 
+  photo: string; 
+
   @Column({ nullable: true })
   goal: string;
 

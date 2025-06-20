@@ -43,6 +43,23 @@ export class CoachesController {
     return this.coachesService.findByUserId(userId);
   }
 
+  @Get('profile/:userId')
+  @ApiOperation({
+    summary: "Récupérer le profil complet d'un coach par user_id",
+  })
+  @ApiParam({ name: 'userId', description: "UUID Keycloak de l'utilisateur" })
+  @ApiResponse({
+    status: 200,
+    description: 'Profil coach récupéré avec succès',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Coach non trouvé pour cet user_id',
+  })
+  getCoachProfile(@Param('userId') userId: string) {
+    return this.coachesService.getCoachProfile(userId);
+  }
+
   @Get()
   @ApiOperation({ summary: 'Récupérer tous les coachs' })
   @ApiResponse({
