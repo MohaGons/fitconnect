@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { useKeycloakContext } from '../../services/useKeycloakContext';
-
+import api from "../../api/axios";
 
 export default function UserDropdown() {
   const { keycloak } = useKeycloakContext();
+  const userId = keycloak?.tokenParsed?.sub;
+  const roles = keycloak.tokenParsed?.realm_access?.roles || [];
   const [isOpen, setIsOpen] = useState(false);
+  const [clientData, setClientData] = useState<any>(null);
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -15,17 +18,49 @@ export default function UserDropdown() {
   function closeDropdown() {
     setIsOpen(false);
   }
+
+  useEffect(() => {
+  const fetchClientData = async () => {
+    if (!userId) return;
+
+    try {
+      let response = null;
+
+      if (roles.includes('COACH')) {
+        response = await api.get(`/coaches/profile/${userId}`);
+      } else if (roles.includes('CLIENT')) {
+        response = await api.get(`/clients/profile/${userId}`);
+      } else {
+        throw new Error("Rôle non reconnu pour cet utilisateur.");
+      }
+
+      if (!response || !response.data) {
+        throw new Error("Erreur lors de la récupération du profil.");
+      }
+
+      setClientData(response.data);
+    } catch (error) {
+      console.error("Erreur:", error);
+    }
+  };
+
+  fetchClientData();
+}, [userId, roles]);
+
+
+
   return (
     <div className="relative">
       <button
         onClick={toggleDropdown}
         className="flex items-center text-gray-700 dropdown-toggle dark:text-gray-400"
       >
+        
         <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
-          <img src="/images/user/user-01.jpg" alt="User" />
+          <img src={ `${clientData?.photo || ''}`  } alt="User" className="h-full w-full object-cover" />
         </span>
 
-        <span className="block mr-1 font-medium text-theme-sm">KHELIFA ALI</span>
+        <span className="block mr-1 font-medium text-theme-sm">{clientData ? `${clientData.firstName || ''}`  : ''}</span>
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
@@ -53,10 +88,10 @@ export default function UserDropdown() {
       >
         <div>
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-           KHELIFA ALI
+           {clientData ? `${clientData.firstName || ''} ${clientData.lastName || ''}`  : ''}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            khelifa@gmail.com
+            { `${clientData?.email || ''}`  }
           </span>
         </div>
 

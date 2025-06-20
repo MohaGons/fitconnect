@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import api from '../../../api/api';
 import { useKeycloakContext } from '../../../services/useKeycloakContext';
 import { useState } from 'react';
+import { processFileToBase64 } from '../../../services/fileUploadService';
 
 const ClientForm = () => {
   const { register, handleSubmit } = useForm();
@@ -15,7 +16,11 @@ const ClientForm = () => {
 
   const onSubmit = async (data: any) => {
     try {
-      setIsLoading(true);
+       if (data.photo && data.photo[0]) {
+        const file = data.photo[0]; 
+        const base64 = await processFileToBase64(file)
+        data.photo = base64; 
+      }
       data.user_id = userId;
       data.firstName = firstName;
       data.lastName = lastName;
@@ -141,6 +146,16 @@ const ClientForm = () => {
         placeholder="Ex: Débutant, Intermédiaire, Avancé"
         className="w-full mt-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
         {...register('sport_experience')}
+      />
+      </div>
+      <div>
+      <label className="block text-sm font-medium">
+      Photo de Profil
+      </label>
+        <input
+        type="file"
+        className="w-full mt-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+        {...register("photo" , { required: true })}
       />
       </div>
       

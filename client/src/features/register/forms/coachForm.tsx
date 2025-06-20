@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import api from '../../../api/api';
-
+import { processFileToBase64 } from '../../../services/fileUploadService';
 import { useKeycloakContext } from '../../../services/useKeycloakContext';
 
 const CoachForm = () => {
@@ -10,19 +10,15 @@ const CoachForm = () => {
     const firstName = keycloak?.tokenParsed?.given_name;
     const lastName = keycloak?.tokenParsed?.family_name;
     const email = keycloak?.tokenParsed?.email;
+
+
   const onSubmit = async (data: any) => {
     try {
-      // Gestion du fichier photo
       if (data.photo && data.photo[0]) {
-        const formData = new FormData();
-        formData.append('file', data.photo[0]);
-      
-        const uploadRes = await api.post('/storage/upload', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        const filename = uploadRes.data.filename;
-        data.image = filename;
-      }
+      const file = data.photo[0]; 
+      const base64 = await processFileToBase64(file)
+      data.photo = base64; 
+     }
       data.user_id = userId;
       data.firstName = firstName;
       data.lastName = lastName;
@@ -62,7 +58,7 @@ const CoachForm = () => {
         <textarea
         placeholder="Parlez-nous de vous" 
         className="w-full mt-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
-        {...register("bio")}
+        {...register("bio" , { required: true })}
       />
       </div>
       <div>
@@ -73,7 +69,7 @@ const CoachForm = () => {
         type="text"
         placeholder="Certifications (Ex: Certificat de Coach, Nutritionniste)"
         className="w-full mt-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
-        {...register("certifications")}
+        {...register("certifications" , { required: true })}
       />
       </div>
       
@@ -85,7 +81,7 @@ const CoachForm = () => {
         type="text"
         placeholder="Ex: full-time, part-time, weekends"
         className="w-full mt-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
-        {...register("availability")}
+        {...register("availability" , { required: true })}
       />
       </div>
       <div>
@@ -95,7 +91,7 @@ const CoachForm = () => {
         <input
         type="file"
         className="w-full mt-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
-        {...register("photo_url")}
+        {...register("photo" , { required: true })}
       />
       </div>
       
