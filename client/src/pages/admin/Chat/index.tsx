@@ -177,15 +177,7 @@ const Chat = () => {
     }
   };
 
-  const getSenderName = (message: Message) => {
-    if (message.sender_coach) {
-      return `${message.sender_coach.firstName} ${message.sender_coach.lastName}`;
-    }
-    if (message.sender_client) {
-      return `${message.sender_client.firstName} ${message.sender_client.lastName}`;
-    }
-    return 'Utilisateur inconnu';
-  };
+  
 
   const handleFileUpload = async (file: File) => {
     if (!selectedConversation || !userId_entity || !userType) return;

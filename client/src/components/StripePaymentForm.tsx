@@ -20,7 +20,6 @@ interface PaymentFormProps {
 }
 
 const PaymentForm: React.FC<PaymentFormProps> = ({
-  clientSecret,
   paymentIntentId,
   onSuccess,
   onError,

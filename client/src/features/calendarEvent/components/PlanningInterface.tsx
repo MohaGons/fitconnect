@@ -657,7 +657,7 @@ const PlanningInterface: React.FC<PlanningInterfaceProps> = ({
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-lg">{getCategoryIcon(program.category)}</span>
+                        <span className="text-lg">{getCategoryIcon(program.category ?? '')}</span>
                         <h3 className="font-medium text-gray-800">{program.name}</h3>
                       </div>
                     </div>
@@ -669,7 +669,7 @@ const PlanningInterface: React.FC<PlanningInterfaceProps> = ({
                       }}>{program.description}</p>
                     )}
                     <div className="flex gap-2 flex-wrap">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(program.difficulty_level)}`}>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(program.difficulty_level ?? '')}`}>
                         {program.difficulty_level}
                       </span>
                       <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">

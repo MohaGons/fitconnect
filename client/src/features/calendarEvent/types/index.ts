@@ -123,6 +123,7 @@ export interface Meal {
   proteins?: number;
   carbs?: number;
   fats?: number;
+  calories?: number;
   preparation_time?: string;
   ingredients?: string;
   instructions?: string;

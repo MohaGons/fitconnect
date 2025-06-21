@@ -38,7 +38,7 @@ import Exercises from "../pages/admin/Exercices/Exerecices";
 
 // Pages Admin - Finances
 import Invoices from "../pages/admin/Invoices/Invoices";
-import Payment from "../pages/admin/payment/Payment";
+import Payment from "../pages/admin/Payment/Payment";
 
 // Pages Admin - Autres
 import InscriptionPage from "../pages/admin/inscription/inscription";

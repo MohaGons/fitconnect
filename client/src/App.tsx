@@ -1,25 +1,22 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
-//import SignIn from "./pages/AuthPages/SignIn";
-import SignUp from "./pages/AuthPages/SignUp";
+import SignUp from "./pages/public/AuthPages/SignUp";
 
 import { KeycloakProvider } from './services/keycloakContext';
-import AppLayout from "./layout/AppLayout";
+import AppLayout from "./layout/admin/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
-import Home from "./pages/dashboard/Home";
-import FrontHome from "./pages/home";
-import NotFound from "./pages/OtherPage/NotFound";
-import Calendar from "./pages/Calendar/Calendar";
-import Chat from "./pages/Chat/Chat";
-import Nutrition from "./pages/Nutrition/Nutrition";
-import Programs from "./pages/Programs/Programs";
-import Users from "./pages/Users/Users";
-import Customers from "./pages/Customers/Customers";
-import Invoices from "./pages/Invoices/Invoices";
-import Exerecices from "./pages/Exercices/Exerecices";
-import Login from "./pages/auth/login"
+import Home from "./pages/admin/dashboard/Home";
+import NotFound from "./pages/admin/OtherPage/NotFound";
+import Calendar from "./pages/admin/Calendar/Calendar";
+import Chat from "./pages/admin/Chat";
+import Nutrition from "./pages/admin/Nutrition/Nutrition";
+import Programs from "./pages/admin/Programs/Programs";
+import Users from "./pages/admin/Users/Users";
+import Customers from "./pages/admin/Customers/Customers";
+import Invoices from "./pages/admin/Invoices/Invoices";
+import Exerecices from "./pages/admin/Exercices/Exerecices";
 import ProtectedRoute from "./routes/protectedRoute";
-import InscriptionPage from "./pages/inscription/inscription";
-import SignIn from "./pages/AuthPages/SignIn";
+import InscriptionPage from "./pages/admin/inscription/inscription";
+import SignIn from "./pages/public/AuthPages/SignIn";
 
 export default function App() {
   return (
@@ -29,7 +26,6 @@ export default function App() {
         <ScrollToTop />
         <Routes>
           {/* Dashboard Layout */}
-           <Route index path="/" element={<FrontHome />} />
               <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route element={<AppLayout />}>

@@ -89,7 +89,7 @@ const AppSidebar: React.FC = () => {
   const location = useLocation();
   const {
     hasActiveSubscription,
-    isLoading: isUserLoading,
+    
     isCoach,
     pendingRequestsCount,
   } = useUserRole();

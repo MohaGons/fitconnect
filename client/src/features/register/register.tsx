@@ -10,9 +10,9 @@ const Inscription: React.FC = () => {
   const [selectedProfile, setSelectedProfile] = useState<string>("dealer");
  
     const { keycloak } = useKeycloakContext();
-    const token = keycloak?.token;
+    /*const token = keycloak?.token;
     const roles = keycloak?.tokenParsed?.realm_access?.roles || []; 
-    const userId = keycloak?.tokenParsed?.sub; 
+    const userId = keycloak?.tokenParsed?.sub; */
 
      const handleLogout = () => {
     keycloak.logout();

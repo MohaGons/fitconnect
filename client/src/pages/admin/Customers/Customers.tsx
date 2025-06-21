@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useUserRole } from "../../../hooks/useUserRole";
-import subscriptionsService, {
-  Subscription,
-} from "../../../services/subscriptionsService";
+import subscriptionsService from "../../../services/subscriptionsService";
 
 const Customers: React.FC = () => {
   const { coachId, isCoach } = useUserRole();
