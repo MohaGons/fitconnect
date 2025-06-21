@@ -6,9 +6,18 @@ metadata:
   namespace: annual-project
 data:
   NODE_ENV: "production"
+  # Utiliser les noms de services Kubernetes au lieu de localhost
+  # Variables pour correspondre au Docker Compose
   DATABASE_HOST: "postgres-service"
   DATABASE_PORT: "5432"
+  DATABASE_USER: "postgres"
+  DATABASE_PASSWORD: "postgres"
   DATABASE_NAME: "fitness_platform_db"
+  
+  # Variables pour compatibilité (votre app lit ces noms)
+  DB_HOST: "postgres-service"
+  DB_PORT: "5432"
+  DB_DATABASE: "fitness_platform_db"
   
   # Application Configuration
   PORT: "3000"
@@ -24,7 +33,7 @@ data:
   MAIL_USER: "user@example.com"
   MAIL_FROM: "noreply@fitnessplatform.com"
   
-  # Keycloak Configuration
+  # Keycloak Configuration - UTILISER LES SERVICES KUBERNETES
   KEYCLOAK_URL: "http://keycloak-service:8080/"
   KEYCLOAK_REALM: "MY-REALM"
   KEYCLOAK_ADMIN_CLIENT_ID: "admin-cli"
@@ -50,7 +59,7 @@ data:
   # Keycloak admin password (base64: admin)
   KEYCLOAK_ADMIN_PASSWORD: YWRtaW4=
   
-  # Stripe secret (base64: sk_test_51MfRFGCMBvQfTrL5rqhekc6Sye3reRZNvQNoM0Q6u6nbrXIIuyfEQ0DE9ZoECeZ7BooRHFwDawty3eCA2OMH33IL00r1cje0gN)
+  # Stripe secret (base64 encoded de votre clé)
   STRIPE_SECRET_KEY: c2tfdGVzdF81MU1mUkZHQ01CdlFmVHJMNXJxaGVrYzZTeWUzcmVSWk52UU5vTTBRNnU2bmJyWElJdXlmRVEwREU5Wm9FQ2VaN0Jvb1JIRndEYXd0eTNlQ0EyT01IMzNJTDAwcjFjamUwZ04=
 ---
 # Deployment API
@@ -91,12 +100,7 @@ spec:
         ports:
         - containerPort: 3000
         env:
-        # Variables from ConfigMap (existantes + nouvelles)
-        - name: NODE_ENV
-          valueFrom:
-            configMapKeyRef:
-              name: api-config
-              key: NODE_ENV
+        # Variables Docker Compose style
         - name: DATABASE_HOST
           valueFrom:
             configMapKeyRef:
@@ -112,6 +116,33 @@ spec:
             configMapKeyRef:
               name: api-config
               key: DATABASE_NAME
+        - name: DATABASE_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_USER
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+        
+        # Variables pour votre .env.production (compatibilité)
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: DB_PORT
+        - name: DB_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: DB_DATABASE
         - name: PORT
           valueFrom:
             configMapKeyRef:
@@ -173,19 +204,17 @@ spec:
               name: api-config
               key: KEYCLOAK_ADMIN_USERNAME
         
-        # Variables from existing postgres-secret
-        - name: DATABASE_USER
+        # Variables from secrets
+        - name: DB_USERNAME
           valueFrom:
             secretKeyRef:
               name: postgres-secret
               key: POSTGRES_USER
-        - name: DATABASE_PASSWORD
+        - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
               name: postgres-secret
               key: POSTGRES_PASSWORD
-        
-        # Variables from new api-secret
         - name: JWT_SECRET
           valueFrom:
             secretKeyRef:
@@ -212,44 +241,17 @@ spec:
               name: api-secret
               key: STRIPE_SECRET_KEY
         
-        # Variables pour compatibilité avec votre .env (mapping des noms)
-        - name: DB_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: api-config
-              key: DATABASE_HOST
-        - name: DB_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: api-config
-              key: DATABASE_PORT
-        - name: DB_DATABASE
-          valueFrom:
-            configMapKeyRef:
-              name: api-config
-              key: DATABASE_NAME
-        - name: DB_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: postgres-secret
-              key: POSTGRES_USER
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: postgres-secret
-              key: POSTGRES_PASSWORD
-        
         # Volume pour les uploads
         volumeMounts:
         - name: uploads
           mountPath: /app/uploads
         
-        # Health checks améliorés avec endpoint racine en fallback
+        # Health checks
         livenessProbe:
           httpGet:
             path: /
             port: 3000
-          initialDelaySeconds: 90
+          initialDelaySeconds: 120
           periodSeconds: 30
           timeoutSeconds: 15
           failureThreshold: 5
@@ -257,25 +259,25 @@ spec:
           httpGet:
             path: /
             port: 3000
-          initialDelaySeconds: 60
+          initialDelaySeconds: 90
           periodSeconds: 15
           timeoutSeconds: 10
           failureThreshold: 5
         
-        # Resources augmentées pour gérer toutes les fonctionnalités
+        # Resources
         resources:
           requests:
             memory: "256Mi"
-            cpu: "50m"      
+            cpu: "100m"      
           limits:
             memory: "512Mi"
-            cpu: "200m" 
+            cpu: "300m"
       
       volumes:
       - name: uploads
         emptyDir: {}
 ---
-# Service API (inchangé)
+# Service API
 apiVersion: v1
 kind: Service
 metadata:

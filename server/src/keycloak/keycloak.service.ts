@@ -203,6 +203,22 @@ export class KeycloakService {
   private lastAuthTime: number = 0;
 
   constructor(private configService: ConfigService) {
+    console.log('DEBUG - Environment variables:');
+    console.log('NODE_ENV:', process.env.NODE_ENV);
+    console.log(
+      'KEYCLOAK_URL from ConfigService:',
+      this.configService.get<string>('KEYCLOAK_URL'),
+    );
+    console.log('KEYCLOAK_URL from process.env:', process.env.KEYCLOAK_URL);
+    console.log(
+      'KEYCLOAK_REALM from ConfigService:',
+      this.configService.get<string>('KEYCLOAK_REALM'),
+    );
+    console.log(
+      'KEYCLOAK_ADMIN_USERNAME:',
+      this.configService.get<string>('KEYCLOAK_ADMIN_USERNAME'),
+    );
+
     const keycloakUrl = this.configService.get<string>('KEYCLOAK_URL');
     const keycloakRealm = this.configService.get<string>('KEYCLOAK_REALM');
 

@@ -49,12 +49,12 @@ describe('ClientsController', () => {
 
   describe('create', () => {
     it('should create a client', async () => {
-      const createClientDto = { 
+      const createClientDto = {
         user_id: '123e4567-e89b-12d3-a456-426614174000',
         firstName: 'John',
         lastName: 'Doe',
         email: 'john@example.com',
-        photo: 'photo.jpg'
+        photo: 'photo.jpg',
       };
       const mockClient = { id: 1, ...createClientDto };
       mockClientsService.create.mockResolvedValue(mockClient);

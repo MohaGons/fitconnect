@@ -53,13 +53,18 @@ describe('ExercisesService', () => {
   });
 
   it('should find all exercises with pagination', async () => {
-    mockExerciseRepository.findAndCount.mockResolvedValue([[{ exercise_id: 1 }], 1]);
+    mockExerciseRepository.findAndCount.mockResolvedValue([
+      [{ exercise_id: 1 }],
+      1,
+    ]);
     const result = await service.findAll({ page: 1, limit: 10 });
     expect(result.data).toHaveLength(1);
   });
 
   it('should throw NotFoundException if exercise not found', async () => {
     mockExerciseRepository.findOne.mockResolvedValue(null);
-    await expect(service.findOne(999)).rejects.toThrow('Exercise with id 999 not found');
+    await expect(service.findOne(999)).rejects.toThrow(
+      'Exercise with id 999 not found',
+    );
   });
 });

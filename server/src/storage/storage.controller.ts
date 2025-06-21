@@ -60,11 +60,14 @@ export class StorageController {
           'application/msword',
           'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         ];
-        
+
         if (allowedMimeTypes.includes(file.mimetype)) {
           callback(null, true);
         } else {
-          callback(new BadRequestException('Type de fichier non autorisé'), false);
+          callback(
+            new BadRequestException('Type de fichier non autorisé'),
+            false,
+          );
         }
       },
       limits: {
@@ -129,11 +132,16 @@ export class StorageController {
           'application/msword',
           'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         ];
-        
+
         if (allowedMimeTypes.includes(file.mimetype)) {
           callback(null, true);
         } else {
-          callback(new BadRequestException('Type de fichier non autorisé pour la messagerie'), false);
+          callback(
+            new BadRequestException(
+              'Type de fichier non autorisé pour la messagerie',
+            ),
+            false,
+          );
         }
       },
       limits: {

@@ -122,9 +122,10 @@ export class MessagesService {
   }
 
   async getUnreadCount(userId: number, userType: UserType) {
-    const whereClause = userType === UserType.COACH
-      ? { recipient_coach_id: userId, read: false }
-      : { recipient_client_id: userId, read: false };
+    const whereClause =
+      userType === UserType.COACH
+        ? { recipient_coach_id: userId, read: false }
+        : { recipient_client_id: userId, read: false };
 
     return this.messagesRepository.count({ where: whereClause });
   }
@@ -151,9 +152,10 @@ export class MessagesService {
       }
     } else {
       // Toutes les conversations de l'utilisateur
-      whereClause = userType === UserType.COACH
-        ? [{ sender_coach_id: userId }, { recipient_coach_id: userId }]
-        : [{ sender_client_id: userId }, { recipient_client_id: userId }];
+      whereClause =
+        userType === UserType.COACH
+          ? [{ sender_coach_id: userId }, { recipient_coach_id: userId }]
+          : [{ sender_client_id: userId }, { recipient_client_id: userId }];
     }
 
     return this.messagesRepository.find({
@@ -175,28 +177,33 @@ export class MessagesService {
       const activeSubscriptions = await this.subscriptionRepository.find({
         where: {
           coach_id: userId,
-          status: SubscriptionStatus.ACTIVE
+          status: SubscriptionStatus.ACTIVE,
         },
-        relations: ['client']
+        relations: ['client'],
       });
 
       const conversations: ConversationItem[] = [];
 
       for (const subscription of activeSubscriptions) {
-        const messages = await this.findConversation(userId, userType, subscription.client_id);
-        
+        const messages = await this.findConversation(
+          userId,
+          userType,
+          subscription.client_id,
+        );
+
         let lastMessage: Message;
         let unreadCount = 0;
 
         if (messages.length > 0) {
           lastMessage = messages[messages.length - 1];
-          unreadCount = messages.filter(msg => 
-            !msg.read && msg.recipient_coach_id === userId
+          unreadCount = messages.filter(
+            (msg) => !msg.read && msg.recipient_coach_id === userId,
           ).length;
         } else {
           lastMessage = {
             message_id: 0,
-            content: 'Bienvenue ! Vous pouvez maintenant communiquer avec votre coach.',
+            content:
+              'Bienvenue ! Vous pouvez maintenant communiquer avec votre coach.',
             sent_date: new Date(),
             read: true,
             sender_coach_id: null,
@@ -219,43 +226,49 @@ export class MessagesService {
           otherUserName: `${subscription.client.firstName} ${subscription.client.lastName}`,
           otherUserType: UserType.CLIENT,
           lastMessage,
-          unreadCount
+          unreadCount,
         };
-        
+
         conversations.push(conversation);
       }
 
-      return conversations.sort((a, b) => 
-        new Date(b.lastMessage.sent_date).getTime() - new Date(a.lastMessage.sent_date).getTime()
+      return conversations.sort(
+        (a, b) =>
+          new Date(b.lastMessage.sent_date).getTime() -
+          new Date(a.lastMessage.sent_date).getTime(),
       );
-
     } else {
       const activeSubscription = await this.subscriptionRepository.findOne({
         where: {
           client_id: userId,
-          status: SubscriptionStatus.ACTIVE
+          status: SubscriptionStatus.ACTIVE,
         },
-        relations: ['coach']
+        relations: ['coach'],
       });
 
       if (!activeSubscription) {
         return [];
       }
 
-      const messages = await this.findConversation(userId, userType, activeSubscription.coach_id);
-      
+      const messages = await this.findConversation(
+        userId,
+        userType,
+        activeSubscription.coach_id,
+      );
+
       let lastMessage: Message;
       let unreadCount = 0;
 
       if (messages.length > 0) {
         lastMessage = messages[messages.length - 1];
-        unreadCount = messages.filter(msg => 
-          !msg.read && msg.recipient_client_id === userId
+        unreadCount = messages.filter(
+          (msg) => !msg.read && msg.recipient_client_id === userId,
         ).length;
       } else {
         lastMessage = {
           message_id: 0,
-          content: 'Bienvenue ! Vous pouvez maintenant communiquer avec votre client.',
+          content:
+            'Bienvenue ! Vous pouvez maintenant communiquer avec votre client.',
           sent_date: new Date(),
           read: true,
           sender_coach_id: activeSubscription.coach_id,
@@ -278,46 +291,66 @@ export class MessagesService {
         otherUserName: `${activeSubscription.coach.firstName} ${activeSubscription.coach.lastName}`,
         otherUserType: UserType.COACH,
         lastMessage,
-        unreadCount
+        unreadCount,
       };
-      
+
       return [conversation];
     }
   }
 
   async markAsRead(messageId: number, userId: number, userType: UserType) {
     const message = await this.findOne(messageId);
-    
+
     // Vérifier que l'utilisateur est bien le destinataire
-    const isRecipient = userType === UserType.COACH 
-      ? message.recipient_coach_id === userId
-      : message.recipient_client_id === userId;
-    
+    const isRecipient =
+      userType === UserType.COACH
+        ? message.recipient_coach_id === userId
+        : message.recipient_client_id === userId;
+
     if (!isRecipient) {
-      throw new ForbiddenException('Vous ne pouvez marquer comme lu que les messages qui vous sont destinés');
+      throw new ForbiddenException(
+        'Vous ne pouvez marquer comme lu que les messages qui vous sont destinés',
+      );
     }
-    
+
     message.read = true;
     return this.messagesRepository.save(message);
   }
 
-  async markConversationAsRead(userId: number, userType: UserType, otherUserId: number) {
-    const whereClause = userType === UserType.COACH
-      ? { recipient_coach_id: userId, sender_client_id: otherUserId, read: false }
-      : { recipient_client_id: userId, sender_coach_id: otherUserId, read: false };
-    
+  async markConversationAsRead(
+    userId: number,
+    userType: UserType,
+    otherUserId: number,
+  ) {
+    const whereClause =
+      userType === UserType.COACH
+        ? {
+            recipient_coach_id: userId,
+            sender_client_id: otherUserId,
+            read: false,
+          }
+        : {
+            recipient_client_id: userId,
+            sender_coach_id: otherUserId,
+            read: false,
+          };
+
     await this.messagesRepository.update(whereClause, { read: true });
   }
 
   private async validateUser(userId: number, userType: UserType) {
     if (userType === UserType.COACH) {
-      const coach = await this.coachRepository.findOne({ where: { coach_id: userId } });
+      const coach = await this.coachRepository.findOne({
+        where: { coach_id: userId },
+      });
       if (!coach) {
         throw new NotFoundException(`Coach with id ${userId} not found`);
       }
       return coach;
     } else {
-      const client = await this.clientRepository.findOne({ where: { client_id: userId } });
+      const client = await this.clientRepository.findOne({
+        where: { client_id: userId },
+      });
       if (!client) {
         throw new NotFoundException(`Client with id ${userId} not found`);
       }
@@ -325,10 +358,17 @@ export class MessagesService {
     }
   }
 
-  private async validateCoachClientRelationship(senderId: number, senderType: UserType, recipientId: number, recipientType: UserType) {
+  private async validateCoachClientRelationship(
+    senderId: number,
+    senderType: UserType,
+    recipientId: number,
+    recipientType: UserType,
+  ) {
     // S'assurer qu'un coach communique avec un client et vice versa
     if (senderType === recipientType) {
-      throw new BadRequestException('Les messages ne peuvent être échangés qu\'entre un coach et un client');
+      throw new BadRequestException(
+        "Les messages ne peuvent être échangés qu'entre un coach et un client",
+      );
     }
 
     const coachId = senderType === UserType.COACH ? senderId : recipientId;
@@ -339,12 +379,14 @@ export class MessagesService {
       where: {
         coach_id: coachId,
         client_id: clientId,
-        status: SubscriptionStatus.ACTIVE
-      }
+        status: SubscriptionStatus.ACTIVE,
+      },
     });
 
     if (!subscription) {
-      throw new ForbiddenException('Vous ne pouvez communiquer qu\'avec vos clients/coaches actifs');
+      throw new ForbiddenException(
+        "Vous ne pouvez communiquer qu'avec vos clients/coaches actifs",
+      );
     }
   }
 }

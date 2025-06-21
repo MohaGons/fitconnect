@@ -13,10 +13,18 @@ describe('NutritionPlansService', () => {
     update: jest.fn(),
     delete: jest.fn(),
     createQueryBuilder: jest.fn().mockReturnValue({
-      leftJoinAndSelect: function () { return this; },
-      andWhere: function () { return this; },
-      skip: function () { return this; },
-      take: function () { return this; },
+      leftJoinAndSelect: function () {
+        return this;
+      },
+      andWhere: function () {
+        return this;
+      },
+      skip: function () {
+        return this;
+      },
+      take: function () {
+        return this;
+      },
       getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
       getSql: jest.fn(),
       getParameters: jest.fn(),
@@ -62,7 +70,10 @@ describe('NutritionPlansService', () => {
     mockMealRepo.update.mockResolvedValue(undefined);
     mockPlanRepo.delete.mockResolvedValue(undefined);
     await expect(service.remove(1)).resolves.toBeUndefined();
-    expect(mockMealRepo.update).toHaveBeenCalledWith({ plan_id: 1 }, { plan_id: null });
+    expect(mockMealRepo.update).toHaveBeenCalledWith(
+      { plan_id: 1 },
+      { plan_id: null },
+    );
     expect(mockPlanRepo.delete).toHaveBeenCalledWith(1);
   });
 });

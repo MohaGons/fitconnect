@@ -9,7 +9,13 @@ import {
   Query,
   ParseIntPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
@@ -42,8 +48,12 @@ export class MessagesController {
 
   @Get('unread/count')
   @ApiOperation({ summary: 'Récupérer le nombre de messages non lus' })
-  @ApiQuery({ name: 'userId', description: 'ID de l\'utilisateur' })
-  @ApiQuery({ name: 'userType', enum: UserType, description: 'Type d\'utilisateur' })
+  @ApiQuery({ name: 'userId', description: "ID de l'utilisateur" })
+  @ApiQuery({
+    name: 'userType',
+    enum: UserType,
+    description: "Type d'utilisateur",
+  })
   @ApiResponse({
     status: 200,
     description: 'Nombre de messages non lus récupéré avec succès',
@@ -57,8 +67,12 @@ export class MessagesController {
 
   @Get('conversations')
   @ApiOperation({ summary: 'Récupérer la liste des conversations' })
-  @ApiQuery({ name: 'userId', description: 'ID de l\'utilisateur' })
-  @ApiQuery({ name: 'userType', enum: UserType, description: 'Type d\'utilisateur' })
+  @ApiQuery({ name: 'userId', description: "ID de l'utilisateur" })
+  @ApiQuery({
+    name: 'userType',
+    enum: UserType,
+    description: "Type d'utilisateur",
+  })
   @ApiResponse({
     status: 200,
     description: 'Liste des conversations récupérée avec succès',
@@ -72,9 +86,17 @@ export class MessagesController {
 
   @Get('conversation/:userId')
   @ApiOperation({ summary: 'Récupérer une conversation spécifique' })
-  @ApiParam({ name: 'userId', description: 'ID de l\'utilisateur' })
-  @ApiQuery({ name: 'userType', enum: UserType, description: 'Type d\'utilisateur' })
-  @ApiQuery({ name: 'otherUserId', required: false, description: 'ID de l\'autre utilisateur' })
+  @ApiParam({ name: 'userId', description: "ID de l'utilisateur" })
+  @ApiQuery({
+    name: 'userType',
+    enum: UserType,
+    description: "Type d'utilisateur",
+  })
+  @ApiQuery({
+    name: 'otherUserId',
+    required: false,
+    description: "ID de l'autre utilisateur",
+  })
   @ApiResponse({
     status: 200,
     description: 'Conversation récupérée avec succès',
@@ -85,7 +107,11 @@ export class MessagesController {
     @Query('otherUserId') otherUserId?: string,
   ) {
     const otherUserIdNumber = otherUserId ? parseInt(otherUserId) : undefined;
-    return this.messagesService.findConversation(userId, userType, otherUserIdNumber);
+    return this.messagesService.findConversation(
+      userId,
+      userType,
+      otherUserIdNumber,
+    );
   }
 
   @Get(':id')
@@ -115,9 +141,13 @@ export class MessagesController {
 
   @Patch('conversation/read')
   @ApiOperation({ summary: 'Marquer une conversation comme lue' })
-  @ApiQuery({ name: 'userId', description: 'ID de l\'utilisateur' })
-  @ApiQuery({ name: 'userType', enum: UserType, description: 'Type d\'utilisateur' })
-  @ApiQuery({ name: 'otherUserId', description: 'ID de l\'autre utilisateur' })
+  @ApiQuery({ name: 'userId', description: "ID de l'utilisateur" })
+  @ApiQuery({
+    name: 'userType',
+    enum: UserType,
+    description: "Type d'utilisateur",
+  })
+  @ApiQuery({ name: 'otherUserId', description: "ID de l'autre utilisateur" })
   @ApiResponse({
     status: 200,
     description: 'Conversation marquée comme lue avec succès',
@@ -127,14 +157,22 @@ export class MessagesController {
     @Query('userType') userType: UserType,
     @Query('otherUserId', ParseIntPipe) otherUserId: number,
   ) {
-    return this.messagesService.markConversationAsRead(userId, userType, otherUserId);
+    return this.messagesService.markConversationAsRead(
+      userId,
+      userType,
+      otherUserId,
+    );
   }
 
   @Patch(':id/read')
   @ApiOperation({ summary: 'Marquer un message comme lu' })
   @ApiParam({ name: 'id', description: 'ID du message' })
-  @ApiQuery({ name: 'userId', description: 'ID de l\'utilisateur' })
-  @ApiQuery({ name: 'userType', enum: UserType, description: 'Type d\'utilisateur' })
+  @ApiQuery({ name: 'userId', description: "ID de l'utilisateur" })
+  @ApiQuery({
+    name: 'userType',
+    enum: UserType,
+    description: "Type d'utilisateur",
+  })
   @ApiResponse({
     status: 200,
     description: 'Message marqué comme lu avec succès',

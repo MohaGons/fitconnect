@@ -8,9 +8,7 @@ import { Client } from '../clients/entities/client.entity';
 import { Subscription } from '../subscriptions/entities/subscription.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Message, Coach, Client, Subscription]),
-  ],
+  imports: [TypeOrmModule.forFeature([Message, Coach, Client, Subscription])],
   controllers: [MessagesController],
   providers: [MessagesService],
   exports: [MessagesService],
