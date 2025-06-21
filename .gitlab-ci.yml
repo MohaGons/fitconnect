@@ -51,6 +51,7 @@ build-api:
     DOCKER_TLS_CERTDIR: "/certs"
     DOCKER_TLS_VERIFY: 1
     DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    DOCKER_BUILDKIT: 1 
   before_script:
     - apt-get update && apt-get install -y docker.io
     - echo $GCP_SERVICE_KEY | base64 -d > gcp-key.json
@@ -67,7 +68,7 @@ build-api:
     - echo "📋 Package.json content:"
     - cat package.json | grep -A 5 -B 5 "scripts" || echo "No scripts found"
     # Build avec logs détaillés
-    - docker build -t $IMAGE_URL . --progress=plain
+    - docker build -t $IMAGE_URL .  # Removed --progress=plain flag
     - docker push $IMAGE_URL
     - LATEST_URL="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/api:latest"
     - docker tag $IMAGE_URL $LATEST_URL
@@ -75,6 +76,7 @@ build-api:
     - echo "✅ API image built and pushed successfully"
   only:
     - feature-deploy
+  
 
 test-frontend:
   stage: test
