@@ -55,4 +55,8 @@ export class CreateClientDto {
   @IsOptional()
   @IsString()
   sport_experience?: string;
+
+  @IsOptional()
+  @IsString()
+  photo: string;
 }
