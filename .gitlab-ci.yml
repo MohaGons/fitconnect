@@ -40,7 +40,7 @@ build-frontend:
     - docker tag $IMAGE_URL $LATEST_URL
     - docker push $LATEST_URL
   only:
-    - main
+    - feature-deploy
 
 # Build API
 build-api:
@@ -69,7 +69,7 @@ build-api:
     - docker tag $IMAGE_URL $LATEST_URL
     - docker push $LATEST_URL
   only:
-    - main
+    - feature-deploy
 
 # Test Frontend
 test-frontend:
@@ -84,7 +84,7 @@ test-frontend:
     - npm ci
     - npm run test
   only:
-    - main
+    - feature-deploy
 
 # Test API
 test-api:
@@ -110,7 +110,7 @@ test-api:
     - npm ci
     - npm run test
   only:
-    - main
+    - feature-deploy
 
 # Deploy to Kubernetes
 deploy:
@@ -202,7 +202,7 @@ deploy:
     - echo "API image $API_IMAGE"
     - kubectl get all -n $NAMESPACE
   only:
-    - main
+    - feature-deploy
 
 # Nettoyage manuel des images
 cleanup:
@@ -222,4 +222,4 @@ cleanup:
     - gcloud artifacts docker images list $API_REPO --limit=999 --sort-by=UPDATE_TIME --format="get(version)" | tail -n +6 | xargs -I {} gcloud artifacts docker images delete $API_REPO:{} --quiet || true
   when: manual
   only:
-    - main
+    - feature-deploy
