@@ -153,10 +153,10 @@ spec:
         resources:
           requests:
             memory: "256Mi"
-            cpu: "200m"     
+            cpu: "100m"     
           limits:
             memory: "512Mi"
-            cpu: "400m"     
+            cpu: "300m"     
       volumes:
       - name: keycloak-themes
         persistentVolumeClaim:

@@ -87,6 +87,7 @@ spec:
       containers:
       - name: api
         image: europe-west1-docker.pkg.dev/k8s-frist-test/annual-project-repo/api:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 3000
         env:
@@ -265,7 +266,7 @@ spec:
         resources:
           requests:
             memory: "256Mi"
-            cpu: "100m"      
+            cpu: "50m"      
           limits:
             memory: "512Mi"
             cpu: "200m" 
