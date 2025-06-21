@@ -243,23 +243,23 @@ spec:
         - name: uploads
           mountPath: /app/uploads
         
-        # Health checks améliorés
+        # Health checks améliorés avec endpoint racine en fallback
         livenessProbe:
           httpGet:
-            path: /health
+            path: /
             port: 3000
-          initialDelaySeconds: 60
+          initialDelaySeconds: 90
           periodSeconds: 30
-          timeoutSeconds: 10
-          failureThreshold: 3
+          timeoutSeconds: 15
+          failureThreshold: 5
         readinessProbe:
           httpGet:
-            path: /health
+            path: /
             port: 3000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
+          initialDelaySeconds: 60
+          periodSeconds: 15
+          timeoutSeconds: 10
+          failureThreshold: 5
         
         # Resources augmentées pour gérer toutes les fonctionnalités
         resources:

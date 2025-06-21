@@ -131,9 +131,64 @@ deploy:
     - API_IMAGE="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/api:${CI_COMMIT_SHA}"
     - sed -i "s|image europe-west1-docker.pkg.dev/.*/frontend:.*|image ${FRONTEND_IMAGE}|g" k8s/frontend/frontend-all.yaml
     - sed -i "s|image europe-west1-docker.pkg.dev/.*/api:.*|image $API_IMAGE|g" k8s/api/api-all.yaml
-    - echo "Deploying API..."
+    - echo "🔧 Deploying API..."
     - kubectl apply -f k8s/api/
-    - kubectl wait --for=condition=available --timeout=300s deployment/api -n $NAMESPACE
+    # Diagnostic automatique de l'API
+    - echo "🔍 Diagnosing API deployment..."
+    - |
+      # Attendre un peu pour que les pods se créent
+      sleep 15
+      
+      echo "=== API Pods Status ==="
+      kubectl get pods -n $NAMESPACE -l app=api
+      
+      echo ""
+      echo "=== API Deployment Status ==="
+      kubectl describe deployment api -n $NAMESPACE
+      
+      echo ""
+      echo "=== API Pod Details ==="
+      kubectl describe pods -n $NAMESPACE -l app=api
+      
+      echo ""
+      echo "=== API Logs ==="
+      kubectl logs -n $NAMESPACE -l app=api --tail=50 || echo "No logs available yet"
+      
+      echo ""
+      echo "=== Recent Events ==="
+      kubectl get events -n $NAMESPACE --sort-by='.lastTimestamp' | tail -20
+    
+    # Attendre l'API avec gestion d'erreur améliorée
+    - |
+      echo "⏳ Waiting for API to be ready..."
+      
+      # Attendre avec vérifications intermédiaires
+      for i in $(seq 1 10); do
+        if kubectl wait --for=condition=available --timeout=30s deployment/api -n $NAMESPACE; then
+          echo "✅ API is ready!"
+          break
+        fi
+        
+        echo "⚠️ API not ready yet (attempt $i/10). Checking status..."
+        
+        # Vérifications intermédiaires
+        echo "Current pod status:"
+        kubectl get pods -n $NAMESPACE -l app=api
+        
+        echo "Pod logs (last 10 lines):"
+        kubectl logs -n $NAMESPACE -l app=api --tail=10 || echo "No logs available"
+        
+        if [ $i -eq 10 ]; then
+          echo "❌ API deployment failed after 10 attempts"
+          echo "Final diagnostic:"
+          kubectl describe pods -n $NAMESPACE -l app=api
+          echo "Continuing with frontend deployment..."
+          break
+        fi
+        
+        echo "Waiting 30 seconds before next check..."
+        sleep 30
+      done
     - echo "Deploying Frontend..."
     - kubectl apply -f k8s/frontend/
     - kubectl wait --for=condition=available --timeout=300s deployment/frontend -n $NAMESPACE
