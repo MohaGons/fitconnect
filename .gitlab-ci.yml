@@ -37,7 +37,6 @@ build-frontend:
     - LATEST_URL="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/frontend:latest"
     - docker tag $IMAGE_URL $LATEST_URL
     - docker push $LATEST_URL
-    - echo "✅ Frontend image built and pushed successfully"
   only:
     - feature-deploy
 
@@ -51,7 +50,6 @@ build-api:
     DOCKER_TLS_CERTDIR: "/certs"
     DOCKER_TLS_VERIFY: 1
     DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
-    DOCKER_BUILDKIT: 1 
   before_script:
     - apt-get update && apt-get install -y docker.io
     - echo $GCP_SERVICE_KEY | base64 -d > gcp-key.json
@@ -62,25 +60,17 @@ build-api:
     - cd server
     - IMAGE_URL="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/api:${CI_COMMIT_SHA}"
     - echo "Building API image $IMAGE_URL"
-    # Debug: Vérifier la structure du projet
-    - echo "📁 Server directory structure:"
-    - ls -la
-    - echo "📋 Package.json content:"
-    - cat package.json | grep -A 5 -B 5 "scripts" || echo "No scripts found"
-    # Build avec logs détaillés
-    - docker build -t $IMAGE_URL .  # Removed --progress=plain flag
+    - docker build -t $IMAGE_URL .
     - docker push $IMAGE_URL
     - LATEST_URL="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/api:latest"
     - docker tag $IMAGE_URL $LATEST_URL
     - docker push $LATEST_URL
-    - echo "✅ API image built and pushed successfully"
   only:
     - feature-deploy
-  
 
 test-frontend:
   stage: test
-  image: node:20-alpine  # Mise à jour vers Node 20
+  image: node:18-alpine
   cache:
     paths:
       - client/node_modules/
@@ -88,13 +78,13 @@ test-frontend:
     - cd client
   script:
     - npm ci
-    - npm run test || echo "Frontend tests completed with warnings"
+    - npm run test
   only:
     - feature-deploy
 
 test-api:
   stage: test
-  image: node:20-alpine  # Mise à jour vers Node 20
+  image: node:18-alpine
   services:
     - postgres:14
   variables:
@@ -113,7 +103,7 @@ test-api:
     - cd server
   script:
     - npm ci
-    - npm run test || echo "API tests completed with warnings"
+    - npm run test
   only:
     - feature-deploy
 
@@ -127,146 +117,102 @@ deploy:
     - gcloud config set project $GCP_PROJECT_ID
     - gcloud container clusters get-credentials $GKE_CLUSTER_NAME --zone $GKE_ZONE
   script:
-    # Créer le namespace
-    - echo "🏗️ Creating namespace..."
-    - kubectl apply -f k8s/namespace.yml  # Correction: .yml au lieu de .yaml
-    
-    # Nettoyage préventif des ressources
-    - echo "🧹 Cleaning up resources..."
-    - kubectl scale deployment uptime-kuma --replicas=0 -n $NAMESPACE || echo "Uptime Kuma not found"
-    - kubectl scale deployment adminer --replicas=0 -n $NAMESPACE || echo "Adminer not found"
-    - kubectl delete pods --field-selector=status.phase=Failed -n $NAMESPACE || echo "No failed pods"
-    
-    # Déployer PostgreSQL
-    - echo "🗄️ Deploying PostgreSQL..."
+    - kubectl apply -f k8s/namespace.yaml
+    - echo "Deploying PostgreSQL..."
     - kubectl apply -f k8s/postgres/
-    - kubectl wait --for=condition=available --timeout=300s deployment/postgres -n $NAMESPACE || echo "PostgreSQL taking longer"
-    
-    # Variables des images
+    - kubectl wait --for=condition=available --timeout=300s deployment/postgres -n $NAMESPACE
+    - echo "Deploying Keycloak..."
+    - kubectl apply -f k8s/keycloak/
+    - echo "Deploying Adminer..."
+    - kubectl apply -f k8s/adminer/
+    - echo "Deploying Uptime Kuma..."
+    - kubectl apply -f k8s/uptime-kuma/
     - FRONTEND_IMAGE="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/frontend:${CI_COMMIT_SHA}"
     - API_IMAGE="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/api:${CI_COMMIT_SHA}"
-    - echo "🖼️ Using images:"
-    - echo "  Frontend $FRONTEND_IMAGE"
-    - echo "  API $API_IMAGE"
-    
-    # Mise à jour des images avec regex corrigée
-    - echo "📝 Updating manifests with new images..."
-    - sed -i "s|image:.*europe-west1-docker.pkg.dev/.*/frontend:.*|image $FRONTEND_IMAGE|g" k8s/frontend/frontend-all.yaml
-    - sed -i "s|image:.*europe-west1-docker.pkg.dev/.*/api:.*|image $API_IMAGE|g" k8s/api/api-all.yaml
-    
-    # Debug: Vérifier les changements
-    - echo "🔍 Verifying image updates:"
-    - grep -n "image:" k8s/api/api-all.yaml | head -5
-    - grep -n "image:" k8s/frontend/frontend-all.yaml | head -5
-    
-    # Déployer l'API avec gestion d'erreur
+    - sed -i "s|image europe-west1-docker.pkg.dev/.*/frontend:.*|image ${FRONTEND_IMAGE}|g" k8s/frontend/frontend-all.yaml
+    - sed -i "s|image europe-west1-docker.pkg.dev/.*/api:.*|image $API_IMAGE|g" k8s/api/api-all.yaml
     - echo "🔧 Deploying API..."
     - kubectl apply -f k8s/api/
-    
-    # Attendre l'API avec diagnostic complet
+    # Diagnostic automatique de l'API
+    - echo "🔍 Diagnosing API deployment..."
     - |
-      echo "⏳ Waiting for API with comprehensive monitoring..."
+      # Attendre un peu pour que les pods se créent
+      sleep 15
       
-      # Attendre que les pods se créent
-      sleep 20
+      echo "=== API Pods Status ==="
+      kubectl get pods -n $NAMESPACE -l app=api
       
-      # Diagnostic initial
-      echo "=== Initial API Status ==="
-      kubectl get pods -n $NAMESPACE -l app=api -o wide
+      echo ""
+      echo "=== API Deployment Status ==="
+      kubectl describe deployment api -n $NAMESPACE
       
-      # Attendre avec vérifications détaillées
-      for i in $(seq 1 8); do
-        echo "🔍 Attempt $i/8: Checking API status..."
-        
-        if kubectl wait --for=condition=available --timeout=45s deployment/api -n $NAMESPACE; then
+      echo ""
+      echo "=== API Pod Details ==="
+      kubectl describe pods -n $NAMESPACE -l app=api
+      
+      echo ""
+      echo "=== API Logs ==="
+      kubectl logs -n $NAMESPACE -l app=api --tail=50 || echo "No logs available yet"
+      
+      echo ""
+      echo "=== Recent Events ==="
+      kubectl get events -n $NAMESPACE --sort-by='.lastTimestamp' | tail -20
+    
+    # Attendre l'API avec gestion d'erreur améliorée
+    - |
+      echo "⏳ Waiting for API to be ready..."
+      
+      # Attendre avec vérifications intermédiaires
+      for i in $(seq 1 10); do
+        if kubectl wait --for=condition=available --timeout=30s deployment/api -n $NAMESPACE; then
           echo "✅ API is ready!"
           break
         fi
         
-        echo "⚠️ API not ready yet. Investigating..."
+        echo "⚠️ API not ready yet (attempt $i/10). Checking status..."
         
-        # Diagnostic détaillé
-        echo "📊 Current pod status:"
-        kubectl get pods -n $NAMESPACE -l app=api -o wide
+        # Vérifications intermédiaires
+        echo "Current pod status:"
+        kubectl get pods -n $NAMESPACE -l app=api
         
-        echo "📋 API events:"
-        kubectl get events -n $NAMESPACE --field-selector involvedObject.name=api --sort-by='.lastTimestamp' | tail -5
+        echo "Pod logs (last 10 lines):"
+        kubectl logs -n $NAMESPACE -l app=api --tail=10 || echo "No logs available"
         
-        echo "📝 API logs (last 15 lines):"
-        kubectl logs -n $NAMESPACE -l app=api --tail=15 || echo "No logs available yet"
-        
-        # Diagnostic spécifique pour l'erreur connue
-        API_POD=$(kubectl get pods -n $NAMESPACE -l app=api -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
-        if [ ! -z "$API_POD" ]; then
-          echo "🔍 Checking if API container is crashing..."
-          kubectl describe pod $API_POD -n $NAMESPACE | grep -A 10 "Last State" || echo "Pod not crashed"
-        fi
-        
-        if [ $i -eq 8 ]; then
-          echo "❌ API deployment failed after 8 attempts"
-          echo "📋 Final diagnostic:"
-          kubectl describe deployment api -n $NAMESPACE
-          echo "🚀 Continuing with other services..."
+        if [ $i -eq 10 ]; then
+          echo "❌ API deployment failed after 10 attempts"
+          echo "Final diagnostic:"
+          kubectl describe pods -n $NAMESPACE -l app=api
+          echo "Continuing with frontend deployment..."
           break
         fi
         
-        echo "⏳ Waiting 45 seconds before next check..."
-        sleep 45
+        echo "Waiting 30 seconds before next check..."
+        sleep 30
       done
-    
-    # Déployer le frontend
-    - echo "🎨 Deploying Frontend..."
+    - echo "Deploying Frontend..."
     - kubectl apply -f k8s/frontend/
-    - kubectl wait --for=condition=available --timeout=300s deployment/frontend -n $NAMESPACE || echo "Frontend taking longer"
-    
-    # Déployer Keycloak avec ressources réduites
-    - echo "🔐 Deploying Keycloak..."
-    - kubectl apply -f k8s/keycloak/
-    - kubectl wait --for=condition=available --timeout=600s deployment/keycloak -n $NAMESPACE || echo "Keycloak may take 10+ minutes to start"
-    
-    # Obtenir les informations des services
-    - echo "🌐 Getting service information..."
-    - kubectl get services -n $NAMESPACE -o wide
-    
-    # Attendre et récupérer les IPs externes
-    - |
-      echo "🔗 Retrieving service URLs..."
-      sleep 30  # Attendre l'assignation des IPs
-      
-      # Récupérer les IPs
-      FRONTEND_IP=$(kubectl get service frontend-service -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
-      KEYCLOAK_IP=$(kubectl get service keycloak-service -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
-      
-      echo "🎉 DEPLOYMENT COMPLETED!"
-      echo "════════════════════════════════════════"
-      echo "🎨 Frontend (React):     http://$FRONTEND_IP"
-      echo "🔐 Keycloak:            http://$KEYCLOAK_IP:8080"
-      echo "🔧 API (NestJS):        Internal service (api-service:3000)"
-      echo "🗄️ PostgreSQL:          Internal service (postgres-service:5432)"
-      echo "════════════════════════════════════════"
-      echo "📝 Default credentials:"
-      echo "   Keycloak Admin: admin/admin"
-      echo "   PostgreSQL: postgres/postgres"
-      echo "   Database: fitness_platform_db"
-      echo "════════════════════════════════════════"
-      
-      if [[ "$FRONTEND_IP" == "pending" || "$KEYCLOAK_IP" == "pending" ]]; then
-        echo "⏳ Some external IPs still pending. Check later with:"
-        echo "   kubectl get services -n $NAMESPACE"
-      fi
-    
-    # Résumé final du déploiement
-    - echo ""
+    - kubectl wait --for=condition=available --timeout=300s deployment/frontend -n $NAMESPACE
+    - echo "Waiting for Keycloak to be ready..."
+    - kubectl wait --for=condition=available --timeout=600s deployment/keycloak -n $NAMESPACE || echo "Keycloak may take longer to start"
+    - echo "Getting service information..."
+    - kubectl get services -n $NAMESPACE
+    - echo "Retrieving service URLs..."
+    - FRONTEND_IP=$(kubectl get service frontend-service -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
+    - KEYCLOAK_IP=$(kubectl get service keycloak-service -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
+    - UPTIME_IP=$(kubectl get service uptime-kuma-service -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
+    - ADMINER_IP=$(kubectl get service adminer-service -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
+    - echo "DEPLOYMENT COMPLETED!"
+    - echo "Frontend (React) at http://$FRONTEND_IP"
+    - echo "Keycloak at http://$KEYCLOAK_IP:8080"
+    - echo "Uptime Kuma at http://$UPTIME_IP:3001"
+    - echo "Adminer at http://$ADMINER_IP:8080"
+    - echo "Keycloak Admin - admin/admin"
+    - echo "PostgreSQL - postgres/postgres"
     - echo "=== DEPLOYMENT SUMMARY ==="
     - echo "Namespace $NAMESPACE"
     - echo "Frontend image $FRONTEND_IMAGE"
     - echo "API image $API_IMAGE"
-    - echo ""
-    - echo "🎯 All deployments status:"
-    - kubectl get deployments -n $NAMESPACE
-    - echo ""
-    - echo "🔗 All services:"
-    - kubectl get services -n $NAMESPACE
+    - kubectl get all -n $NAMESPACE
   only:
     - feature-deploy
 
@@ -278,16 +224,11 @@ cleanup:
     - gcloud auth activate-service-account --key-file gcp-key.json
     - gcloud config set project $GCP_PROJECT_ID
   script:
-    - echo "🧹 Cleaning up old container images..."
-    # Nettoyer les images frontend
+    - echo "Cleaning up old container images..."
     - FRONTEND_REPO="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/frontend"
-    - echo "Cleaning frontend images older than 5 versions..."
     - gcloud artifacts docker images list $FRONTEND_REPO --limit=999 --sort-by=UPDATE_TIME --format="get(version)" | tail -n +6 | xargs -I {} gcloud artifacts docker images delete $FRONTEND_REPO:{} --quiet || true
-    # Nettoyer les images API
     - API_REPO="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/api"
-    - echo "Cleaning API images older than 5 versions..."
     - gcloud artifacts docker images list $API_REPO --limit=999 --sort-by=UPDATE_TIME --format="get(version)" | tail -n +6 | xargs -I {} gcloud artifacts docker images delete $API_REPO:{} --quiet || true
-    - echo "✅ Cleanup completed!"
   when: manual
   only:
     - feature-deploy
