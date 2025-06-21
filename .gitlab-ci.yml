@@ -8,12 +8,10 @@ variables:
   GCP_PROJECT_ID: "k8s-frist-test"
   GKE_CLUSTER_NAME: "react-app-cluster"
   GKE_ZONE: "europe-west1-b"
-  # Artifact Registry configuration
   AR_LOCATION: "europe-west1"
   AR_REPO: "annual-project-repo"
   NAMESPACE: "annual-project"
 
-# Build Frontend
 build-frontend:
   stage: build
   image: google/cloud-sdk:latest
@@ -33,16 +31,15 @@ build-frontend:
   script:
     - cd client
     - IMAGE_URL="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/frontend:${CI_COMMIT_SHA}"
-    - echo "Building frontend image ${IMAGE_URL}"
+    - echo "Building frontend image $IMAGE_URL"
     - docker build -t $IMAGE_URL .
     - docker push $IMAGE_URL
     - LATEST_URL="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/frontend:latest"
     - docker tag $IMAGE_URL $LATEST_URL
     - docker push $LATEST_URL
   only:
-    - feature-deploy
+    - main
 
-# Build API
 build-api:
   stage: build
   image: google/cloud-sdk:latest
@@ -69,9 +66,8 @@ build-api:
     - docker tag $IMAGE_URL $LATEST_URL
     - docker push $LATEST_URL
   only:
-    - feature-deploy
+    - main
 
-# Test Frontend
 test-frontend:
   stage: test
   image: node:18-alpine
@@ -84,9 +80,8 @@ test-frontend:
     - npm ci
     - npm run test
   only:
-    - feature-deploy
+    - main
 
-# Test API
 test-api:
   stage: test
   image: node:18-alpine
@@ -110,9 +105,8 @@ test-api:
     - npm ci
     - npm run test
   only:
-    - feature-deploy
+    - main
 
-# Deploy to Kubernetes
 deploy:
   stage: deploy
   image: google/cloud-sdk:alpine
@@ -123,88 +117,50 @@ deploy:
     - gcloud config set project $GCP_PROJECT_ID
     - gcloud container clusters get-credentials $GKE_CLUSTER_NAME --zone $GKE_ZONE
   script:
-    # Créer le namespace
     - kubectl apply -f k8s/namespace.yaml
-    
-    # Déployer PostgreSQL en premier
-    - echo "🗄️ Deploying PostgreSQL..."
+    - echo "Deploying PostgreSQL..."
     - kubectl apply -f k8s/postgres/
     - kubectl wait --for=condition=available --timeout=300s deployment/postgres -n $NAMESPACE
-    
-    # Déployer Keycloak (après PostgreSQL)
-    - echo "🔐 Deploying Keycloak..."
+    - echo "Deploying Keycloak..."
     - kubectl apply -f k8s/keycloak/
-    
-    # Déployer Adminer
-    - echo "🛠️ Deploying Adminer..."
+    - echo "Deploying Adminer..."
     - kubectl apply -f k8s/adminer/
-    
-    # Déployer Uptime Kuma
-    - echo "📊 Deploying Uptime Kuma..."
+    - echo "Deploying Uptime Kuma..."
     - kubectl apply -f k8s/uptime-kuma/
-    
-    # Mettre à jour les images dans les manifestes
     - FRONTEND_IMAGE="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/frontend:${CI_COMMIT_SHA}"
     - API_IMAGE="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/api:${CI_COMMIT_SHA}"
-    
-    # Mise à jour des images dans les fichiers
-    - sed -i "s|image europe-west1-docker.pkg.dev/.*/frontend:.*|image  ${FRONTEND_IMAGE}|g" k8s/frontend/frontend-all.yaml
+    - sed -i "s|image europe-west1-docker.pkg.dev/.*/frontend:.*|image ${FRONTEND_IMAGE}|g" k8s/frontend/frontend-all.yaml
     - sed -i "s|image europe-west1-docker.pkg.dev/.*/api:.*|image $API_IMAGE|g" k8s/api/api-all.yaml
-    
-    # Déployer l'API
-    - echo "🔧 Deploying API..."
+    - echo "Deploying API..."
     - kubectl apply -f k8s/api/
     - kubectl wait --for=condition=available --timeout=300s deployment/api -n $NAMESPACE
-    
-    # Déployer le frontend
-    - echo "🎨 Deploying Frontend..."
+    - echo "Deploying Frontend..."
     - kubectl apply -f k8s/frontend/
     - kubectl wait --for=condition=available --timeout=300s deployment/frontend -n $NAMESPACE
-    
-    # Attendre que Keycloak soit prêt (plus long à démarrer)
-    - echo "⏳ Waiting for Keycloak to be ready..."
+    - echo "Waiting for Keycloak to be ready..."
     - kubectl wait --for=condition=available --timeout=600s deployment/keycloak -n $NAMESPACE || echo "Keycloak may take longer to start"
-    
-    # Obtenir toutes les IPs externes
-    - echo "🌐 Getting service information..."
+    - echo "Getting service information..."
     - kubectl get services -n $NAMESPACE
-    
-    # Obtenir les IPs spécifiques
-    - |
-      echo "🔍 Retrieving service URLs..."
-      
-      # Frontend
-      FRONTEND_IP=$(kubectl get service frontend-service -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
-      
-      # Keycloak
-      KEYCLOAK_IP=$(kubectl get service keycloak-service -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
-      
-      # Uptime Kuma
-      UPTIME_IP=$(kubectl get service uptime-kuma-service -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
-      
-      # Adminer
-      ADMINER_IP=$(kubectl get service adminer-service -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
-      
-      echo "🎉 DEPLOYMENT COMPLETED!"
-      echo "════════════════════════════"
-      echo "🎨 Frontend (React):     http://$FRONTEND_IP"
-      echo "🔐 Keycloak:            http://$KEYCLOAK_IP:8080"
-      echo "📊 Uptime Kuma:         http://$UPTIME_IP:3001"
-      echo "🛠️ Adminer:             http://$ADMINER_IP:8080"
-      echo "════════════════════════════"
-      echo "📝 Keycloak Admin: admin/admin"
-      echo "📝 PostgreSQL: postgres/postgres"
-    
-    # Résumé du déploiement
+    - echo "Retrieving service URLs..."
+    - FRONTEND_IP=$(kubectl get service frontend-service -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
+    - KEYCLOAK_IP=$(kubectl get service keycloak-service -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
+    - UPTIME_IP=$(kubectl get service uptime-kuma-service -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
+    - ADMINER_IP=$(kubectl get service adminer-service -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
+    - echo "DEPLOYMENT COMPLETED!"
+    - echo "Frontend (React) at http://$FRONTEND_IP"
+    - echo "Keycloak at http://$KEYCLOAK_IP:8080"
+    - echo "Uptime Kuma at http://$UPTIME_IP:3001"
+    - echo "Adminer at http://$ADMINER_IP:8080"
+    - echo "Keycloak Admin - admin/admin"
+    - echo "PostgreSQL - postgres/postgres"
     - echo "=== DEPLOYMENT SUMMARY ==="
     - echo "Namespace $NAMESPACE"
     - echo "Frontend image $FRONTEND_IMAGE"
     - echo "API image $API_IMAGE"
     - kubectl get all -n $NAMESPACE
   only:
-    - feature-deploy
+    - main
 
-# Nettoyage manuel des images
 cleanup:
   stage: deploy
   image: google/cloud-sdk:alpine
@@ -214,12 +170,10 @@ cleanup:
     - gcloud config set project $GCP_PROJECT_ID
   script:
     - echo "Cleaning up old container images..."
-    # Nettoyer les images frontend
     - FRONTEND_REPO="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/frontend"
     - gcloud artifacts docker images list $FRONTEND_REPO --limit=999 --sort-by=UPDATE_TIME --format="get(version)" | tail -n +6 | xargs -I {} gcloud artifacts docker images delete $FRONTEND_REPO:{} --quiet || true
-    # Nettoyer les images API
     - API_REPO="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/api"
     - gcloud artifacts docker images list $API_REPO --limit=999 --sort-by=UPDATE_TIME --format="get(version)" | tail -n +6 | xargs -I {} gcloud artifacts docker images delete $API_REPO:{} --quiet || true
   when: manual
   only:
-    - feature-deploy
+    - main
