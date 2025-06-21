@@ -1,200 +1,8 @@
-// src/keycloak/keycloak.service.ts
-// import { Injectable, HttpException } from '@nestjs/common';
-// import { HttpService } from '@nestjs/axios';
-// import { firstValueFrom } from 'rxjs';
 
-// @Injectable()
-// export class KeycloakService {
-//   private readonly keycloakBaseUrl = 'http://localhost:8081'; // adapte si besoin
-//   private readonly realm = 'MY-REALM';
-//   private readonly clientId = 'my-nest-client';
-//   private readonly adminClientId = 'admin-cli'; // ou ton client admin
-//   private readonly adminSecret = 'ObkISiWU00ydpPjjmTpL9lvOkrJAWlzy'; // secret du client admin
-
-//   constructor(private readonly httpService: HttpService) {}
-
-//   async getAdminToken(): Promise<string> {
-//     const data = new URLSearchParams({
-//       grant_type: 'client_credentials',
-//       client_id: this.adminClientId,
-//       client_secret: this.adminSecret,
-//     });
-
-//     const response = await firstValueFrom(
-//       this.httpService.post(
-//         `${this.keycloakBaseUrl}/realms/${this.realm}/protocol/openid-connect/token`,
-//         data,
-//         { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
-//       ),
-//     );
-
-//     return response.data.access_token;
-//   }
-
-//   async getClientUUID(accessToken: string): Promise<string> {
-//     const response = await firstValueFrom(
-//       this.httpService.get(
-//         `${this.keycloakBaseUrl}/admin/realms/${this.realm}/clients`,
-//         { headers: { Authorization: `Bearer ${accessToken}` } },
-//       ),
-//     );
-
-//     const client = response.data.find(c => c.clientId === this.clientId);
-//     if (!client) {
-//       throw new Error('Client not found');
-//     }
-
-//     return client.id;
-//   }
-
-//   async getRoleByName(clientUUID: string, roleName: string, accessToken: string) {
-//     const response = await firstValueFrom(
-//       this.httpService.get(
-//         `${this.keycloakBaseUrl}/admin/realms/${this.realm}/clients/${clientUUID}/roles/${roleName}`,
-//         { headers: { Authorization: `Bearer ${accessToken}` } },
-//       ),
-//     );
-
-//     return response.data; // { id, name, description }
-//   }
-
-//   async assignRoleToUser(userId: string, roleName: 'COACH' | 'CLIENT') {
-//     const adminToken = await this.getAdminToken();
-//     const clientUUID = await this.getClientUUID(adminToken);
-//     const role = await this.getRoleByName(clientUUID, roleName, adminToken);
-
-//     await firstValueFrom(
-//       this.httpService.post(
-//         `${this.keycloakBaseUrl}/admin/realms/${this.realm}/users/${userId}/role-mappings/clients/${clientUUID}`,
-//         [role],
-//         {
-//           headers: {
-//             Authorization: `Bearer ${adminToken}`,
-//             'Content-Type': 'application/json',
-//           },
-//         },
-//       ),
-//     );
-//   }
-// }
-
-// import { Injectable } from '@nestjs/common';
-// import { ConfigService } from '@nestjs/config';
-// import KcAdminClient from '@keycloak/keycloak-admin-client';
-// import jwt from 'jsonwebtoken';
-
-// @Injectable()
-// export class KeycloakService {
-//   private kcAdminClient: KcAdminClient;
-
-//   constructor(private configService: ConfigService) {
-//     // Initialiser le client admin Keycloak
-//     this.kcAdminClient = new KcAdminClient({
-//       baseUrl: this.configService.get<string>('KEYCLOAK_URL'),
-//       realmName: this.configService.get<string>('KEYCLOAK_REALM'),
-//     });
-
-//     this.initKeycloakAdmin();
-//   }
-
-//   private async initKeycloakAdmin() {
-//     try {
-//       // Authentification avec Keycloak
-//       await this.kcAdminClient.auth({
-//         clientId: this.configService.get<any>('KEYCLOAK_ADMIN_CLIENT_ID'),
-//         clientSecret: this.configService.get<string>('KEYCLOAK_ADMIN_CLIENT_SECRET'),
-//         grantType: 'client_credentials',
-//       });
-
-//       // Configuration du realm
-//       this.kcAdminClient.setConfig({
-//         realmName: this.configService.get<string>('KEYCLOAK_REALM'),
-//       });
-
-//       console.log('Keycloak admin client initialized successfully');
-//     } catch (error) {
-//       console.error('Failed to initialize Keycloak admin client:', error);
-//     }
-//   }
-
-//   async getUserIdFromToken(token: string): Promise<string | null> {
-//     try {
-//       const decoded: any = jwt.decode(token);
-//       return decoded?.sub || null;
-//     } catch (error) {
-//       console.error('Failed to decode token:', error);
-//       return null;
-//     }
-//   }
-
-//   async assignCoachRole(userId: string): Promise<void> {
-//     try {
-//       // Récupérer le rôle "COACH" de Keycloak
-//       const roles = await this.kcAdminClient.roles.find({
-//         realm: this.configService.get<string>('KEYCLOAK_REALM'),
-//       });
-
-//       const coachRole = roles.find(role => role.name === 'COACH');
-
-//       if (!coachRole) {
-//         throw new Error('COACH role not found in Keycloak');
-//       }
-
-//       // Assigner le rôle à l'utilisateur
-//       await this.kcAdminClient.users.addRealmRoleMappings({
-//         id: userId,
-//         roles: [
-//           {
-//             id: coachRole.id!,
-//             name: coachRole.name!,
-//           },
-//         ],
-//       });
-
-//       console.log(`Role COACH assigned to user ${userId}`);
-//     } catch (error) {
-//       console.error('Failed to assign COACH role:', error);
-//       throw error;
-//     }
-//   }
-
-//   async assignClientRole(userId: string): Promise<void> {
-//     try {
-//       // Récupérer le rôle "CLIENT" de Keycloak
-//       const roles = await this.kcAdminClient.roles.find({
-//         realm: this.configService.get<string>('KEYCLOAK_REALM'),
-//       });
-
-//       const clientRole = roles.find(role => role.name === 'CLIENT');
-
-//       if (!clientRole) {
-//         throw new Error('CLIENT role not found in Keycloak');
-//       }
-
-//       // Assigner le rôle à l'utilisateur
-//       await this.kcAdminClient.users.addRealmRoleMappings({
-//         id: userId,
-//         roles: [
-//           {
-//             id: clientRole.id!,
-//             name: clientRole.name!,
-//           },
-//         ],
-//       });
-
-//       console.log(`Role CLIENT assigned to user ${userId}`);
-//     } catch (error) {
-//       console.error('Failed to assign CLIENT role:', error);
-//       throw error;
-//     }
-//   }
-// }
-
-// keycloak.service.ts modifié pour gérer l'erreur 401
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import KcAdminClient from '@keycloak/keycloak-admin-client';
-// Utilisation de CommonJS pour l'import
+
 const jwt = require('jsonwebtoken');
 
 @Injectable()
@@ -292,58 +100,69 @@ export class KeycloakService {
     }
   }
 
-  // Méthode d'assistance pour s'assurer que l'authentification est fraîche
-  private async ensureFreshAuth() {
-    try {
-      // Vérifier si le token existe
-      if (!this.kcAdminClient.accessToken) {
-        console.log('No access token available, authenticating...');
-        await this.initKeycloakAdmin();
-        return;
-      }
-
-      // Décoder le token pour vérifier l'expiration
-      const parts = this.kcAdminClient.accessToken.split('.');
-      if (parts.length !== 3) {
-        console.log('Invalid token format, re-authenticating...');
-        await this.initKeycloakAdmin();
-        return;
-      }
-
-      // Décoder la partie payload
-      const payload = Buffer.from(parts[1], 'base64').toString();
-      const payloadObj = JSON.parse(payload);
-
-      if (payloadObj && payloadObj.exp) {
-        // Calculer le temps restant avant expiration
-        const expiresIn = payloadObj.exp * 1000 - Date.now();
-
-        // Si le token expire dans moins de 30 secondes, renouveler
-        if (expiresIn < 30000) {
-          console.log(
-            'Token expiring soon (less than 30 seconds), refreshing...',
-          );
-          await this.initKeycloakAdmin();
-        } else {
-          console.log(
-            `Token still valid for ${Math.floor(expiresIn / 1000)} seconds`,
-          );
-        }
-      } else {
-        // Si pas d'expiration trouvée, renouveler par précaution
-        console.log(
-          'Cannot determine token expiration, re-authenticating to be safe',
-        );
-        await this.initKeycloakAdmin();
-      }
-    } catch (error) {
-      console.error(
-        'Error checking token freshness, re-authenticating:',
-        error,
-      );
-      await this.initKeycloakAdmin();
-    }
+  async updateUser(
+    keycloakId: string,
+    data: Partial<{ firstName: string; lastName: string; email: string; username: string }>
+  ) {
+    await this.initKeycloakAdmin();
+    return await this.kcAdminClient.users.update(
+      { id: keycloakId },
+      data,
+    );
   }
+
+  // Méthode d'assistance pour s'assurer que l'authentification est fraîche
+  // private async ensureFreshAuth() {
+  //   try {
+  //     // Vérifier si le token existe
+  //     if (!this.kcAdminClient.accessToken) {
+  //       console.log('No access token available, authenticating...');
+  //       await this.initKeycloakAdmin();
+  //       return;
+  //     }
+
+  //     // Décoder le token pour vérifier l'expiration
+  //     const parts = this.kcAdminClient.accessToken.split('.');
+  //     if (parts.length !== 3) {
+  //       console.log('Invalid token format, re-authenticating...');
+  //       await this.initKeycloakAdmin();
+  //       return;
+  //     }
+
+  //     // Décoder la partie payload
+  //     const payload = Buffer.from(parts[1], 'base64').toString();
+  //     const payloadObj = JSON.parse(payload);
+
+  //     if (payloadObj && payloadObj.exp) {
+  //       // Calculer le temps restant avant expiration
+  //       const expiresIn = payloadObj.exp * 1000 - Date.now();
+
+  //       // Si le token expire dans moins de 30 secondes, renouveler
+  //       if (expiresIn < 30000) {
+  //         console.log(
+  //           'Token expiring soon (less than 30 seconds), refreshing...',
+  //         );
+  //         await this.initKeycloakAdmin();
+  //       } else {
+  //         console.log(
+  //           `Token still valid for ${Math.floor(expiresIn / 1000)} seconds`,
+  //         );
+  //       }
+  //     } else {
+  //       // Si pas d'expiration trouvée, renouveler par précaution
+  //       console.log(
+  //         'Cannot determine token expiration, re-authenticating to be safe',
+  //       );
+  //       await this.initKeycloakAdmin();
+  //     }
+  //   } catch (error) {
+  //     console.error(
+  //       'Error checking token freshness, re-authenticating:',
+  //       error,
+  //     );
+  //     await this.initKeycloakAdmin();
+  //   }
+  // }
 
   private scheduleTokenRefresh() {
     try {
@@ -465,7 +284,7 @@ export class KeycloakService {
       console.log(`Attempting to assign role ${roleName} to user ${userId}`);
 
       // S'assurer que l'authentification est fraîche avant d'opérer
-      await this.ensureFreshAuth();
+      await this.initKeycloakAdmin();
 
       // Récupérer le rôle
       console.log(`Searching for role: ${roleName}`);
@@ -555,7 +374,6 @@ export class KeycloakService {
     }
   }
 
-  // Méthodes existantes utilisant la nouvelle méthode unifiée
   async assignCoachRole(userId: string): Promise<void> {
     return this.assignRole(userId, 'COACH');
   }
@@ -563,4 +381,7 @@ export class KeycloakService {
   async assignClientRole(userId: string): Promise<void> {
     return this.assignRole(userId, 'CLIENT');
   }
+
+  
+
 }

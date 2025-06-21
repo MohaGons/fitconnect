@@ -3,13 +3,15 @@ import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { useKeycloakContext } from '../../services/useKeycloakContext';
 import api from "../../api/axios";
+import { useUser } from "../../context/UserContext";
+
 
 export default function UserDropdown() {
   const { keycloak } = useKeycloakContext();
   const userId = keycloak?.tokenParsed?.sub;
   const roles = keycloak.tokenParsed?.realm_access?.roles || [];
   const [isOpen, setIsOpen] = useState(false);
-  const [clientData, setClientData] = useState<any>(null);
+  const { user, setUser, role } = useUser();
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -20,7 +22,7 @@ export default function UserDropdown() {
   }
 
   useEffect(() => {
-  const fetchClientData = async () => {
+  const fetchuser = async () => {
     if (!userId) return;
 
     try {
@@ -38,14 +40,14 @@ export default function UserDropdown() {
         throw new Error("Erreur lors de la récupération du profil.");
       }
 
-      setClientData(response.data);
+       setUser(response.data);
     } catch (error) {
       console.error("Erreur:", error);
     }
   };
 
-  fetchClientData();
-}, [userId, roles]);
+  fetchuser();
+  }, [userId, roles]);
 
 
 
@@ -56,11 +58,28 @@ export default function UserDropdown() {
         className="flex items-center text-gray-700 dropdown-toggle dark:text-gray-400"
       >
         
-        <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
-          <img src={ `${clientData?.photo || ''}`  } alt="User" className="h-full w-full object-cover" />
+        <span className="mr-3 overflow-hidden rounded-full h-11 w-11 bg-gray-200 flex items-center justify-center">
+          {user?.photo && user.photo.trim() !== ''  ? (
+            <img
+              src={user.photo}
+              alt="User"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <svg
+              className="h-6 w-6 text-gray-500"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"
+              />
+            </svg>
+          )}
         </span>
 
-        <span className="block mr-1 font-medium text-theme-sm">{clientData ? `${clientData.firstName || ''}`  : ''}</span>
+
+        <span className="block mr-1 font-medium text-theme-sm">{user ? `${user.firstName || ''}`  : ''}</span>
         <svg
           className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
@@ -88,10 +107,10 @@ export default function UserDropdown() {
       >
         <div>
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-           {clientData ? `${clientData.firstName || ''} ${clientData.lastName || ''}`  : ''}
+           {user ? `${user.firstName || ''} ${user.lastName || ''}`  : ''}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            { `${clientData?.email || ''}`  }
+            { `${user?.email || ''}`  }
           </span>
         </div>
 
@@ -100,7 +119,7 @@ export default function UserDropdown() {
             <DropdownItem
               onItemClick={closeDropdown}
               tag="a"
-              to="/profile"
+              to="/dashboard/profile"
               className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
             >
               <svg

@@ -109,10 +109,8 @@ const Inscription: React.FC = () => {
         
        {/* Dynamic Forms */}
         <div className="w-full ">
-            <Suspense fallback={<p>Chargement...</p>}>
             {selectedProfile === "COACH" && <CoachForm />}
             {selectedProfile === "CLIENT" && <ClientForm />}
-            </Suspense>
         </div>
        
           <div className="mt-4 text-center">
