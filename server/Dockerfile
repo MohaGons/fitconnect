@@ -33,4 +33,4 @@ USER nestjs
 EXPOSE 3000
 
 # Démarrer l'application compilée
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
