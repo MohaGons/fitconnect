@@ -9,10 +9,10 @@ data:
   KC_HOSTNAME_STRICT: "false"
   KC_HOSTNAME_STRICT_HTTPS: "false"
   KC_HTTP_ENABLED: "true"
-  KC_PROXY: "edge"  # Support HTTPS via proxy/ingress
+  KC_PROXY: "edge"
   KC_HEALTH_ENABLED: "true"
-  KC_HOSTNAME: "keycloak.34.79.140.130.nip.io"  # Domaine avec nip.io
-  KC_HOSTNAME_ADMIN: "keycloak.34.79.140.130.nip.io"  # Admin console
+  KC_HOSTNAME: "keycloak.34.79.140.130.nip.io"
+  KC_HOSTNAME_ADMIN: "keycloak.34.79.140.130.nip.io"
 
 ---
 # Secret pour Keycloak
@@ -57,7 +57,7 @@ spec:
   storageClassName: standard-rwo
 
 ---
-# Deployment Keycloak corrigé
+# Deployment Keycloak corrigé pour production HTTPS
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -71,7 +71,7 @@ spec:
     type: RollingUpdate
     rollingUpdate:
       maxUnavailable: 1
-      maxSurge: 0  # Pas de pods supplémentaires pour économiser les ressources
+      maxSurge: 0
   selector:
     matchLabels:
       app: keycloak
@@ -97,8 +97,9 @@ spec:
       - name: keycloak
         image: quay.io/keycloak/keycloak:24.0.3
         args:
-        - "start-dev"  # Mode développement plus léger
+        - "start"  
         - "--import-realm"
+        - "--proxy=edge"
         ports:
         - containerPort: 8080
           name: http
@@ -114,7 +115,7 @@ spec:
               name: keycloak-secret
               key: KEYCLOAK_ADMIN_PASSWORD
         - name: KC_DB
-          value: "postgres"  # Valeur directe pour éviter les problèmes
+          value: "postgres"
         - name: KC_DB_URL
           value: "jdbc:postgresql://postgres-service:5432/fitness_platform_db"
         - name: KC_DB_USERNAME
@@ -127,8 +128,10 @@ spec:
             secretKeyRef:
               name: postgres-secret
               key: POSTGRES_PASSWORD
+        
+        # ===== CONFIGURATION HTTPS VIA PROXY =====
         - name: KC_HOSTNAME
-          value: "34.76.26.38"  # IP du LoadBalancer pour simplicité
+          value: "keycloak.34.79.140.130.nip.io"
         - name: KC_HOSTNAME_STRICT
           value: "false"
         - name: KC_HOSTNAME_STRICT_HTTPS
@@ -137,23 +140,34 @@ spec:
           value: "true"
         - name: KC_PROXY
           value: "edge"
+        - name: KC_PROXY_HEADERS
+          value: "xforwarded"
         - name: KC_HEALTH_ENABLED
           value: "true"
-        # Variables supplémentaires pour résoudre les problèmes de cookies
+        
+        # ===== URLs HTTPS COMPLÈTES =====
+        - name: KC_HOSTNAME_URL
+          value: "https://keycloak.34.79.140.130.nip.io"
+        - name: KC_HOSTNAME_ADMIN_URL
+          value: "https://keycloak.34.79.140.130.nip.io"
+        
+        # ===== CONFIGURATION POUR COOKIES SÉCURISÉS =====
         - name: KC_SPI_LOGIN_PROTOCOL_OPENID_CONNECT_LEGACY_LOGOUT_REDIRECT_URI
           value: "true"
         - name: KC_HOSTNAME_STRICT_BACKCHANNEL
           value: "false"
+        
         volumeMounts:
         - name: keycloak-theme-volume
           mountPath: /opt/keycloak/themes
         - name: realm-export-volume
           mountPath: /opt/keycloak/data/import
+        
         livenessProbe:
           httpGet:
             path: /health/live
             port: 8080
-          initialDelaySeconds: 180  # Réduit pour start-dev
+          initialDelaySeconds: 180
           periodSeconds: 30
           timeoutSeconds: 15
           failureThreshold: 5
@@ -161,17 +175,19 @@ spec:
           httpGet:
             path: /health/ready
             port: 8080
-          initialDelaySeconds: 120  # Réduit pour start-dev
+          initialDelaySeconds: 120
           periodSeconds: 15
           timeoutSeconds: 10
           failureThreshold: 5
+        
         resources:
           requests:
-            memory: "256Mi"  # Réduit pour économiser les ressources
-            cpu: "50m"       # Très réduit pour éviter les problèmes de scheduling
+            memory: "256Mi"
+            cpu: "50m"
           limits:
-            memory: "512Mi"  # Réduit
-            cpu: "150m"      # Réduit
+            memory: "512Mi"
+            cpu: "150m"
+      
       volumes:
       - name: keycloak-theme-volume
         persistentVolumeClaim:
@@ -263,9 +279,9 @@ metadata:
   namespace: annual-project
   annotations:
     kubernetes.io/ingress.class: "gce"
-    kubernetes.io/ingress.allow-http: "true"
+    kubernetes.io/ingress.allow-http: "false"
     networking.gke.io/managed-certificates: "keycloak-ssl-cert"
-    # Supprimé l'annotation IP statique pour éviter les erreurs
+    ingress.gcp.kubernetes.io/load-balancer-type: "External"
 spec:
   rules:
   - host: keycloak.34.79.140.130.nip.io
@@ -278,7 +294,7 @@ spec:
             name: keycloak-service
             port:
               number: 8080
-  - http:  # Règle par défaut pour accès direct par IP
+  - http:
       paths:
       - path: /
         pathType: Prefix
