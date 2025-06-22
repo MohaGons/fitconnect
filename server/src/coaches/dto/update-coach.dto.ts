@@ -1,5 +1,4 @@
 import {
-  IsNotEmpty,
   IsOptional,
   IsString,
   IsNumber,
@@ -26,32 +25,31 @@ export class UpdateCoachDto {
   @IsString()
   email?: string;
 
+  @IsOptional() 
   @IsString()
-  @IsNotEmpty()
-  specialty: string;
+  specialty?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   bio?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   certifications?: string;
 
-  @IsNumber()
   @IsOptional()
+  @IsNumber()
   hourly_rate?: number;
 
-  @IsString()
   @IsOptional()
+  @IsString()
   availability?: string;
 
-
   @IsOptional()
   @IsString()
-  photo: string;
+  photo?: string; // Correction : ? ajouté
 
   @IsOptional()
   @IsBoolean()
-deleted?: boolean;
+  deleted?: boolean;
 }

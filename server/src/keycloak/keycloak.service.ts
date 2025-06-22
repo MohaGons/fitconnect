@@ -102,7 +102,7 @@ export class KeycloakService {
 
   async updateUser(
     keycloakId: string,
-    data: Partial<{ firstName: string; lastName: string; email: string; username: string }>
+    data: Partial<{ firstName: string; lastName: string; email: string }>
   ) {
     await this.initKeycloakAdmin();
     return await this.kcAdminClient.users.update(
@@ -110,6 +110,11 @@ export class KeycloakService {
       data,
     );
   }
+
+  async deleteUser(keycloakId: string): Promise<void> {
+  await this.initKeycloakAdmin();
+  await this.kcAdminClient.users.del({ id: keycloakId });
+}
 
   // Méthode d'assistance pour s'assurer que l'authentification est fraîche
   // private async ensureFreshAuth() {

@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useUser } from '../../../context/UserContext';
 import api from "../../../api/axios";
 import { processFileToBase64 } from '../../../services/fileUploadService';
+import { useKeycloakContext } from '../../../services/useKeycloakContext';
 
 const Profile = () => {
     const { user, role, setUser } = useUser();
@@ -15,6 +16,7 @@ const Profile = () => {
     const redirectUri = encodeURIComponent("http://localhost:5173/");
     const resetPasswordUrl = `${keycloakUrl}/realms/${realm}/login-actions/reset-credentials?client_id=${clientId}&redirect_uri=${redirectUri}`;
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const { keycloak } = useKeycloakContext();
 
     useEffect(() => {
     if (!user || !role) return;
@@ -58,7 +60,7 @@ const Profile = () => {
         delete data.photo;
       }
       await api.patch(`/clients/${user.client_id}`, data);
-      setSuccessMsg("Profil client mis à jour !");
+      setSuccessMsg("Profil client mis à jour avec succés !");
       setUser({ ...user, ...data }); 
       console.log("Formulaire client soumis :", data);
     } catch (error: any) {
@@ -77,7 +79,7 @@ const Profile = () => {
         delete data.photo;
       }
       const response = await api.patch(`/coaches/${user.coach_id}`, data);
-      setSuccessMsg("Profil client mis à jour !");
+      setSuccessMsg("Profil client mis à jour avec succés !");
       setUser({ ...user, ...data }); 
       console.log("Mise à jour réussie :", response.data);
     } catch (error: any) {
@@ -103,7 +105,6 @@ const handleDeleteAccount = async () => {
         health_issues: null,
         sport_experience: null,
         photo: null,
-        user_id: null, 
       });
     } else if (role === 'COACH') {
       await api.patch(`/coaches/${user.coach_id}`, {
@@ -116,11 +117,10 @@ const handleDeleteAccount = async () => {
         availability: null,
         specialty: null,
         photo: null,
-        user_id: null, 
       });
     }
-
-    window.location.href = '/goodbye';
+    
+    keycloak.logout({ redirectUri: window.location.origin + '/' });
   } catch (error) {
     setApiError("Erreur lors de la suppression du compte.");
   }
