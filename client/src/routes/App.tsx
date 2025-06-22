@@ -53,6 +53,7 @@ import Cgu from "../pages/public/Cgu/Cgu";
 import Cgv from "../pages/public/Cgv/Cgv";
 import Contact from "../pages/public/Contact/Contact";
 import Chat from "../pages/admin/Chat";
+import Profile from "../pages/admin/profile/profile";
 
 const App = () => {
   return (
@@ -89,6 +90,7 @@ const App = () => {
               <Route path="/dashboard/customers" element={<Customers />} />
               <Route path="/dashboard/coaches" element={<Coaches />} />
               <Route path="/coach" element={<Coach />} />
+              <Route path="/dashboard/profile" element={<Profile />} />
 
               {/* Planning & Communication */}
               <Route path="/dashboard/calendar" element={<Calendar />} />

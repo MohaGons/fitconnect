@@ -14,11 +14,15 @@ import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { Client } from './entities/client.entity';
+import { KeycloakService } from '../keycloak/keycloak.service';
+
 
 @ApiTags('clients')
 @Controller('clients')
 export class ClientsController {
-  constructor(private readonly clientsService: ClientsService) {}
+  constructor(private readonly clientsService: ClientsService,
+    private readonly keycloakService: KeycloakService
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Créer un nouveau client' })
@@ -96,24 +100,48 @@ export class ClientsController {
     return this.clientsService.findOne(id);
   }
 
-  @Patch(':id')
-  @ApiOperation({ summary: 'Mettre à jour un client' })
-  @ApiParam({ name: 'id', description: 'ID du client' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Client mis à jour avec succès',
-    type: Client,
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Client non trouvé',
-  })
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateClientDto: UpdateClientDto,
-  ): Promise<Client> {
-    return this.clientsService.update(id, updateClientDto);
+@Patch(':id')
+@ApiOperation({ summary: 'Mettre à jour un client' })
+@ApiParam({ name: 'id', description: 'ID du client' })
+@ApiResponse({
+  status: HttpStatus.OK,
+  description: 'Client mis à jour avec succès',
+  type: Client,
+})
+@ApiResponse({
+  status: HttpStatus.NOT_FOUND,
+  description: 'Client non trouvé',
+})
+async update(
+  @Param('id', ParseIntPipe) id: number,
+  @Body() updateClientDto: UpdateClientDto,
+): Promise<Client> {
+  // 1. Mettre à jour le client dans la base
+  const updatedClient = await this.clientsService.update(id, updateClientDto);
+
+  // 2. Si "deleted" est envoyé et true, on supprime le user dans Keycloak
+  if (
+    updateClientDto.deleted === true &&
+    updatedClient &&
+    updatedClient.user_id
+  ) {
+    await this.keycloakService.deleteUser(updatedClient.user_id);
   }
+  // 3. Sinon, on synchronise les infos de base dans Keycloak si besoin
+  else if (
+    (updateClientDto.firstName || updateClientDto.lastName || updateClientDto.email) &&
+    updatedClient &&
+    updatedClient.user_id
+  ) {
+    await this.keycloakService.updateUser(updatedClient.user_id, {
+      firstName: updateClientDto.firstName,
+      lastName: updateClientDto.lastName,
+      email: updateClientDto.email,
+    });
+  }
+
+  return updatedClient;
+}
 
   @Delete(':id')
   @ApiOperation({ summary: 'Supprimer un client' })

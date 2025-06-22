@@ -65,6 +65,10 @@ export class Client {
   @UpdateDateColumn()
   updated_at: Date;
 
+  
+  @Column({ type: 'boolean', default: false })
+  deleted: boolean;
+
   // Relations avec d'autres entités
   @OneToMany(() => Subscription, (subscription) => subscription.client)
   subscriptions: Subscription[];

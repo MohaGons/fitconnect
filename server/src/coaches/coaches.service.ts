@@ -62,19 +62,19 @@ async getCoachProfile(userId: string) {
   return coachProfile;
 }
 
-  async update(id: number, updateCoachDto: UpdateCoachDto): Promise<Coach> {
-    const coach = await this.findOne(id);
-    Object.assign(coach, updateCoachDto);
-    return await this.coachRepository.save(coach);
-  }
+async update(id: number, updateCoachDto: UpdateCoachDto): Promise<Coach> {
+  const coach = await this.findOne(id);
+  Object.assign(coach, updateCoachDto);
+  return await this.coachRepository.save(coach);
+}
 
-  async remove(id: number): Promise<void> {
-    const result = await this.coachRepository.delete(id);
+async remove(id: number): Promise<void> {
+  const result = await this.coachRepository.delete(id);
 
-    if (result.affected === 0) {
-      throw new NotFoundException(`Coach with id ${id} not found`);
-    }
+  if (result.affected === 0) {
+    throw new NotFoundException(`Coach with id ${id} not found`);
   }
+}
 
   async updateSubscriptionStatus(
     coachId: number,
