@@ -29,6 +29,8 @@ spec:
       labels:
         app: uptime-kuma
     spec:
+      securityContext:
+        fsGroup: 1000
       containers:
       - name: uptime-kuma
         image: louislam/uptime-kuma:latest
@@ -42,7 +44,7 @@ spec:
           value: "production"
         volumeMounts:
         - name: uptime-kuma-data
-          mountPath: /app/uptime-kuma
+          mountPath: /app/data
         livenessProbe:
           httpGet:
             path: /
@@ -70,7 +72,6 @@ spec:
           runAsNonRoot: true
           runAsUser: 1000
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: false
       volumes:
       - name: uptime-kuma-data
         persistentVolumeClaim:

@@ -23,35 +23,6 @@ data:
   KEYCLOAK_ADMIN: YWRtaW4=
   KEYCLOAK_ADMIN_PASSWORD: YWRtaW4=
 ---
-# PersistentVolume pour keycloak-theme
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: keycloak-theme-pv
-spec:
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: manual
-  hostPath:
-    path: ./keycloak-theme
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: realm-export-pv
-spec:
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: manual
-  hostPath:
-    path: ./realm-export
----
 # PersistentVolumeClaim pour keycloak-theme
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -64,7 +35,7 @@ spec:
   resources:
     requests:
       storage: 1Gi
-  storageClassName: manual
+  storageClassName: standard-rwo
 ---
 # PersistentVolumeClaim pour realm-export
 apiVersion: v1
@@ -78,7 +49,7 @@ spec:
   resources:
     requests:
       storage: 1Gi
-  storageClassName: manual
+  storageClassName: standard-rwo
 ---
 # Deployment Keycloak
 apiVersion: apps/v1
@@ -115,7 +86,7 @@ spec:
       - name: keycloak
         image: quay.io/keycloak/keycloak:24.0.3
         args:
-        - "start-dev"
+        - "start-dev"  # Changé de "start --optimized" à "start-dev"
         - "--import-realm"
         ports:
         - containerPort: 8080
