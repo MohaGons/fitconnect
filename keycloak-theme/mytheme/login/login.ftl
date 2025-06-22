@@ -38,7 +38,6 @@
         <h1 class="mb-2 text-2xl font-semibold">Connexion</h1>
         <p class="mb-6 text-sm text-gray-500">Entrez votre email et mot de passe pour vous connecter</p>
       <#if message??>
-      <p> ${message.summary} </p>
       <div id="error-message" class="relative mb-4 p-3 text-sm bg-red-400 text-black rounded">
         Une erreur est survenue. Veuillez réessayer !
         <button 
@@ -143,7 +142,6 @@
       const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
       password.setAttribute('type', type);
 
-      // Change l'icône œil / œil barré
       if (type === 'text') {
         eyeIcon.innerHTML = `
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.957 9.957 0 012.298-3.477m2.293-2.293A9.953 9.953 0 0112 5c4.477 0 8.268 2.943 9.542 7a10.05 10.05 0 01-1.092 2.457M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
