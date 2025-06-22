@@ -9,8 +9,11 @@ data:
   KC_HOSTNAME_STRICT: "false"
   KC_HOSTNAME_STRICT_HTTPS: "false"
   KC_HTTP_ENABLED: "true"
-  KC_PROXY: "none"
+  KC_PROXY: "edge"  # Changé de "none" à "edge" pour support HTTPS via proxy
   KC_HEALTH_ENABLED: "true"
+  KC_HOSTNAME: "34.79.140.130"  # Ajouté votre IP externe
+  KC_HOSTNAME_ADMIN: "34.79.140.130"  # Ajouté pour l'admin console
+
 ---
 # Secret pour Keycloak
 apiVersion: v1
@@ -22,6 +25,7 @@ type: Opaque
 data:
   KEYCLOAK_ADMIN: YWRtaW4=
   KEYCLOAK_ADMIN_PASSWORD: YWRtaW4=
+
 ---
 # PersistentVolumeClaim pour keycloak-theme
 apiVersion: v1
@@ -36,6 +40,7 @@ spec:
     requests:
       storage: 1Gi
   storageClassName: standard-rwo
+
 ---
 # PersistentVolumeClaim pour realm-export
 apiVersion: v1
@@ -50,8 +55,9 @@ spec:
     requests:
       storage: 1Gi
   storageClassName: standard-rwo
+
 ---
-# Deployment Keycloak
+# Deployment Keycloak modifié pour HTTPS
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -86,11 +92,18 @@ spec:
       - name: keycloak
         image: quay.io/keycloak/keycloak:24.0.3
         args:
-        - "start-dev"  # Changé de "start --optimized" à "start-dev"
+        - "start"  # Changé de "start-dev" à "start" pour mode production
+        - "--optimized"  # Ajouté pour de meilleures performances
         - "--import-realm"
+        - "--hostname-strict=false"  # Arguments directs pour plus de fiabilité
+        - "--hostname-strict-https=false"
+        - "--http-enabled=true"
+        - "--proxy=edge"
         ports:
         - containerPort: 8080
           name: http
+        - containerPort: 8443
+          name: https
         env:
         - name: KEYCLOAK_ADMIN
           valueFrom:
@@ -122,6 +135,16 @@ spec:
             secretKeyRef:
               name: postgres-secret
               key: POSTGRES_PASSWORD
+        - name: KC_HOSTNAME
+          valueFrom:
+            configMapKeyRef:
+              name: keycloak-config
+              key: KC_HOSTNAME
+        - name: KC_HOSTNAME_ADMIN
+          valueFrom:
+            configMapKeyRef:
+              name: keycloak-config
+              key: KC_HOSTNAME_ADMIN
         - name: KC_HOSTNAME_STRICT
           valueFrom:
             configMapKeyRef:
@@ -147,6 +170,11 @@ spec:
             configMapKeyRef:
               name: keycloak-config
               key: KC_HEALTH_ENABLED
+        # Variables supplémentaires pour résoudre les problèmes de cookies
+        - name: KC_SPI_LOGIN_PROTOCOL_OPENID_CONNECT_LEGACY_LOGOUT_REDIRECT_URI
+          value: "true"
+        - name: KC_HOSTNAME_STRICT_BACKCHANNEL
+          value: "false"
         volumeMounts:
         - name: keycloak-theme-volume
           mountPath: /opt/keycloak/themes
@@ -182,8 +210,9 @@ spec:
       - name: realm-export-volume
         persistentVolumeClaim:
           claimName: realm-export-pvc
+
 ---
-# Service Keycloak
+# Service Keycloak avec support HTTPS
 apiVersion: v1
 kind: Service
 metadata:
@@ -191,6 +220,9 @@ metadata:
   namespace: annual-project
   labels:
     app: keycloak
+  annotations:
+    cloud.google.com/load-balancer-type: "External"
+    service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
 spec:
   selector:
     app: keycloak
@@ -199,4 +231,31 @@ spec:
     targetPort: 8080
     protocol: TCP
     name: http
+  - port: 8443
+    targetPort: 8080  # Le proxy GCP gère HTTPS et forward en HTTP
+    protocol: TCP
+    name: https
   type: LoadBalancer
+
+---
+# BackendConfig pour optimiser le Load Balancer GCP (optionnel)
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: keycloak-backend-config
+  namespace: annual-project
+spec:
+  timeoutSec: 60
+  connectionDraining:
+    drainingTimeoutSec: 60
+  healthCheck:
+    checkIntervalSec: 15
+    timeoutSec: 10
+    healthyThreshold: 1
+    unhealthyThreshold: 3
+    type: HTTP
+    requestPath: /health/ready
+    port: 8080
+  sessionAffinity:
+    affinityType: "CLIENT_IP"
+    affinityCookieTtlSec: 3600
