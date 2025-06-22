@@ -4,10 +4,20 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
-import * as bodyParser from 'body-parser'; 
+import * as bodyParser from 'body-parser';
+import * as fs from 'fs'; 
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  // Lire les fichiers de certificat et clé
+  const httpsOptions = {
+    key: fs.readFileSync(join(__dirname, '..', '..', 'certs', 'server.key')),
+    cert: fs.readFileSync(join(__dirname, '..', '..', 'certs', 'server.crt')),
+  };
+
+  // Créer l'app avec httpsOptions
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    httpsOptions,
+  });
 
   app.use(bodyParser.json({ limit: '10mb' }));
   app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
@@ -24,17 +34,15 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: 'http://localhost:5173',
+    origin: 'https://localhost:5173',  // <-- attention, HTTPS ici aussi
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  // Configuration pour servir les fichiers statiques
   app.useStaticAssets(join(__dirname, '..', '..', 'uploads'), {
     prefix: '/uploads/',
   });
 
-  // Configuration Swagger
   const config = new DocumentBuilder()
     .setTitle('Sass coaching API')
     .setDescription('The sass coaching API description')
