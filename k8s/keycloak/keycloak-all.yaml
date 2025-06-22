@@ -9,10 +9,10 @@ data:
   KC_HOSTNAME_STRICT: "false"
   KC_HOSTNAME_STRICT_HTTPS: "false"
   KC_HTTP_ENABLED: "true"
-  KC_PROXY: "edge"  # Changé de "none" à "edge" pour support HTTPS via proxy
+  KC_PROXY: "edge"  # Support HTTPS via proxy/ingress
   KC_HEALTH_ENABLED: "true"
-  KC_HOSTNAME: "34.79.140.130"  # Ajouté votre IP externe
-  KC_HOSTNAME_ADMIN: "34.79.140.130"  # Ajouté pour l'admin console
+  KC_HOSTNAME: "keycloak.34.79.140.130.nip.io"  # Domaine avec nip.io
+  KC_HOSTNAME_ADMIN: "keycloak.34.79.140.130.nip.io"  # Admin console
 
 ---
 # Secret pour Keycloak
@@ -57,7 +57,7 @@ spec:
   storageClassName: standard-rwo
 
 ---
-# Deployment Keycloak modifié pour HTTPS
+# Deployment Keycloak optimisé pour Ingress
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -92,18 +92,17 @@ spec:
       - name: keycloak
         image: quay.io/keycloak/keycloak:24.0.3
         args:
-        - "start"  # Changé de "start-dev" à "start" pour mode production
-        - "--optimized"  # Ajouté pour de meilleures performances
+        - "start"
+        - "--optimized"
         - "--import-realm"
-        - "--hostname-strict=false"  # Arguments directs pour plus de fiabilité
+        - "--hostname-strict=false"
         - "--hostname-strict-https=false"
         - "--http-enabled=true"
         - "--proxy=edge"
+        - "--hostname=keycloak.34.79.140.130.nip.io"
         ports:
         - containerPort: 8080
           name: http
-        - containerPort: 8443
-          name: https
         env:
         - name: KEYCLOAK_ADMIN
           valueFrom:
@@ -212,7 +211,6 @@ spec:
           claimName: realm-export-pvc
 
 ---
-# Service Keycloak avec support HTTPS
 apiVersion: v1
 kind: Service
 metadata:
@@ -221,8 +219,7 @@ metadata:
   labels:
     app: keycloak
   annotations:
-    cloud.google.com/load-balancer-type: "External"
-    service.beta.kubernetes.io/do-loadbalancer-enable-proxy-protocol: "true"
+    cloud.google.com/backend-config: '{"default": "keycloak-backend-config"}'
 spec:
   selector:
     app: keycloak
@@ -231,14 +228,29 @@ spec:
     targetPort: 8080
     protocol: TCP
     name: http
-  - port: 8443
-    targetPort: 8080  # Le proxy GCP gère HTTPS et forward en HTTP
+  type: ClusterIP  # Changé pour Ingress
+
+---
+# Service LoadBalancer de backup (gardé pour compatibilité)
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-service-lb
+  namespace: annual-project
+  labels:
+    app: keycloak
+spec:
+  selector:
+    app: keycloak
+  ports:
+  - port: 8080
+    targetPort: 8080
     protocol: TCP
-    name: https
+    name: http
   type: LoadBalancer
 
 ---
-# BackendConfig pour optimiser le Load Balancer GCP (optionnel)
+# BackendConfig pour optimiser le Load Balancer GCP
 apiVersion: cloud.google.com/v1
 kind: BackendConfig
 metadata:
@@ -259,3 +271,50 @@ spec:
   sessionAffinity:
     affinityType: "CLIENT_IP"
     affinityCookieTtlSec: 3600
+
+---
+# ManagedCertificate pour SSL automatique
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: keycloak-ssl-cert
+  namespace: annual-project
+spec:
+  domains:
+  - keycloak.34.79.140.130.nip.io
+
+---
+# Ingress pour HTTPS avec certificat géré
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keycloak-ingress
+  namespace: annual-project
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "keycloak-static-ip"
+    networking.gke.io/managed-certificates: "keycloak-ssl-cert"
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.allow-http: "true"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+    nginx.ingress.kubernetes.io/proxy-buffering: "on"
+spec:
+  rules:
+  - host: keycloak.34.79.140.130.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: keycloak-service
+            port:
+              number: 8080
+  - http:  
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: keycloak-service
+            port:
+              number: 8080
