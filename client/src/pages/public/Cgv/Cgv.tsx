@@ -1,4 +1,5 @@
 import React from "react";
+import { Helmet } from "react-helmet-async";
 import Header from "../../../layout/public/Header";
 
 // Constants pour éviter la duplication
@@ -24,6 +25,14 @@ const SkewedElement: React.FC<{
 const Cgv: React.FC = () => {
   return (
     <>
+      <Helmet>
+        <title>CGV - Conditions Générales de Vente | Fitconnect</title>
+        <meta
+          name="description"
+          content="Consultez les Conditions Générales de Vente de Fitconnect, plateforme de coaching fitness personnalisé."
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </Helmet>
       <Header />
 
       {/* Hero Section */}
@@ -404,7 +413,15 @@ const Cgv: React.FC = () => {
                         Service Client
                       </h4>
                       <ul className="space-y-1 text-gray-700 text-sm">
-                        <li>Email : support@fitconnect.com</li>
+                        <li>
+                          Email :{" "}
+                          <a
+                            href="mailto:support@fitconnect.com"
+                            className="text-orange-500 hover:text-orange-600"
+                          >
+                            support@fitconnect.com
+                          </a>
+                        </li>
                         <li>Téléphone : +33 1 23 45 67 89</li>
                         <li>Horaires : Lun-Ven 9h-18h</li>
                       </ul>
@@ -414,7 +431,15 @@ const Cgv: React.FC = () => {
                         Service Juridique
                       </h4>
                       <ul className="space-y-1 text-gray-700 text-sm">
-                        <li>Email : legal@fitconnect.com</li>
+                        <li>
+                          Email :{" "}
+                          <a
+                            href="mailto:legal@fitconnect.com"
+                            className="text-orange-500 hover:text-orange-600"
+                          >
+                            legal@fitconnect.com
+                          </a>
+                        </li>
                         <li>Adresse : 123 Rue de la Paix</li>
                         <li>75001 Paris, France</li>
                       </ul>

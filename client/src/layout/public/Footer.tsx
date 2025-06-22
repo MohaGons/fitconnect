@@ -1,5 +1,6 @@
 import React from "react";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import {
   FaFacebook,
   FaInstagram,
@@ -173,30 +174,30 @@ const Footer: React.FC = () => {
               Tous droits reservés.
             </p>
             <div className="flex flex-wrap justify-center md:justify-end space-x-6 text-sm">
-              <a
-                href="/cgu"
+              <Link
+                to="/cgu"
                 className="text-gray-600 hover:text-orange-500 transition-colors"
               >
                 CGU
-              </a>
-              <a
-                href="/cgv"
+              </Link>
+              <Link
+                to="/cgv"
                 className="text-gray-600 hover:text-orange-500 transition-colors"
               >
                 CGV
-              </a>
-              <a
-                href="/contact"
+              </Link>
+              <Link
+                to="/contact"
                 className="text-gray-600 hover:text-orange-500 transition-colors"
               >
                 Contact
-              </a>
-              <a
-                href="/faq"
+              </Link>
+              <Link
+                to="/faq"
                 className="text-gray-600 hover:text-orange-500 transition-colors"
               >
                 FAQ
-              </a>
+              </Link>
             </div>
           </div>
         </div>
