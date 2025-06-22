@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import Header from "../../../layout/public/Header";
 
 // Constants pour éviter la duplication
@@ -94,6 +95,14 @@ const Contact: React.FC = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Contact - Nous Contacter | Fitconnect</title>
+        <meta
+          name="description"
+          content="Contactez l'équipe Fitconnect pour toute question sur nos services de coaching fitness personnalisé."
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </Helmet>
       <Header />
 
       {/* Hero Section */}
@@ -123,7 +132,7 @@ const Contact: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Contact Info */}
-            <div className="space-y-8">
+            <div className="space-y-8" data-cy="contact-info">
               <div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-6 border-b-2 border-orange-500 inline-block pb-2">
                   Informations de Contact
@@ -268,7 +277,11 @@ const Contact: React.FC = () => {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form
+                onSubmit={handleSubmit}
+                className="space-y-6"
+                data-cy="contact-form"
+              >
                 {/* Nom et Prénom */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -399,6 +412,7 @@ const Contact: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
+                    data-cy="submit-button"
                     className="w-full bg-orange-500 text-white py-3 px-6 rounded-lg font-medium hover:bg-orange-600 disabled:bg-orange-300 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center space-x-2"
                   >
                     {isSubmitting ? (
