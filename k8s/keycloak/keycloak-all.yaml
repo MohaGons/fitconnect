@@ -1,15 +1,16 @@
 apiVersion: v1
-kind: PersistentVolumeClaim
+kind: ConfigMap
 metadata:
-  name: keycloak-themes-pvc
+  name: keycloak-config
   namespace: annual-project
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-  storageClassName: standard-rwo
+data:
+  KC_DB: "postgres"
+  KC_DB_URL: "jdbc:postgresql://postgres-service:5432/fitness_platform_db"
+  KC_HOSTNAME_STRICT: "false"
+  KC_HOSTNAME_STRICT_HTTPS: "false"
+  KC_HTTP_ENABLED: "true"
+  KC_PROXY: "edge"
+  KC_HEALTH_ENABLED: "true"
 ---
 # Secret pour Keycloak
 apiVersion: v1
@@ -22,19 +23,62 @@ data:
   KEYCLOAK_ADMIN: YWRtaW4=
   KEYCLOAK_ADMIN_PASSWORD: YWRtaW4=
 ---
-# ConfigMap pour Keycloak
+# PersistentVolume pour keycloak-theme
 apiVersion: v1
-kind: ConfigMap
+kind: PersistentVolume
 metadata:
-  name: keycloak-config
+  name: keycloak-theme-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: manual
+  hostPath:
+    path: ./keycloak-theme
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: realm-export-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: manual
+  hostPath:
+    path: ./realm-export
+---
+# PersistentVolumeClaim pour keycloak-theme
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: keycloak-theme-pvc
   namespace: annual-project
-data:
-  KC_DB: "postgres"
-  KC_DB_URL: "jdbc:postgresql://postgres-service:5432/fitness_platform_db"
-  KC_HOSTNAME_STRICT: "false"
-  KC_HOSTNAME_STRICT_HTTPS: "false"
-  KC_HTTP_ENABLED: "true"
-  KC_PROXY: "edge"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: manual
+---
+# PersistentVolumeClaim pour realm-export
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: realm-export-pvc
+  namespace: annual-project
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: manual
 ---
 # Deployment Keycloak
 apiVersion: apps/v1
@@ -71,8 +115,7 @@ spec:
       - name: keycloak
         image: quay.io/keycloak/keycloak:24.0.3
         args:
-        - "start"
-        - "--optimized"
+        - "start-dev"
         - "--import-realm"
         ports:
         - containerPort: 8080
@@ -128,43 +171,46 @@ spec:
             configMapKeyRef:
               name: keycloak-config
               key: KC_PROXY
+        - name: KC_HEALTH_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              name: keycloak-config
+              key: KC_HEALTH_ENABLED
         volumeMounts:
-        - name: keycloak-themes
-          mountPath: /opt/keycloak/themes/mytheme
-        - name: realm-import
+        - name: keycloak-theme-volume
+          mountPath: /opt/keycloak/themes
+        - name: realm-export-volume
           mountPath: /opt/keycloak/data/import
         livenessProbe:
           httpGet:
             path: /health/live
             port: 8080
-          initialDelaySeconds: 180
-          periodSeconds: 45
+          initialDelaySeconds: 300
+          periodSeconds: 30
           timeoutSeconds: 15
           failureThreshold: 5
         readinessProbe:
           httpGet:
             path: /health/ready
             port: 8080
-          initialDelaySeconds: 120
-          periodSeconds: 20
+          initialDelaySeconds: 180
+          periodSeconds: 15
           timeoutSeconds: 10
           failureThreshold: 5
-        # RESSOURCES RÉDUITES POUR ÉCONOMISER LE CPU
         resources:
           requests:
-            memory: "256Mi"
-            cpu: "100m"     
-          limits:
             memory: "512Mi"
-            cpu: "300m"     
+            cpu: "200m"     
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
       volumes:
-      - name: keycloak-themes
+      - name: keycloak-theme-volume
         persistentVolumeClaim:
-          claimName: keycloak-themes-pvc
-      - name: realm-import
-        configMap:
-          name: keycloak-realm-config
-          optional: true
+          claimName: keycloak-theme-pvc
+      - name: realm-export-volume
+        persistentVolumeClaim:
+          claimName: realm-export-pvc
 ---
 # Service Keycloak
 apiVersion: v1
@@ -183,34 +229,3 @@ spec:
     protocol: TCP
     name: http
   type: LoadBalancer
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: keycloak-realm-config
-  namespace: annual-project
-data:
-  realm-export.json: |
-    {
-      "realm": "annual-project",
-      "enabled": true,
-      "sslRequired": "external",
-      "registrationAllowed": true,
-      "rememberMe": true,
-      "verifyEmail": false,
-      "loginWithEmailAllowed": true,
-      "duplicateEmailsAllowed": false,
-      "resetPasswordAllowed": true,
-      "editUsernameAllowed": false,
-      "bruteForceProtected": true,
-      "clients": [
-        {
-          "clientId": "annual-project-frontend",
-          "enabled": true,
-          "protocol": "openid-connect",
-          "publicClient": true,
-          "redirectUris": ["*"],
-          "webOrigins": ["*"]
-        }
-      ]
-    }

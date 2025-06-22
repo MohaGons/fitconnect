@@ -2,28 +2,50 @@ version: "3.8"
 
 services:
   api:
-    image: node:latest
-    container_name: nest-api
-    working_dir: /usr/src/app
-    command: sh -c "npm install && npm run start:dev"
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: nest-api-prod
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - DATABASE_HOST=db
       - DATABASE_PORT=5432
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=postgres
-      - DATABASE_NAME=nestjs
-    volumes:
-      - ./server:/usr/src/app
-      - /usr/src/app/dist 
-      - /usr/src/app/node_modules 
+      - DATABASE_NAME=fitness_platform_db
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_DATABASE=fitness_platform_db
+      - KEYCLOAK_URL=http://keycloak:8080/
+      - KEYCLOAK_REALM=MY-REALM
+      - KEYCLOAK_ADMIN_CLIENT_ID=admin-cli
+      - KEYCLOAK_ADMIN_USERNAME=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KEYCLOAK_ADMIN_CLIENT_SECRET=ObkISiWU00ydpPjjmTpL9lvOkrJAWlzy
+      - JWT_SECRET=your_jwt_secret_key_here
+      - JWT_EXPIRATION=1d
+      - PORT=3000
+      - UPLOAD_DIR=./uploads
+      - MAX_FILE_SIZE=5242880
+      - MAIL_HOST=smtp.example.com
+      - MAIL_PORT=587
+      - MAIL_USER=user@example.com
+      - MAIL_PASSWORD=mail_password
+      - MAIL_FROM=noreply@fitnessplatform.com
+      - STRIPE_SECRET_KEY=sk_test_51MfRFGCMBvQfTrL5rqhekc6Sye3reRZNvQNoM0Q6u6nbrXIIuyfEQ0DE9ZoECeZ7BooRHFwDawty3eCA2OMH33IL00r1cje0gN
+      - CORS_ORIGINS=http://localhost:5173
     depends_on:
       db:
         condition: service_healthy
+      keycloak:
+        condition: service_started
     networks:
       - app-network
+    restart: unless-stopped
 
   frontend:
     image: node:18-alpine
@@ -42,6 +64,7 @@ services:
       - api
     networks:
       - app-network
+    restart: unless-stopped
 
   db:
     image: postgres:14
@@ -102,6 +125,7 @@ services:
       - ./keycloak-theme/mytheme:/opt/keycloak/themes/mytheme 
     networks:
       - app-network
+    restart: unless-stopped
 
 volumes:
   postgres-data:

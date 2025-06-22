@@ -9,9 +9,10 @@ interface KeycloakRole {
 }
 
 interface KeycloakAuthConfig {
-  username: string;
-  password: string;
+  username?: string;
+  password?: string;
   clientId: string;
+  clientSecret?: string;
   grantType: 'password' | 'client_credentials';
 }
 
@@ -72,31 +73,48 @@ export class KeycloakService {
         realmName: keycloakRealm,
       });
 
-      // Authentification avec typage strict
-      const username = this.configService.get<string>(
-        'KEYCLOAK_ADMIN_USERNAME',
+      // Try client credentials first (recommended)
+      const clientId = this.configService.get<string>(
+        'KEYCLOAK_ADMIN_CLIENT_ID',
       );
-      const password = this.configService.get<string>(
-        'KEYCLOAK_ADMIN_PASSWORD',
+      const clientSecret = this.configService.get<string>(
+        'KEYCLOAK_ADMIN_CLIENT_SECRET',
       );
-      const clientId =
-        this.configService.get<string>('KEYCLOAK_ADMIN_CLIENT_ID') ||
-        'admin-cli';
 
-      if (!username || !password) {
-        throw new Error(
-          'KEYCLOAK_ADMIN_USERNAME or KEYCLOAK_ADMIN_PASSWORD not configured',
+      if (clientId && clientSecret) {
+        console.log('Using client credentials authentication');
+        const authConfig: KeycloakAuthConfig = {
+          clientId,
+          clientSecret,
+          grantType: 'client_credentials',
+        };
+        await this.kcAdminClient.auth(authConfig);
+      } else {
+        // Fallback to password grant (requires proper client configuration)
+        console.log('Using password authentication');
+        const username = this.configService.get<string>(
+          'KEYCLOAK_ADMIN_USERNAME',
         );
+        const password = this.configService.get<string>(
+          'KEYCLOAK_ADMIN_PASSWORD',
+        );
+        const fallbackClientId = clientId || 'admin-cli';
+
+        if (!username || !password) {
+          throw new Error(
+            'KEYCLOAK_ADMIN_USERNAME or KEYCLOAK_ADMIN_PASSWORD not configured',
+          );
+        }
+
+        const authConfig: KeycloakAuthConfig = {
+          username,
+          password,
+          clientId: fallbackClientId,
+          grantType: 'password',
+        };
+
+        await this.kcAdminClient.auth(authConfig);
       }
-
-      const authConfig: KeycloakAuthConfig = {
-        username,
-        password,
-        clientId,
-        grantType: 'password',
-      };
-
-      await this.kcAdminClient.auth(authConfig);
 
       this.isInitialized = true;
       console.log('Keycloak admin client initialized successfully');

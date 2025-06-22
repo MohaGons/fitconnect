@@ -107,7 +107,7 @@ export const messagesApi = {
     });
     
     const result = response.data;
-    result.url = `http://localhost:3000${result.url}`;
+    result.url = `http://34.79.140.130:3000/${result.url}`;
     
     return result;
   },
