@@ -38,7 +38,7 @@ build-frontend:
     - docker tag $IMAGE_URL $LATEST_URL
     - docker push $LATEST_URL
   only:
-    - feature-deploy
+    - feature-deploy-ilyes
 
 build-api:
   stage: build
@@ -66,7 +66,7 @@ build-api:
     - docker tag $IMAGE_URL $LATEST_URL
     - docker push $LATEST_URL
   only:
-    - feature-deploy
+    - feature-deploy-ilyes
 
 test-frontend:
   stage: test
@@ -118,6 +118,46 @@ deploy:
     - gcloud container clusters get-credentials $GKE_CLUSTER_NAME --zone $GKE_ZONE
   script:
     - kubectl apply -f k8s/namespace.yaml
+    - echo "Deploying Network Policies..."
+    - kubectl apply -f k8s/network-policy/
+    - echo "Deploying PostgreSQL..."
+    - kubectl apply -f k8s/postgres/
+    - kubectl wait --for=condition=available --timeout=300s deployment/postgres -n $NAMESPACE
+    - echo "Deploying Keycloak..."
+    - kubectl apply -f k8s/keycloak/
+    - echo "Deploying Adminer..."
+    - kubectl apply -f k8s/adminer/
+    - echo "Deploying Uptime Kuma..."
+    - kubectl apply -f k8s/uptime-kuma/
+    - FRONTEND_IMAGE="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/frontend:${CI_COMMIT_SHA}"
+    - API_IMAGE="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/api:${CI_COMMIT_SHA}"
+    - sed -i "s|image europe-west1-docker.pkg.dev/.*/frontend:.*|image ${FRONTEND_IMAGE}|g" k8s/frontend/frontend-all.yaml
+    - sed -i "s|image europe-west1-docker.pkg.dev/.*/api:.*|image $API_IMAGE|g" k8s/api/api-all.yaml
+    - echo "Deploying API..."
+    - kubectl apply -f k8s/api/
+    - kubectl wait --for=condition=available --timeout=300s deployment/api -n $NAMESPACE
+    - echo "Deploying Frontend..."
+    - kubectl apply -f k8s/frontend/
+    - kubectl wait --for=condition=available --timeout=300s deployment/frontend -n $NAMESPACE
+    - echo "Applying Ingress Rules..."
+    - kubectl apply -f k8s/ingress/
+    - echo "Waiting for Keycloak to be ready..."
+    - kubectl wait --for=condition=available --timeout=600s deployment/keycloak -n $NAMESPACE || echo "Keycloak may take longer to start"
+    - echo "=== DEPLOYMENT SUMMARY ==="
+    - kubectl get all -n $NAMESPACE
+  only:
+    - feature-deploy-ilyes
+
+  stage: deploy
+  image: google/cloud-sdk:alpine
+  before_script:
+    - gcloud components install kubectl --quiet
+    - echo $GCP_SERVICE_KEY | base64 -d > gcp-key.json
+    - gcloud auth activate-service-account --key-file gcp-key.json
+    - gcloud config set project $GCP_PROJECT_ID
+    - gcloud container clusters get-credentials $GKE_CLUSTER_NAME --zone $GKE_ZONE
+  script:
+    - kubectl apply -f k8s/namespace.yaml
     - echo "Deploying PostgreSQL..."
     - kubectl apply -f k8s/postgres/
     - kubectl wait --for=condition=available --timeout=300s deployment/postgres -n $NAMESPACE
@@ -159,7 +199,7 @@ deploy:
     - echo "API image $API_IMAGE"
     - kubectl get all -n $NAMESPACE
   only:
-    - feature-deploy
+    - feature-deploy-ilyes
 
 cleanup:
   stage: deploy
@@ -176,4 +216,4 @@ cleanup:
     - gcloud artifacts docker images list $API_REPO --limit=999 --sort-by=UPDATE_TIME --format="get(version)" | tail -n +6 | xargs -I {} gcloud artifacts docker images delete $API_REPO:{} --quiet || true
   when: manual
   only:
-    - feature-deploy
+    - feature-deploy-ilyes
