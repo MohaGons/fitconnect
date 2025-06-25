@@ -115,6 +115,7 @@ deploy:
     - gcloud config set project $GCP_PROJECT_ID
     - gcloud container clusters get-credentials $GKE_CLUSTER_NAME --zone $GKE_ZONE
   script:
+    - kubectl delete ingress keycloak-ingress -n annual-project || true
     - kubectl apply -f k8s/namespace.yaml
     - kubectl apply -f k8s/network-policy/
 
