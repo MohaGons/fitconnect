@@ -35,7 +35,7 @@ spec:
             port:
               number: 3000
 
-  - host: keycloak.fitnessconnect.fr
+  - host: login.fitnessconnect.fr
     http:
       paths:
       - path: /

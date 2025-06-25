@@ -111,13 +111,13 @@ spec:
               name: postgres-secret
               key: POSTGRES_PASSWORD
         - name: KC_HOSTNAME
-          value: "keycloak.fitnessconnect.fr"
+          value: "login.fitnessconnect.fr"
         - name: KC_HOSTNAME_ADMIN
-          value: "keycloak.fitnessconnect.fr"
+          value: "login.fitnessconnect.fr"
         - name: KC_HOSTNAME_URL
-          value: "https://keycloak.fitnessconnect.fr"
+          value: "https://login.fitnessconnect.fr"
         - name: KC_HOSTNAME_ADMIN_URL
-          value: "https://keycloak.fitnessconnect.fr"
+          value: "https://login.fitnessconnect.fr"
         - name: KC_HOSTNAME_STRICT
           value: "false"
         - name: KC_HOSTNAME_STRICT_HTTPS
@@ -220,7 +220,7 @@ metadata:
   namespace: annual-project
 spec:
   domains:
-  - keycloak.fitnessconnect.fr
+  - login.fitnessconnect.fr
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -235,7 +235,7 @@ metadata:
     ingress.gcp.kubernetes.io/load-balancer-type: "External"
 spec:
   rules:
-  - host: keycloak.fitnessconnect.fr
+  - host: login.fitnessconnect.fr
     http:
       paths:
       - path: /
