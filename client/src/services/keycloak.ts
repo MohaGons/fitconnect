@@ -1,7 +1,7 @@
 import Keycloak from 'keycloak-js';
 
 const keycloak = new Keycloak({
-  url: 'https://keycloak.34.79.140.130.nip.io',
+  url: 'https://keycloak.fitnessconnect.fr',
   realm: 'MY-REALM',
   clientId: 'my-web-client',
 });

@@ -31,7 +31,6 @@ build-frontend:
   script:
     - cd client
     - IMAGE_URL="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/frontend:${CI_COMMIT_SHA}"
-    - echo "Building frontend image $IMAGE_URL"
     - docker build -t $IMAGE_URL .
     - docker push $IMAGE_URL
     - LATEST_URL="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/frontend:latest"
@@ -59,7 +58,6 @@ build-api:
   script:
     - cd server
     - IMAGE_URL="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/api:${CI_COMMIT_SHA}"
-    - echo "Building API image $IMAGE_URL"
     - docker build -t $IMAGE_URL .
     - docker push $IMAGE_URL
     - LATEST_URL="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/api:latest"
@@ -118,8 +116,8 @@ deploy:
     - gcloud container clusters get-credentials $GKE_CLUSTER_NAME --zone $GKE_ZONE
   script:
     - kubectl apply -f k8s/namespace.yaml
-    - echo "Deploying Network Policies..."
     - kubectl apply -f k8s/network-policy/
+    - kubectl apply -f k8s/ingress/
     - echo "Deploying PostgreSQL..."
     - kubectl apply -f k8s/postgres/
     - kubectl wait --for=condition=available --timeout=300s deployment/postgres -n $NAMESPACE
@@ -139,81 +137,34 @@ deploy:
     - echo "Deploying Frontend..."
     - kubectl apply -f k8s/frontend/
     - kubectl wait --for=condition=available --timeout=300s deployment/frontend -n $NAMESPACE
-    - echo "Applying Ingress Rules..."
-    - kubectl apply -f k8s/ingress/
     - echo "Waiting for Keycloak to be ready..."
     - kubectl wait --for=condition=available --timeout=600s deployment/keycloak -n $NAMESPACE || echo "Keycloak may take longer to start"
-    - echo "=== DEPLOYMENT SUMMARY ==="
-    - kubectl get all -n $NAMESPACE
   only:
     - feature-deploy-ilyes
 
+check-ingress:
   stage: deploy
   image: google/cloud-sdk:alpine
   before_script:
-    - gcloud components install kubectl --quiet
     - echo $GCP_SERVICE_KEY | base64 -d > gcp-key.json
     - gcloud auth activate-service-account --key-file gcp-key.json
     - gcloud config set project $GCP_PROJECT_ID
     - gcloud container clusters get-credentials $GKE_CLUSTER_NAME --zone $GKE_ZONE
   script:
-    - kubectl apply -f k8s/namespace.yaml
-    - echo "Deploying PostgreSQL..."
-    - kubectl apply -f k8s/postgres/
-    - kubectl wait --for=condition=available --timeout=300s deployment/postgres -n $NAMESPACE
-    - echo "Deploying Keycloak..."
-    - kubectl apply -f k8s/keycloak/
-    - echo "Deploying Adminer..."
-    - kubectl apply -f k8s/adminer/
-    - echo "Deploying Uptime Kuma..."
-    - kubectl apply -f k8s/uptime-kuma/
-    - FRONTEND_IMAGE="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/frontend:${CI_COMMIT_SHA}"
-    - API_IMAGE="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/api:${CI_COMMIT_SHA}"
-    - sed -i "s|image europe-west1-docker.pkg.dev/.*/frontend:.*|image ${FRONTEND_IMAGE}|g" k8s/frontend/frontend-all.yaml
-    - sed -i "s|image europe-west1-docker.pkg.dev/.*/api:.*|image $API_IMAGE|g" k8s/api/api-all.yaml
-    - echo "Deploying API..."
-    - kubectl apply -f k8s/api/
-    - kubectl wait --for=condition=available --timeout=300s deployment/api -n $NAMESPACE
-    - echo "Deploying Frontend..."
-    - kubectl apply -f k8s/frontend/
-    - kubectl wait --for=condition=available --timeout=300s deployment/frontend -n $NAMESPACE
-    - echo "Waiting for Keycloak to be ready..."
-    - kubectl wait --for=condition=available --timeout=600s deployment/keycloak -n $NAMESPACE || echo "Keycloak may take longer to start"
-    - echo "Getting service information..."
-    - kubectl get services -n $NAMESPACE
-    - echo "Retrieving service URLs..."
-    - FRONTEND_IP=$(kubectl get service frontend-service -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
-    - KEYCLOAK_IP=$(kubectl get service keycloak-service -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
-    - UPTIME_IP=$(kubectl get service uptime-kuma-service -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
-    - ADMINER_IP=$(kubectl get service adminer-service -n $NAMESPACE -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "pending")
-    - echo "DEPLOYMENT COMPLETED!"
-    - echo "Frontend (React) at http://$FRONTEND_IP"
-    - echo "Keycloak at http://$KEYCLOAK_IP:8080"
-    - echo "Uptime Kuma at http://$UPTIME_IP:3001"
-    - echo "Adminer at http://$ADMINER_IP:8080"
-    - echo "Keycloak Admin - admin/admin"
-    - echo "PostgreSQL - postgres/postgres"
-    - echo "=== DEPLOYMENT SUMMARY ==="
-    - echo "Namespace $NAMESPACE"
-    - echo "Frontend image $FRONTEND_IMAGE"
-    - echo "API image $API_IMAGE"
-    - kubectl get all -n $NAMESPACE
+    - echo "Récupération de l'IP publique de l'Ingress..."
+    - kubectl get ingress -n $NAMESPACE
   only:
     - feature-deploy-ilyes
 
-cleanup:
+check-keycloak-health:
   stage: deploy
-  image: google/cloud-sdk:alpine
-  before_script:
-    - echo $GCP_SERVICE_KEY | base64 -d > gcp-key.json
-    - gcloud auth activate-service-account --key-file gcp-key.json
-    - gcloud config set project $GCP_PROJECT_ID
+  image: curlimages/curl:latest
   script:
-    - echo "Cleaning up old container images..."
-    - FRONTEND_REPO="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/frontend"
-    - gcloud artifacts docker images list $FRONTEND_REPO --limit=999 --sort-by=UPDATE_TIME --format="get(version)" | tail -n +6 | xargs -I {} gcloud artifacts docker images delete $FRONTEND_REPO:{} --quiet || true
-    - API_REPO="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/api"
-    - gcloud artifacts docker images list $API_REPO --limit=999 --sort-by=UPDATE_TIME --format="get(version)" | tail -n +6 | xargs -I {} gcloud artifacts docker images delete $API_REPO:{} --quiet || true
-  when: manual
+    - echo "Vérification de la santé de Keycloak..."
+    - >
+      if curl -s --fail --insecure https://keycloak.fitnessconnect.fr/health/ready;
+      then echo "✅ Keycloak is healthy";
+      else echo "❌ Keycloak health check failed"; exit 1;
+      fi
   only:
     - feature-deploy-ilyes
