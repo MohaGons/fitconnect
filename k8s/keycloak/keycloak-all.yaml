@@ -223,25 +223,25 @@ spec:
   - login.fitnessconnect.fr
 
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: keycloak-ingress
-  namespace: annual-project
-  annotations:
-    kubernetes.io/ingress.class: "gce"
-    kubernetes.io/ingress.allow-http: "false"
-    networking.gke.io/managed-certificates: "keycloak-ssl-cert"
-    ingress.gcp.kubernetes.io/load-balancer-type: "External"
-spec:
-  rules:
-  - host: login.fitnessconnect.fr
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: keycloak-service
-            port:
-              number: 8080
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: keycloak-ingress
+#   namespace: annual-project
+#   annotations:
+#     kubernetes.io/ingress.class: "gce"
+#     kubernetes.io/ingress.allow-http: "false"
+#     networking.gke.io/managed-certificates: "keycloak-ssl-cert"
+#     ingress.gcp.kubernetes.io/load-balancer-type: "External"
+# spec:
+#   rules:
+#   - host: login.fitnessconnect.fr
+#     http:
+#       paths:
+#       - path: /
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: keycloak-service
+#             port:
+#               number: 8080
