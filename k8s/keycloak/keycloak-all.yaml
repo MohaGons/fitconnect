@@ -79,7 +79,7 @@ spec:
       - name: keycloak
         image: quay.io/keycloak/keycloak:24.0.3
         args:
-        - "start"
+        - "--start-dev"
         - "--import-realm"
         - "--proxy=edge"
         ports:
@@ -129,7 +129,7 @@ spec:
         - name: KC_PROXY_HEADERS
           value: "xforwarded"
         - name: KC_HTTP_ENABLED
-          value: "false"
+          value: "true"
         - name: KC_HEALTH_ENABLED
           value: "true"
         - name: KC_SPI_LOGIN_PROTOCOL_OPENID_CONNECT_LEGACY_LOGOUT_REDIRECT_URI
