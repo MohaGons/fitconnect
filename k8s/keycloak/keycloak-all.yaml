@@ -15,55 +15,92 @@ spec:
       labels:
         app: keycloak
     spec:
+      initContainers:
+      - name: wait-for-postgres
+        image: postgres:14
+        command:
+        - sh
+        - -c
+        - |
+          until pg_isready -h postgres-service -p 5432 -U postgres; do
+            echo "Waiting for PostgreSQL..."
+            sleep 5
+          done
+          echo "PostgreSQL is ready!"
       containers:
       - name: keycloak
         image: quay.io/keycloak/keycloak:24.0.3
         args:
-          - "start-dev"
+        - "start"
+        - "--proxy=edge"
+        - "--http-enabled=true"
+        - "--hostname-strict=false"
         ports:
-          - containerPort: 8080
-            name: http
+        - containerPort: 8080
+          name: http
         env:
-          - name: KEYCLOAK_ADMIN
-            valueFrom:
-              secretKeyRef:
-                name: keycloak-secret
-                key: KEYCLOAK_ADMIN
-          - name: KEYCLOAK_ADMIN_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: keycloak-secret
-                key: KEYCLOAK_ADMIN_PASSWORD
-          - name: KC_HTTP_ENABLED
-            value: "true"
-          - name: KC_HOSTNAME
-            value: "login.fitnessconnect.fr"
-          - name: KC_HOSTNAME_URL
-            value: "https://login.fitnessconnect.fr"
-          - name: KC_HOSTNAME_ADMIN_URL
-            value: "https://login.fitnessconnect.fr"
-          - name: KC_HEALTH_ENABLED
-            value: "true"
+        - name: KEYCLOAK_ADMIN
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-secret
+              key: KEYCLOAK_ADMIN
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-secret
+              key: KEYCLOAK_ADMIN_PASSWORD
+        - name: KC_DB
+          value: "postgres"
+        - name: KC_DB_URL
+          value: "jdbc:postgresql://postgres-service:5432/fitness_platform_db"
+        - name: KC_DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_USER
+        - name: KC_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+        - name: KC_HTTP_ENABLED
+          value: "true"
+        - name: KC_PROXY
+          value: "edge"
+        - name: KC_PROXY_HEADERS
+          value: "xforwarded"
+        - name: KC_HOSTNAME
+          value: "login.fitnessconnect.fr"
+        - name: KC_HOSTNAME_URL
+          value: "https://login.fitnessconnect.fr"
+        - name: KC_HOSTNAME_ADMIN_URL
+          value: "https://login.fitnessconnect.fr"
+        - name: KC_HEALTH_ENABLED
+          value: "true"
+        - name: KC_HOSTNAME_STRICT
+          value: "false"
+        - name: KC_HTTP_RELATIVE_PATH
+          value: "/"
         resources:
           requests:
-            cpu: "100m"
             memory: "512Mi"
+            cpu: "250m"
           limits:
-            cpu: "300m"
             memory: "1Gi"
+            cpu: "500m"
         livenessProbe:
           httpGet:
             path: /health/live
             port: 8080
-          initialDelaySeconds: 60
-          periodSeconds: 15
-          timeoutSeconds: 5
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 10
           failureThreshold: 5
         readinessProbe:
           httpGet:
             path: /health/ready
             port: 8080
-          initialDelaySeconds: 45
-          periodSeconds: 10
-          timeoutSeconds: 5
+          initialDelaySeconds: 90
+          periodSeconds: 15
+          timeoutSeconds: 10
           failureThreshold: 5

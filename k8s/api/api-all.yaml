@@ -34,7 +34,7 @@ data:
   MAIL_FROM: "noreply@fitnessplatform.com"
   
   # Keycloak Configuration - UTILISER LES SERVICES KUBERNETES
-  KEYCLOAK_URL: "http://keycloak-service:8080/"
+  KEYCLOAK_URL: "https://login.fitnessconnect.fr/"
   KEYCLOAK_REALM: "MY-REALM"
   KEYCLOAK_ADMIN_CLIENT_ID: "admin-cli"
   KEYCLOAK_ADMIN_USERNAME: "admin"

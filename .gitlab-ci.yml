@@ -143,7 +143,9 @@ deploy:
     - kubectl wait --for=condition=available --timeout=300s deployment/postgres -n $NAMESPACE
 
     - echo "Deploying Keycloak..."
-    - kubectl apply -f k8s/keycloak/
+    - kubectl apply -f k8s/keycloak/keycloak-secret.yaml
+    - kubectl apply -f k8s/keycloak/keycloak-service.yaml
+    - kubectl apply -f k8s/keycloak/keycloak-all.yaml
 
     - echo "Deploying Adminer..."
     - kubectl apply -f k8s/adminer/
