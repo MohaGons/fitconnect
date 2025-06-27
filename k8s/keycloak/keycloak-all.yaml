@@ -269,4 +269,5 @@ metadata:
 spec:
   domains:
   - login.fitnessconnect.fr
+  *
 

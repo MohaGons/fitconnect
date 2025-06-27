@@ -36,6 +36,8 @@ build-frontend:
     - LATEST_URL="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/frontend:latest"
     - docker tag $IMAGE_URL $LATEST_URL
     - docker push $LATEST_URL
+  tags:
+    - ilyes-local  
   only:
     - feature-deploy-ilyes
 
@@ -63,6 +65,8 @@ build-api:
     - LATEST_URL="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/api:latest"
     - docker tag $IMAGE_URL $LATEST_URL
     - docker push $LATEST_URL
+  tags:
+    - ilyes-local  
   only:
     - feature-deploy-ilyes
 
@@ -77,6 +81,8 @@ test-frontend:
   script:
     - npm ci
     - npm run test
+  tags:
+    - ilyes-local  
   only:
     - main
 
@@ -102,6 +108,8 @@ test-api:
   script:
     - npm ci
     - npm run test
+  tags:
+    - ilyes-local  
   only:
     - main
 
@@ -158,6 +166,8 @@ deploy:
 
     - echo "Waiting for Keycloak to be ready..."
     - kubectl wait --for=condition=available --timeout=600s deployment/keycloak -n $NAMESPACE || echo "Keycloak may take longer to start"
+  tags:
+    - ilyes-local
   only:
     - feature-deploy-ilyes
 
@@ -173,6 +183,8 @@ check-ingress:
   script:
     - echo "🌐 Vérification de l'Ingress (adresse IP publique)..."
     - kubectl get ingress -n $NAMESPACE
+  tags:
+    - ilyes-local  
   only:
     - feature-deploy-ilyes
   needs:
