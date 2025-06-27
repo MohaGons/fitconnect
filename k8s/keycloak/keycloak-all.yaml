@@ -1,63 +1,3 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: keycloak-config
-  namespace: annual-project
-data:
-  KC_DB: "postgres"
-  KC_DB_URL: "jdbc:postgresql://postgres-service:5432/fitness_platform_db"
-  KC_HOSTNAME_STRICT: "false"
-  KC_HOSTNAME_STRICT_HTTPS: "false"
-  KC_HTTP_ENABLED: "true"
-  KC_PROXY: "edge"
-  KC_HEALTH_ENABLED: "true"
-  KC_HOSTNAME: "login.fitnessconnect.fr"
-  KC_HOSTNAME_ADMIN: "login.fitnessconnect.fr"
-
----
-# Secret pour Keycloak
-apiVersion: v1
-kind: Secret
-metadata:
-  name: keycloak-secret
-  namespace: annual-project
-type: Opaque
-data:
-  KEYCLOAK_ADMIN: YWRtaW4=
-  KEYCLOAK_ADMIN_PASSWORD: YWRtaW4=
-
----
-# PersistentVolumeClaim pour keycloak-theme
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: keycloak-theme-pvc
-  namespace: annual-project
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-  storageClassName: standard-rwo
-
----
-# PersistentVolumeClaim pour realm-export
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: realm-export-pvc
-  namespace: annual-project
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-  storageClassName: standard-rwo
-
----
-# Deployment Keycloak corrigé pour production HTTPS
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -81,7 +21,6 @@ spec:
         app: keycloak
     spec:
       initContainers:
-      # Init container pour attendre PostgreSQL
       - name: wait-for-postgres
         image: postgres:14
         command:
@@ -93,16 +32,18 @@ spec:
             sleep 5
           done
           echo "PostgreSQL is ready!"
+
       containers:
       - name: keycloak
         image: quay.io/keycloak/keycloak:24.0.3
         args:
-        - "start"  
+        - "start"
         - "--import-realm"
         - "--proxy=edge"
         ports:
         - containerPort: 8080
           name: http
+
         env:
         - name: KEYCLOAK_ADMIN
           valueFrom:
@@ -114,6 +55,7 @@ spec:
             secretKeyRef:
               name: keycloak-secret
               key: KEYCLOAK_ADMIN_PASSWORD
+
         - name: KC_DB
           value: "postgres"
         - name: KC_DB_URL
@@ -128,41 +70,39 @@ spec:
             secretKeyRef:
               name: postgres-secret
               key: POSTGRES_PASSWORD
-        
-        # ===== CONFIGURATION HTTPS VIA PROXY =====
-        - name: KC_HOSTNAME
-          value: "login.fitnessconnect.fr"
-        - name: KC_HOSTNAME_STRICT
-          value: "false"
-        - name: KC_HOSTNAME_STRICT_HTTPS
-          value: "false"
+
+        # Configuration HTTPS via proxy GCP
         - name: KC_HTTP_ENABLED
           value: "false"
         - name: KC_PROXY
           value: "edge"
         - name: KC_PROXY_HEADERS
           value: "xforwarded"
-        - name: KC_HEALTH_ENABLED
-          value: "true"
-        
-        # ===== URLs HTTPS COMPLÈTES =====
+
+        - name: KC_HOSTNAME
+          value: "login.fitnessconnect.fr"
         - name: KC_HOSTNAME_URL
           value: "https://login.fitnessconnect.fr"
         - name: KC_HOSTNAME_ADMIN_URL
           value: "https://login.fitnessconnect.fr"
-        
-        # ===== CONFIGURATION POUR COOKIES SÉCURISÉS =====
-        - name: KC_SPI_LOGIN_PROTOCOL_OPENID_CONNECT_LEGACY_LOGOUT_REDIRECT_URI
-          value: "true"
+        - name: KC_HOSTNAME_STRICT
+          value: "false"
+        - name: KC_HOSTNAME_STRICT_HTTPS
+          value: "false"
         - name: KC_HOSTNAME_STRICT_BACKCHANNEL
           value: "false"
-        
+
+        - name: KC_HEALTH_ENABLED
+          value: "true"
+        - name: KC_SPI_LOGIN_PROTOCOL_OPENID_CONNECT_LEGACY_LOGOUT_REDIRECT_URI
+          value: "true"
+
         volumeMounts:
         - name: keycloak-theme-volume
           mountPath: /opt/keycloak/themes
         - name: realm-export-volume
           mountPath: /opt/keycloak/data/import
-        
+
         livenessProbe:
           httpGet:
             path: /health/live
@@ -171,6 +111,7 @@ spec:
           periodSeconds: 30
           timeoutSeconds: 15
           failureThreshold: 5
+
         readinessProbe:
           httpGet:
             path: /health/ready
@@ -179,7 +120,7 @@ spec:
           periodSeconds: 15
           timeoutSeconds: 10
           failureThreshold: 5
-        
+
         resources:
           requests:
             memory: "256Mi"
@@ -187,7 +128,7 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "150m"
-      
+
       volumes:
       - name: keycloak-theme-volume
         persistentVolumeClaim:
@@ -195,78 +136,3 @@ spec:
       - name: realm-export-volume
         persistentVolumeClaim:
           claimName: realm-export-pvc
-
----
-# Service ClusterIP pour Ingress
-apiVersion: v1
-kind: Service
-metadata:
-  name: keycloak-service
-  namespace: annual-project
-  labels:
-    app: keycloak
-  annotations:
-    cloud.google.com/backend-config: '{"default": "keycloak-backend-config"}'
-spec:
-  selector:
-    app: keycloak
-  ports:
-  - port: 8080
-    targetPort: 8080
-    protocol: TCP
-    name: http
-  type: ClusterIP
-
----
-# Service LoadBalancer de backup (gardé pour compatibilité)
-apiVersion: v1
-kind: Service
-metadata:
-  name: keycloak-service-lb
-  namespace: annual-project
-  labels:
-    app: keycloak
-spec:
-  selector:
-    app: keycloak
-  ports:
-  - port: 8080
-    targetPort: 8080
-    protocol: TCP
-    name: http
-  type: LoadBalancer
-
----
-# BackendConfig pour optimiser le Load Balancer GCP
-apiVersion: cloud.google.com/v1
-kind: BackendConfig
-metadata:
-  name: keycloak-backend-config
-  namespace: annual-project
-spec:
-  timeoutSec: 60
-  connectionDraining:
-    drainingTimeoutSec: 60
-  healthCheck:
-    checkIntervalSec: 15
-    timeoutSec: 10
-    healthyThreshold: 1
-    unhealthyThreshold: 3
-    type: HTTP
-    requestPath: /health/ready
-    port: 8080
-  sessionAffinity:
-    affinityType: "CLIENT_IP"
-    affinityCookieTtlSec: 3600
-
----
-# ManagedCertificate pour SSL automatique
-apiVersion: networking.gke.io/v1
-kind: ManagedCertificate
-metadata:
-  name: keycloak-ssl-cert
-  namespace: annual-project
-spec:
-  domains:
-  - login.fitnessconnect.fr
-
