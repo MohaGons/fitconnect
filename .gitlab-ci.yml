@@ -18,7 +18,7 @@ build-frontend:
   services:
     - docker:dind
   variables:
-    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_HOST: tcp://localhost:2375
     DOCKER_TLS_CERTDIR: ""  
     # DOCKER_HOST: tcp://docker:2376
     # DOCKER_TLS_CERTDIR: "/certs"
@@ -49,7 +49,7 @@ build-api:
   services:
     - docker:dind
   variables:
-    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_HOST: tcp://localhost:2375
     DOCKER_TLS_CERTDIR: ""
     # DOCKER_HOST: tcp://docker:2376
     # DOCKER_TLS_CERTDIR: "/certs"
