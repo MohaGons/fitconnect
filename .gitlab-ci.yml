@@ -15,10 +15,8 @@ variables:
 build-frontend:
   stage: build
   image: google/cloud-sdk:latest
-  services:
-    - docker:dind
   variables:
-    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_HOST: unix:///var/run/docker.sock
     DOCKER_TLS_CERTDIR: ""  
     # DOCKER_HOST: tcp://docker:2376
     # DOCKER_TLS_CERTDIR: "/certs"
@@ -46,10 +44,8 @@ build-frontend:
 build-api:
   stage: build
   image: google/cloud-sdk:latest
-  services:
-    - docker:dind
   variables:
-    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_HOST: unix:///var/run/docker.sock
     DOCKER_TLS_CERTDIR: ""
     # DOCKER_HOST: tcp://docker:2376
     # DOCKER_TLS_CERTDIR: "/certs"
