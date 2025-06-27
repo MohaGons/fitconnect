@@ -62,7 +62,7 @@ spec:
               name: postgres-secret
               key: POSTGRES_PASSWORD
         - name: KC_HTTP_ENABLED
-          value: "false"
+          value: "true"
         - name: KC_PROXY
           value: "edge"
         - name: KC_PROXY_HEADERS
@@ -98,4 +98,3 @@ spec:
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 5
-
