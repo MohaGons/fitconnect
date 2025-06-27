@@ -77,11 +77,11 @@ spec:
           value: "true"
         resources:
           requests:
+            cpu: "100m"
             memory: "512Mi"
-            cpu: "250m"
           limits:
+            cpu: "300m"
             memory: "1Gi"
-            cpu: "500m"
         livenessProbe:
           httpGet:
             path: /health/live
