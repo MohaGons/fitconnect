@@ -142,10 +142,10 @@ deploy:
     - kubectl apply -f k8s/postgres/
     - kubectl wait --for=condition=available --timeout=300s deployment/postgres -n $NAMESPACE
 
-    # - echo "Deploying Keycloak..."
-    # - kubectl apply -f k8s/keycloak/keycloak-secret.yaml
-    # - kubectl apply -f k8s/keycloak/keycloak-service.yaml
-    # - kubectl apply -f k8s/keycloak/keycloak-all.yaml
+    - echo "Deploying Keycloak..."
+    - kubectl apply -f k8s/keycloak/keycloak-secret.yaml
+    - kubectl apply -f k8s/keycloak/keycloak-service.yaml
+    - kubectl apply -f k8s/keycloak/keycloak-all.yaml
 
     - echo "Deploying Adminer..."
     - kubectl apply -f k8s/adminer/
@@ -166,8 +166,8 @@ deploy:
     - kubectl apply -f k8s/frontend/
     - kubectl wait --for=condition=available --timeout=300s deployment/frontend -n $NAMESPACE
 
-  #   - echo "Waiting for Keycloak to be ready..."
-  #   - kubectl wait --for=condition=available --timeout=600s deployment/keycloak -n $NAMESPACE || echo "Keycloak may take longer to start"
+    - echo "Waiting for Keycloak to be ready..."
+    - kubectl wait --for=condition=available --timeout=600s deployment/keycloak -n $NAMESPACE || echo "Keycloak may take longer to start"
   tags:
     - ilyes-runner
   only:
