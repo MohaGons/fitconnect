@@ -39,24 +39,12 @@ spec:
     http:
       paths:
       - path: /
-        pathType: Prefix
+        pathType: ImplementationSpecific
         backend:
           service:
             name: keycloak-service
             port:
               number: 8080
-
-  - host: login.fitnessconnect.fr
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: keycloak-service
-            port:
-              number: 443
-            
 
   - host: adminer.fitnessconnect.fr
     http:
