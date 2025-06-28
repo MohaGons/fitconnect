@@ -27,12 +27,10 @@ export const KeycloakProvider = ({ children }: { children: React.ReactNode }) =>
     }
     if (!initialized && !initCalled.current) {
       initCalled.current = true;
-      keycloak
-        .init({ 
-          onLoad: 'check-sso',
-          silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
-          redirectUri: window.location.origin + '/dashboard/home'
-        })
+      keycloak.init({
+        onLoad: 'login-required',
+        redirectUri: window.location.origin + '/dashboard/home'
+      })
         .then((authenticated) => {
           console.log('Keycloak initialized:', authenticated);
           setIsAuthenticated(authenticated);
