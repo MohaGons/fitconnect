@@ -73,8 +73,8 @@ spec:
           value: "login.fitnessconnect.fr"
         # - name: KC_HOSTNAME_URL
           # value: "https://login.fitnessconnect.fr"
-        - name: KC_HOSTNAME_ADMIN_URL
-          value: "https://login.fitnessconnect.fr"
+        # - name: KC_HOSTNAME_ADMIN_URL
+        #   value: "https://login.fitnessconnect.fr"
         - name: KC_HEALTH_ENABLED
           value: "true"
         - name: KC_HOSTNAME_STRICT
