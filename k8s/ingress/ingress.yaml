@@ -45,6 +45,13 @@ spec:
             name: keycloak-service
             port:
               number: 8080
+      - path: /realms/
+      pathType: Prefix
+      backend:
+        service:
+          name: keycloak-service
+          port:
+            number: 8080        
 
   - host: adminer.fitnessconnect.fr
     http:
