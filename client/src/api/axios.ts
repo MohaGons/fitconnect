@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://34.79.140.130:3000/",
+  baseURL: import.meta.env.VITE_API_URL || "https://api.fitnessconnect.fr/",
   headers: {
     "Content-Type": "application/json",
   },
