@@ -30,6 +30,7 @@ export const KeycloakProvider = ({ children }: { children: React.ReactNode }) =>
       keycloak
         .init({ 
           onLoad: 'check-sso',
+          checkLoginIframe: false,
           silentCheckSsoRedirectUri: 'https://fitnessconnect.fr/silent-check-sso.html',
           redirectUri: 'https://fitnessconnect.fr/dashboard/home',
         })
