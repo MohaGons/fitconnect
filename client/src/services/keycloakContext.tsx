@@ -25,6 +25,37 @@ export const KeycloakProvider = ({ children }: { children: React.ReactNode }) =>
     if (keycloak.didInitialize) { 
       return
     }
+     console.log('=== DIAGNOSTIC KEYCLOAK ===');
+  
+  // Test 1: Vérifier si Keycloak est accessible
+  fetch('https://login.fitnessconnect.fr/realms/MY-REALM/.well-known/openid_configuration', {
+    mode: 'cors'
+  })
+  .then(response => {
+    console.log('✅ Keycloak accessible:', response.status);
+    return response.json();
+  })
+  .then(data => {
+    console.log('✅ Config OpenID:', data);
+  })
+  .catch(err => {
+    console.error('❌ Keycloak non accessible:', err);
+  });
+
+  // Test 2: Vérifier les headers CORS
+  fetch('https://login.fitnessconnect.fr/realms/MY-REALM/protocol/openid-connect/auth?client_id=my-web-client&response_type=code&scope=openid&redirect_uri=https://fitnessconnect.fr/dashboard/home', {
+    method: 'HEAD',
+    mode: 'cors'
+  })
+  .then(response => {
+    console.log('✅ Auth endpoint accessible:', response.status);
+    console.log('Headers:', Object.fromEntries(response.headers.entries()));
+  })
+  .catch(err => {
+    console.error('❌ Auth endpoint non accessible:', err);
+  });
+
+
     if (!initialized && !initCalled.current) {
       initCalled.current = true;
       keycloak
