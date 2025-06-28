@@ -71,8 +71,8 @@ spec:
           value: "xforwarded"
         - name: KC_HOSTNAME
           value: "login.fitnessconnect.fr"
-        - name: KC_HOSTNAME_URL
-          value: "https://login.fitnessconnect.fr"
+        # - name: KC_HOSTNAME_URL
+          # value: "https://login.fitnessconnect.fr"
         - name: KC_HOSTNAME_ADMIN_URL
           value: "https://login.fitnessconnect.fr"
         - name: KC_HEALTH_ENABLED
