@@ -27,10 +27,12 @@ export const KeycloakProvider = ({ children }: { children: React.ReactNode }) =>
     }
     if (!initialized && !initCalled.current) {
       initCalled.current = true;
-      keycloak.init({
-        onLoad: 'login-required',
-        redirectUri: window.location.origin + '/dashboard/home'
-      })
+      keycloak
+        .init({ 
+          onLoad: 'check-sso',
+          silentCheckSsoRedirectUri: 'https://fitnessconnect.fr/silent-check-sso.html',
+          redirectUri: 'https://fitnessconnect.fr/dashboard/home',
+        })
         .then((authenticated) => {
           console.log('Keycloak initialized:', authenticated);
           setIsAuthenticated(authenticated);
