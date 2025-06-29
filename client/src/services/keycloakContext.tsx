@@ -3,17 +3,20 @@ import keycloak from './keycloak';
 import { useLocation } from 'react-router-dom';
 import Login from '../pages/auth/login';
 
-// Créez un objet de contexte avec plus d'informations
-const contextValue = { 
+// Routes publiques
+const publicRoutes = [
+  '/', '/welcome', '/our-team', '/prices', '/faq',
+  '/services', '/login', '/signin', '/register', '/signup',
+  '/about', '/contact'
+];
+
+const contextValue = {
   keycloak,
   initialized: false,
-  isAuthenticated: false 
+  isAuthenticated: false
 };
+
 export const KeycloakContext = createContext(contextValue);
-
-// Liste des routes publiques qui ne nécessitent pas d'authentification
-const publicRoutes = ['/', '/welcome','/our-team','/prices','/faq','/services', '/login', '/signin', '/register', '/signup', '/about', '/contact'];
-
 
 export const KeycloakProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -22,56 +25,44 @@ export const KeycloakProvider = ({ children }: { children: React.ReactNode }) =>
   const location = useLocation();
 
   useEffect(() => {
-    if (keycloak.didInitialize) { 
-      return
-    }
-     console.log('=== DIAGNOSTIC KEYCLOAK ===');
-  
     if (!initialized && !initCalled.current) {
       initCalled.current = true;
+
       keycloak
-       .init({ 
+        .init({
           onLoad: 'check-sso',
           silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
           redirectUri: 'https://fitnessconnect.fr/dashboard/home',
         })
-        .then((authenticated) => {
-          console.log('Keycloak initialized:', authenticated);
+        .then(authenticated => {
+          console.log('✅ Keycloak initialized:', authenticated);
           setIsAuthenticated(authenticated);
           setInitialized(true);
         })
-        .catch((err) => {
-          console.error('Keycloak init failed:', err);
+        .catch(err => {
+          console.error('❌ Keycloak init failed:', err);
+          setInitialized(true); // On ne bloque pas l’app si init échoue
         });
     }
   }, []);
 
-  // Mise à jour de la valeur du contexte avec l'état actuel
-  const currentContextValue = {
-    keycloak,
-    initialized,
-    isAuthenticated
-  };
-
-  // Vérifier si la route actuelle est publique
-  
+  // ✅ Normalisation du chemin
   const normalizePath = (path: string) => path.replace(/\/+$/, '');
-
   const isPublicRoute = publicRoutes.some(route =>
     normalizePath(location.pathname).startsWith(normalizePath(route))
   );
-  console.log('Route actuelle :', location.pathname, '| Public :', isPublicRoute);
 
+  console.log('Path:', location.pathname, '| Public:', isPublicRoute, '| Init:', initialized, '| Auth:', isAuthenticated);
+
+  // ✅ Bloquer le rendu uniquement pendant init
   if (!initialized) {
-    return (
-      <div>
-      </div>
-    );
+    return null; // ou un spinner
   }
 
+  // ✅ Rendu sécurisé après init
   return (
-    <KeycloakContext.Provider value={currentContextValue}>
-      {isPublicRoute || isAuthenticated ? children : <Login/>}
+    <KeycloakContext.Provider value={{ keycloak, initialized, isAuthenticated }}>
+      {isPublicRoute || isAuthenticated ? children : <Login />}
     </KeycloakContext.Provider>
   );
 };
