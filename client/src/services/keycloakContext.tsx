@@ -54,7 +54,13 @@ export const KeycloakProvider = ({ children }: { children: React.ReactNode }) =>
   };
 
   // Vérifier si la route actuelle est publique
-  const isPublicRoute = publicRoutes.includes(location.pathname);
+  
+  const normalizePath = (path: string) => path.replace(/\/+$/, '');
+
+  const isPublicRoute = publicRoutes.some(route =>
+    normalizePath(location.pathname).startsWith(normalizePath(route))
+  );
+  console.log('Route actuelle :', location.pathname, '| Public :', isPublicRoute);
 
   if (!initialized) {
     return (
