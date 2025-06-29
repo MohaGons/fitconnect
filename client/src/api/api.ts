@@ -1,8 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  
-  baseURL:  "http://35.240.106.140:3000/",
+  baseURL:  "https://api.fitnessconnect.fr/",
 });
 
 // api.interceptors.request.use((config) => {

@@ -145,6 +145,8 @@ deploy:
     - echo "Deploying Keycloak..."
     - kubectl apply -f k8s/keycloak/keycloak-secret.yaml
     - kubectl apply -f k8s/keycloak/keycloak-service.yaml
+    - echo "📦 Creating Keycloak theme ConfigMap..."
+    - kubectl create configmap keycloak-theme --from-file=k8s/keycloak/themes/ --namespace=$NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
     - kubectl apply -f k8s/keycloak/keycloak-all.yaml
 
     - echo "Deploying Adminer..."
