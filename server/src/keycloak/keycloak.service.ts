@@ -42,7 +42,6 @@ export class KeycloakService {
   private isInitialized = false;
 
   constructor(private readonly configService: ConfigService) {
-    // Initialisation asynchrone sans bloquer le constructor
     void this.initializeWhenNeeded();
   }
 
@@ -69,8 +68,8 @@ export class KeycloakService {
       const clientSecret = this.configService.get<string>('KEYCLOAK_ADMIN_CLIENT_SECRET');
       const username = this.configService.get<string>('KEYCLOAK_ADMIN_USERNAME');
       const password = this.configService.get<string>('KEYCLOAK_ADMIN_PASSWORD');
+      const nodeEnv = this.configService.get<string>('NODE_ENV');
 
-      // Logs des variables d'env
       console.log('🔍 Configuration Keycloak :');
       this.logEnv('KEYCLOAK_URL', keycloakUrl);
       this.logEnv('KEYCLOAK_REALM', keycloakRealm);
@@ -78,6 +77,7 @@ export class KeycloakService {
       this.logEnv('KEYCLOAK_ADMIN_CLIENT_SECRET', clientSecret, true);
       this.logEnv('KEYCLOAK_ADMIN_USERNAME', username);
       this.logEnv('KEYCLOAK_ADMIN_PASSWORD', password, true);
+      this.logEnv('NODE_ENV', nodeEnv);
 
       if (!keycloakUrl || !keycloakRealm) {
         throw new Error('❌ KEYCLOAK_URL or KEYCLOAK_REALM not configured');
@@ -88,16 +88,20 @@ export class KeycloakService {
         realmName: keycloakRealm,
       });
 
-      // Authentification : client credentials ou fallback user/pass
-      if (clientId && clientSecret) {
-        console.log('🔐 Using client credentials authentication');
+      const useClientCredentials =
+        nodeEnv === 'production' &&
+        !!clientId &&
+        !!clientSecret;
+
+      if (useClientCredentials) {
+        console.log('🔐 Auth mode: client_credentials');
         await this.kcAdminClient.auth({
           clientId,
           clientSecret,
           grantType: 'client_credentials',
         });
       } else {
-        console.log('🔐 Using password authentication fallback');
+        console.log('🔐 Auth mode: password (fallback)');
         const fallbackClientId = clientId || 'admin-cli';
 
         if (!username || !password) {
@@ -134,14 +138,9 @@ export class KeycloakService {
   getUserIdFromToken(token: string): string | null {
     try {
       const parts = token.split('.');
-      if (parts.length !== 3) {
-        throw new Error('Invalid JWT token format');
-      }
-
-      const payloadBase64 = parts[1];
-      const payload = Buffer.from(payloadBase64, 'base64').toString();
+      if (parts.length !== 3) throw new Error('Invalid JWT token format');
+      const payload = Buffer.from(parts[1], 'base64').toString();
       const decoded = JSON.parse(payload) as JWTPayload;
-
       return decoded.sub || null;
     } catch (error) {
       console.error('❌ Failed to decode token:', error);
@@ -153,14 +152,12 @@ export class KeycloakService {
     try {
       await this.ensureInitialized();
 
-      if (!this.kcAdminClient) {
-        throw new Error('❌ Keycloak client not available');
-      }
+      if (!this.kcAdminClient) throw new Error('❌ Keycloak client not available');
 
       console.log(`➡️ Assigning role ${roleName} to user ${userId}`);
 
-      const roles: KeycloakRole[] = await this.kcAdminClient.roles.find();
-      const targetRole = roles.find((role) => role.name === roleName);
+      const roles = await this.kcAdminClient.roles.find();
+      const targetRole = roles.find((r) => r.name === roleName);
 
       if (!targetRole) {
         const availableRoles = roles.map((r) => r.name).join(', ');
