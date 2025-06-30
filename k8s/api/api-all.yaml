@@ -34,7 +34,7 @@ data:
   MAIL_FROM: "noreply@fitnessplatform.com"
   
   # Keycloak Configuration - UTILISER LES SERVICES KUBERNETES
-  KEYCLOAK_URL: "https://login.fitnessconnect.fr/"
+  KEYCLOAK_URL: "https://login.fitnessconnect.fr"
   KEYCLOAK_REALM: "MY-REALM"
   KEYCLOAK_ADMIN_CLIENT_ID: "admin-cli"
   KEYCLOAK_ADMIN_USERNAME: "admin"
@@ -54,10 +54,10 @@ data:
   MAIL_PASSWORD: bWFpbF9wYXNzd29yZA==
   
   # Keycloak secrets (base64: ObkISiWU00ydpPjjmTpL9lvOkrJAWlzy)
-  KEYCLOAK_ADMIN_CLIENT_SECRET: T2JrSVNpV1UwMHlkcFBqam1UcEw5bHZPa3JKQVD3bHp5
-  
-  # Keycloak admin password (base64: admin)
-  KEYCLOAK_ADMIN_PASSWORD: YWRtaW4=
+  # KEYCLOAK_ADMIN_CLIENT_SECRET: T2JrSVNpV1UwMHlkcFBqam1UcEw5bHZPa3JKQVD3bHp5
+  KEYCLOAK_ADMIN_CLIENT_SECRET: ObkISiWU00ydpPjjmTpL9lvOkrJAWlzy
+  # Keycloak admin password (base64: admin YWRtaW4=)
+  KEYCLOAK_ADMIN_PASSWORD: admin
   
   # Stripe secret (base64 encoded de votre clé)
   STRIPE_SECRET_KEY: c2tfdGVzdF81MU1mUkZHQ01CdlFmVHJMNXJxaGVrYzZTeWUzcmVSWk52UU5vTTBRNnU2bmJyWElJdXlmRVEwREU5Wm9FQ2VaN0Jvb1JIRndEYXd0eTNlQ0EyT01IMzNJTDAwcjFjamUwZ04=
