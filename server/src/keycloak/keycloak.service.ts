@@ -46,13 +46,17 @@ export class KeycloakService {
     void this.initializeWhenNeeded();
   }
 
+  private logEnv(name: string, value: string | undefined, secret = false): void {
+    const display = secret ? (value ? '✓ fourni' : '❌ manquant') : (value || '❌ manquant');
+    console.log(`[ENV] ${name.padEnd(30)} : ${display}`);
+  }
+
   private async initializeWhenNeeded(): Promise<void> {
     if (this.isInitialized) return;
 
     try {
-      console.log('Initializing Keycloak Admin Client...');
+      console.log('🟡 Initializing Keycloak Admin Client...');
 
-      // Import dynamique avec typage TypeScript strict
       const kcModule = await import('@keycloak/keycloak-admin-client');
       const KcAdminClient = kcModule.default as new (config: {
         baseUrl: string;
@@ -61,65 +65,57 @@ export class KeycloakService {
 
       const keycloakUrl = this.configService.get<string>('KEYCLOAK_URL');
       const keycloakRealm = this.configService.get<string>('KEYCLOAK_REALM');
+      const clientId = this.configService.get<string>('KEYCLOAK_ADMIN_CLIENT_ID');
+      const clientSecret = this.configService.get<string>('KEYCLOAK_ADMIN_CLIENT_SECRET');
+      const username = this.configService.get<string>('KEYCLOAK_ADMIN_USERNAME');
+      const password = this.configService.get<string>('KEYCLOAK_ADMIN_PASSWORD');
+
+      // Logs des variables d'env
+      console.log('🔍 Configuration Keycloak :');
+      this.logEnv('KEYCLOAK_URL', keycloakUrl);
+      this.logEnv('KEYCLOAK_REALM', keycloakRealm);
+      this.logEnv('KEYCLOAK_ADMIN_CLIENT_ID', clientId);
+      this.logEnv('KEYCLOAK_ADMIN_CLIENT_SECRET', clientSecret, true);
+      this.logEnv('KEYCLOAK_ADMIN_USERNAME', username);
+      this.logEnv('KEYCLOAK_ADMIN_PASSWORD', password, true);
 
       if (!keycloakUrl || !keycloakRealm) {
-        throw new Error('KEYCLOAK_URL or KEYCLOAK_REALM not configured');
+        throw new Error('❌ KEYCLOAK_URL or KEYCLOAK_REALM not configured');
       }
-
-      console.log(`Keycloak URL: ${keycloakUrl}, Realm: ${keycloakRealm}`);
 
       this.kcAdminClient = new KcAdminClient({
         baseUrl: keycloakUrl,
         realmName: keycloakRealm,
       });
 
-      // Try client credentials first (recommended)
-      const clientId = this.configService.get<string>(
-        'KEYCLOAK_ADMIN_CLIENT_ID',
-      );
-      const clientSecret = this.configService.get<string>(
-        'KEYCLOAK_ADMIN_CLIENT_SECRET',
-      );
-
+      // Authentification : client credentials ou fallback user/pass
       if (clientId && clientSecret) {
-        console.log('Using client credentials authentication');
-        const authConfig: KeycloakAuthConfig = {
+        console.log('🔐 Using client credentials authentication');
+        await this.kcAdminClient.auth({
           clientId,
           clientSecret,
           grantType: 'client_credentials',
-        };
-        await this.kcAdminClient.auth(authConfig);
+        });
       } else {
-        // Fallback to password grant (requires proper client configuration)
-        console.log('Using password authentication');
-        const username = this.configService.get<string>(
-          'KEYCLOAK_ADMIN_USERNAME',
-        );
-        const password = this.configService.get<string>(
-          'KEYCLOAK_ADMIN_PASSWORD',
-        );
+        console.log('🔐 Using password authentication fallback');
         const fallbackClientId = clientId || 'admin-cli';
 
         if (!username || !password) {
-          throw new Error(
-            'KEYCLOAK_ADMIN_USERNAME or KEYCLOAK_ADMIN_PASSWORD not configured',
-          );
+          throw new Error('❌ KEYCLOAK_ADMIN_USERNAME or KEYCLOAK_ADMIN_PASSWORD not configured');
         }
 
-        const authConfig: KeycloakAuthConfig = {
+        await this.kcAdminClient.auth({
           username,
           password,
           clientId: fallbackClientId,
           grantType: 'password',
-        };
-
-        await this.kcAdminClient.auth(authConfig);
+        });
       }
 
       this.isInitialized = true;
-      console.log('Keycloak admin client initialized successfully');
+      console.log('✅ Keycloak admin client initialized successfully');
     } catch (error) {
-      console.error('Failed to initialize Keycloak admin client:', error);
+      console.error('❌ Failed to initialize Keycloak admin client:', error);
       this.isInitialized = false;
       this.kcAdminClient = null;
     }
@@ -131,7 +127,7 @@ export class KeycloakService {
     }
 
     if (!this.kcAdminClient) {
-      throw new Error('Keycloak client failed to initialize');
+      throw new Error('❌ Keycloak client failed to initialize');
     }
   }
 
@@ -148,7 +144,7 @@ export class KeycloakService {
 
       return decoded.sub || null;
     } catch (error) {
-      console.error('Failed to decode token:', error);
+      console.error('❌ Failed to decode token:', error);
       return null;
     }
   }
@@ -158,21 +154,17 @@ export class KeycloakService {
       await this.ensureInitialized();
 
       if (!this.kcAdminClient) {
-        throw new Error('Keycloak client not available');
+        throw new Error('❌ Keycloak client not available');
       }
 
-      console.log(`Assigning role ${roleName} to user ${userId}`);
+      console.log(`➡️ Assigning role ${roleName} to user ${userId}`);
 
       const roles: KeycloakRole[] = await this.kcAdminClient.roles.find();
-      const targetRole = roles.find(
-        (role: KeycloakRole) => role.name === roleName,
-      );
+      const targetRole = roles.find((role) => role.name === roleName);
 
       if (!targetRole) {
         const availableRoles = roles.map((r) => r.name).join(', ');
-        throw new Error(
-          `Role ${roleName} not found. Available roles: ${availableRoles}`,
-        );
+        throw new Error(`❌ Role ${roleName} not found. Available roles: ${availableRoles}`);
       }
 
       await this.kcAdminClient.users.addRealmRoleMappings({
@@ -180,9 +172,9 @@ export class KeycloakService {
         roles: [{ id: targetRole.id, name: targetRole.name }],
       });
 
-      console.log(`Role ${roleName} assigned successfully to user ${userId}`);
+      console.log(`✅ Role ${roleName} assigned to user ${userId}`);
     } catch (error) {
-      console.error(`Failed to assign role ${roleName}:`, error);
+      console.error(`❌ Failed to assign role ${roleName}:`, error);
       throw error;
     }
   }
