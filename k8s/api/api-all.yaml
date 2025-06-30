@@ -100,6 +100,11 @@ spec:
         ports:
         - containerPort: 3000
         env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: NODE_ENV
         # Variables Docker Compose style
         - name: DATABASE_HOST
           valueFrom:
