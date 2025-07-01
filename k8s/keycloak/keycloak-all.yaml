@@ -77,9 +77,12 @@ spec:
           value: "false"
         - name: KC_HTTP_RELATIVE_PATH
           value: "/"
+        - name: KC_THEME
+          value: mytheme
         volumeMounts:
         - name: theme-volume
-          mountPath: /opt/keycloak/themes
+          mountPath: /opt/keycloak/themes/mytheme
+          subPath: mytheme
         resources:
           requests:
             memory: "100m"
