@@ -13,31 +13,32 @@ data:
   DATABASE_USER: "postgres"
   DATABASE_PASSWORD: "postgres"
   DATABASE_NAME: "fitness_platform_db"
-  
+
   # Variables pour compatibilité (votre app lit ces noms)
   DB_HOST: "postgres-service"
   DB_PORT: "5432"
   DB_DATABASE: "fitness_platform_db"
-  
+
   # Application Configuration
   PORT: "3000"
   JWT_EXPIRATION: "1d"
-  
+
   # File Upload Configuration
   UPLOAD_DIR: "./uploads"
   MAX_FILE_SIZE: "5242880"
-  
+
   # Email Configuration
   MAIL_HOST: "smtp.example.com"
   MAIL_PORT: "587"
   MAIL_USER: "user@example.com"
   MAIL_FROM: "noreply@fitnessplatform.com"
-  
+
   # Keycloak Configuration - UTILISER LES SERVICES KUBERNETES
   KEYCLOAK_URL: "https://login.fitnessconnect.fr"
   KEYCLOAK_REALM: "MY-REALM"
   KEYCLOAK_ADMIN_CLIENT_ID: "admin-cli"
   KEYCLOAK_ADMIN_USERNAME: "admin"
+
 ---
 # Secret pour les variables sensibles
 apiVersion: v1
@@ -49,18 +50,19 @@ type: Opaque
 data:
   # JWT Secret (base64: your_jwt_secret_key_here)
   JWT_SECRET: eW91cl9qd3Rfc2VjcmV0X2tleV9oZXJl
-  
+
   # Email password (base64: mail_password)
   MAIL_PASSWORD: bWFpbF9wYXNzd29yZA==
-  
+
   # Keycloak secrets (base64: ObkISiWU00ydpPjjmTpL9lvOkrJAWlzy)
   KEYCLOAK_ADMIN_CLIENT_SECRET: T2JrSVNpV1UwMHlkcFBqam1UcEw5bHZPa3JKQVD3bHp5
-  
+
   # Keycloak admin password (base64: admin)
   KEYCLOAK_ADMIN_PASSWORD: YWRtaW4=
-  
+
   # Stripe secret (base64 encoded de votre clé)
   STRIPE_SECRET_KEY: c2tfdGVzdF81MU1mUkZHQ01CdlFmVHJMNXJxaGVrYzZTeWUzcmVSWk52UU5vTTBRNnU2bmJyWElJdXlmRVEwREU5Wm9FQ2VaN0Jvb1JIRndEYXd0eTNlQ0EyT01IMzNJTDAwcjFjamUwZ04=
+
 ---
 # Deployment API
 apiVersion: apps/v1
@@ -105,6 +107,7 @@ spec:
             configMapKeyRef:
               name: api-config
               key: NODE_ENV
+
         # Variables Docker Compose style
         - name: DATABASE_HOST
           valueFrom:
@@ -131,8 +134,8 @@ spec:
             secretKeyRef:
               name: postgres-secret
               key: POSTGRES_PASSWORD
-        
-        # Variables pour votre .env.production (compatibilité)
+
+        # Variables pour .env.production (compatibilité)
         - name: DB_HOST
           valueFrom:
             configMapKeyRef:
@@ -148,6 +151,8 @@ spec:
             configMapKeyRef:
               name: api-config
               key: DB_DATABASE
+
+        # App settings
         - name: PORT
           valueFrom:
             configMapKeyRef:
@@ -168,6 +173,8 @@ spec:
             configMapKeyRef:
               name: api-config
               key: MAX_FILE_SIZE
+
+        # Email
         - name: MAIL_HOST
           valueFrom:
             configMapKeyRef:
@@ -188,6 +195,13 @@ spec:
             configMapKeyRef:
               name: api-config
               key: MAIL_FROM
+        - name: MAIL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: api-secret
+              key: MAIL_PASSWORD
+
+        # Keycloak
         - name: KEYCLOAK_URL
           valueFrom:
             configMapKeyRef:
@@ -208,49 +222,34 @@ spec:
             configMapKeyRef:
               name: api-config
               key: KEYCLOAK_ADMIN_USERNAME
-        
-        # Variables from secrets
-        - name: DB_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: postgres-secret
-              key: POSTGRES_USER
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: postgres-secret
-              key: POSTGRES_PASSWORD
-        - name: JWT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: api-secret
-              key: JWT_SECRET
-        - name: MAIL_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: api-secret
-              key: MAIL_PASSWORD
-        - name: KEYCLOAK_ADMIN_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: api-secret
-              key: KEYCLOAK_ADMIN_CLIENT_SECRET
         - name: KEYCLOAK_ADMIN_PASSWORD
           valueFrom:
             secretKeyRef:
               name: api-secret
               key: KEYCLOAK_ADMIN_PASSWORD
+        - name: KEYCLOAK_ADMIN_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: api-secret
+              key: KEYCLOAK_ADMIN_CLIENT_SECRET
+
+        # JWT et Stripe
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: api-secret
+              key: JWT_SECRET
         - name: STRIPE_SECRET_KEY
           valueFrom:
             secretKeyRef:
               name: api-secret
               key: STRIPE_SECRET_KEY
-        
+
         # Volume pour les uploads
         volumeMounts:
         - name: uploads
           mountPath: /app/uploads
-        
+
         # Health checks
         livenessProbe:
           httpGet:
@@ -268,19 +267,20 @@ spec:
           periodSeconds: 15
           timeoutSeconds: 10
           failureThreshold: 5
-        
+
         # Resources
         resources:
           requests:
             memory: "256Mi"
-            cpu: "100m"      
+            cpu: "100m"
           limits:
             memory: "512Mi"
             cpu: "300m"
-      
+
       volumes:
       - name: uploads
         emptyDir: {}
+
 ---
 # Service API
 apiVersion: v1

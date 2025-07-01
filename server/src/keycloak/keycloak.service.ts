@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-// Interfaces TypeScript pour Keycloak
 interface KeycloakRole {
   id: string;
   name: string;
@@ -13,7 +12,7 @@ interface KeycloakAuthConfig {
   password?: string;
   clientId: string;
   clientSecret?: string;
-  grantType: 'password' | 'client_credentials';
+  grantType: 'password';
 }
 
 interface KeycloakAdminClient {
@@ -65,7 +64,6 @@ export class KeycloakService {
       const keycloakUrl = this.configService.get<string>('KEYCLOAK_URL');
       const keycloakRealm = this.configService.get<string>('KEYCLOAK_REALM');
       const clientId = this.configService.get<string>('KEYCLOAK_ADMIN_CLIENT_ID');
-      const clientSecret = this.configService.get<string>('KEYCLOAK_ADMIN_CLIENT_SECRET');
       const username = this.configService.get<string>('KEYCLOAK_ADMIN_USERNAME');
       const password = this.configService.get<string>('KEYCLOAK_ADMIN_PASSWORD');
       const nodeEnv = this.configService.get<string>('NODE_ENV');
@@ -74,13 +72,12 @@ export class KeycloakService {
       this.logEnv('KEYCLOAK_URL', keycloakUrl);
       this.logEnv('KEYCLOAK_REALM', keycloakRealm);
       this.logEnv('KEYCLOAK_ADMIN_CLIENT_ID', clientId);
-      this.logEnv('KEYCLOAK_ADMIN_CLIENT_SECRET', clientSecret, true);
       this.logEnv('KEYCLOAK_ADMIN_USERNAME', username);
       this.logEnv('KEYCLOAK_ADMIN_PASSWORD', password, true);
       this.logEnv('NODE_ENV', nodeEnv);
 
-      if (!keycloakUrl || !keycloakRealm) {
-        throw new Error('❌ KEYCLOAK_URL or KEYCLOAK_REALM not configured');
+      if (!keycloakUrl || !keycloakRealm || !clientId || !username || !password) {
+        throw new Error('❌ KEYCLOAK config incomplet');
       }
 
       this.kcAdminClient = new KcAdminClient({
@@ -88,40 +85,20 @@ export class KeycloakService {
         realmName: keycloakRealm,
       });
 
-      const useClientCredentials =
-        nodeEnv === 'production' &&
-        !!clientId &&
-        !!clientSecret;
-
-      if (useClientCredentials) {
-        console.log('🔐 Auth mode: client_credentials');
-        await this.kcAdminClient.auth({
-          clientId,
-          clientSecret,
-          grantType: 'client_credentials',
-        });
-      } else {
-        console.log('🔐 Auth mode: password (fallback)');
-        const fallbackClientId = clientId || 'admin-cli';
-
-        if (!username || !password) {
-          throw new Error('❌ KEYCLOAK_ADMIN_USERNAME or KEYCLOAK_ADMIN_PASSWORD not configured');
-        }
-
-        await this.kcAdminClient.auth({
-          username,
-          password,
-          clientId: fallbackClientId,
-          grantType: 'password',
-        });
-      }
+      console.log('🔐 Auth mode: password (forcé)');
+      await this.kcAdminClient.auth({
+        username,
+        password,
+        clientId,
+        grantType: 'password',
+      });
 
       this.isInitialized = true;
       console.log('✅ Keycloak admin client initialized successfully');
     } catch (error) {
       console.error('❌ Failed to initialize Keycloak admin client:', error);
-      this.isInitialized = false;
       this.kcAdminClient = null;
+      this.isInitialized = false;
     }
   }
 
