@@ -87,11 +87,12 @@ export class KeycloakService {
 
       console.log('🔐 Auth mode: password (forcé)');
       await this.kcAdminClient.auth({
-        username,
-        password,
-        clientId,
-        grantType: 'password',
-      });
+      username: 'admin', 
+      password: 'admin',
+      grantType: 'password',
+      clientId: 'admin-cli',
+      clientSecret: 'ObkISiWU00ydpPjjmTpL9lvOkrJAWlzy',
+    });
 
       this.isInitialized = true;
       console.log('✅ Keycloak admin client initialized successfully');
