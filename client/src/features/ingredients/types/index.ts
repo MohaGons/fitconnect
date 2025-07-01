@@ -19,9 +19,7 @@ export interface FoodItemCreate {
   category?: string;
 }
 
-export interface FoodItemUpdate extends Partial<FoodItemCreate> {
-  updated_at: string;
-}
+export interface FoodItemUpdate extends Partial<FoodItemCreate> {}
 
 export interface PaginationParams {
   page: number;
@@ -44,13 +42,13 @@ export interface FoodItemFilters extends PaginationParams, FilterParams {}
 
 // Catégories d'aliments courantes
 export const FOOD_CATEGORIES = [
-  { value: 'légumes', label: 'Légumes' },
-  { value: 'fruits', label: 'Fruits' },
-  { value: 'céréales', label: 'Céréales' },
-  { value: 'protéines', label: 'Protéines' },
-  { value: 'produits-laitiers', label: 'Produits laitiers' },
-  { value: 'matières-grasses', label: 'Matières grasses' },
-  { value: 'épices', label: 'Épices et condiments' },
-  { value: 'boissons', label: 'Boissons' },
-  { value: 'autres', label: 'Autres' },
-]; 
+  { value: "légumes", label: "Légumes" },
+  { value: "fruits", label: "Fruits" },
+  { value: "céréales", label: "Céréales" },
+  { value: "protéines", label: "Protéines" },
+  { value: "produits-laitiers", label: "Produits laitiers" },
+  { value: "matières-grasses", label: "Matières grasses" },
+  { value: "épices", label: "Épices et condiments" },
+  { value: "boissons", label: "Boissons" },
+  { value: "autres", label: "Autres" },
+];
