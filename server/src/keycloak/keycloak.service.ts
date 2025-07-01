@@ -90,8 +90,8 @@ export class KeycloakService {
       username: 'admin', 
       password: 'admin',
       grantType: 'password',
-      clientId: 'admin-cli',
-      clientSecret: 'ObkISiWU00ydpPjjmTpL9lvOkrJAWlzy',
+      clientId: 'admin-api-client',
+      clientSecret: '115x2yOmMVGcHesD9JcFjotLTiksax5o',
     });
 
       this.isInitialized = true;
