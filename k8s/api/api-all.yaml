@@ -36,7 +36,7 @@ data:
   # Keycloak Configuration - UTILISER LES SERVICES KUBERNETES
   KEYCLOAK_URL: "https://login.fitnessconnect.fr"
   KEYCLOAK_REALM: "MY-REALM"
-  KEYCLOAK_ADMIN_CLIENT_ID: "admin-cli"
+  KEYCLOAK_ADMIN_CLIENT_ID: "admin-api-client"
   KEYCLOAK_ADMIN_USERNAME: "admin"
 
 ---
@@ -54,8 +54,8 @@ data:
   # Email password (base64: mail_password)
   MAIL_PASSWORD: bWFpbF9wYXNzd29yZA==
 
-  # Keycloak secrets (base64: ObkISiWU00ydpPjjmTpL9lvOkrJAWlzy)
-  KEYCLOAK_ADMIN_CLIENT_SECRET: T2JrSVNpV1UwMHlkcFBqam1UcEw5bHZPa3JKQVD3bHp5
+  # Keycloak secrets (base64: 115x2yOmMVGcHesD9JcFjotLTiksax5o)
+  KEYCLOAK_ADMIN_CLIENT_SECRET: MTE1eDJ5T21NVkdjSGVzRDlKY0Zqb3RMVGlrc2F4NW8=
 
   # Keycloak admin password (base64: admin)
   KEYCLOAK_ADMIN_PASSWORD: YWRtaW4=
