@@ -154,8 +154,8 @@ deploy:
     - echo "Deploying Adminer..."
     - kubectl apply -f k8s/adminer/
 
-    # - echo "Deploying Uptime Kuma..."
-    # - kubectl apply -f k8s/uptime-kuma/
+     - echo "Deploying Uptime Kuma..."
+     - kubectl apply -f k8s/uptime-kuma/
 
     - FRONTEND_IMAGE="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/frontend:${CI_COMMIT_SHA}"
     - API_IMAGE="${AR_LOCATION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPO}/api:${CI_COMMIT_SHA}"

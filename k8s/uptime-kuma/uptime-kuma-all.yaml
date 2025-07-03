@@ -1,3 +1,4 @@
+
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -10,6 +11,7 @@ spec:
     requests:
       storage: 2Gi
   storageClassName: standard-rwo
+
 ---
 # Deployment Uptime Kuma
 apiVersion: apps/v1
@@ -29,11 +31,9 @@ spec:
       labels:
         app: uptime-kuma
     spec:
-      securityContext:
-        fsGroup: 1000
       containers:
       - name: uptime-kuma
-        image: louislam/uptime-kuma:latest
+        image: louislam/uptime-kuma:1.23.11
         ports:
         - containerPort: 3001
           name: http
@@ -63,11 +63,11 @@ spec:
           failureThreshold: 3
         resources:
           requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
             memory: "256Mi"
             cpu: "200m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
         securityContext:
           runAsNonRoot: true
           runAsUser: 1000
@@ -76,8 +76,9 @@ spec:
       - name: uptime-kuma-data
         persistentVolumeClaim:
           claimName: uptime-kuma-pvc
+
 ---
-# Service Uptime Kuma
+# Service Uptime Kuma avec LoadBalancer pour accès direct IP
 apiVersion: v1
 kind: Service
 metadata:
@@ -94,3 +95,71 @@ spec:
     protocol: TCP
     name: http
   type: LoadBalancer
+
+---
+# NetworkPolicy pour Uptime Kuma
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: uptime-kuma-network-policy
+  namespace: annual-project
+spec:
+  podSelector:
+    matchLabels:
+      app: uptime-kuma
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Permettre l'accès depuis n'importe quelle IP externe
+  - {}
+  egress:
+  # Permettre à Uptime Kuma de contacter tous les services pour monitoring
+  - to:
+    - podSelector:
+        matchLabels:
+          app: api
+    ports:
+    - protocol: TCP
+      port: 3000
+  - to:
+    - podSelector:
+        matchLabels:
+          app: frontend
+    ports:
+    - protocol: TCP
+      port: 80
+  - to:
+    - podSelector:
+        matchLabels:
+          app: keycloak
+    ports:
+    - protocol: TCP
+      port: 8080
+  - to:
+    - podSelector:
+        matchLabels:
+          app: adminer
+    ports:
+    - protocol: TCP
+      port: 8080
+  - to:
+    - podSelector:
+        matchLabels:
+          app: postgres
+    ports:
+    - protocol: TCP
+      port: 5432
+  # Permettre les connexions DNS et externes
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 80
+    - protocol: TCP
+      port: 443
