@@ -30,12 +30,11 @@ spec:
       labels:
         app: uptime-kuma
     spec:
-      # Configuration pour résoudre les problèmes de permissions
       securityContext:
         fsGroup: 1000
       containers:
       - name: uptime-kuma
-        image: louislam/uptime-kuma:1  # Version stable au lieu de latest
+        image: louislam/uptime-kuma:latest 
         ports:
         - containerPort: 3001
           name: http
