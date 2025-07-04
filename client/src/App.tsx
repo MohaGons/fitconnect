@@ -20,42 +20,54 @@ import Login from "./pages/auth/login"
 import ProtectedRoute from "./routes/protectedRoute";
 import InscriptionPage from "./pages/inscription/inscription";
 import SignIn from "./pages/AuthPages/SignIn";
+import PrivacyPolicy from "./pages/public/PrivacyPolicy/PrivacyPolicy";
+
+// Cookie Consent Components
+import { CookieConsentProvider } from './context/CookieConsentContext';
+import CookieBanner from './components/privacy/CookieBanner';
 
 export default function App() {
   return (
     <>
       <Router>
-      <KeycloakProvider>
-        <ScrollToTop />
-        <Routes>
-          {/* Dashboard Layout */}
-           <Route index path="/" element={<FrontHome />} />
+        <CookieConsentProvider>
+          <KeycloakProvider>
+            <ScrollToTop />
+            <Routes>
+              {/* Public Routes */}
+              <Route index path="/" element={<FrontHome />} />
               <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route element={<AppLayout />}>
-            <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard/home" element={<Home />} />
-            <Route path="/dashboard/users" element={<Users />} />
-            <Route path="/dashboard/customers" element={<Customers />} />
-            <Route path="/dashboard/calendar" element={<Calendar/>} />
-            <Route path="/dashboard/chat" element={<Chat />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              
+              {/* Dashboard Layout */}
+              <Route element={<AppLayout />}>
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/dashboard/home" element={<Home />} />
+                  <Route path="/dashboard/users" element={<Users />} />
+                  <Route path="/dashboard/customers" element={<Customers />} />
+                  <Route path="/dashboard/calendar" element={<Calendar/>} />
+                  <Route path="/dashboard/chat" element={<Chat />} />
+                  <Route path="/dashboard/nutrition" element={<Nutrition />} />
+                  <Route path="/dashboard/invoices" element={<Invoices />} />
+                  <Route path="/dashboard/programs" element={<Programs />} />
+                  <Route path="/dashboard/exercises" element={<Exerecices />} />
+                </Route>
+              </Route>
+              
+              {/* Protected Routes */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/inscription" element={<InscriptionPage />} />
+              </Route>
 
-            <Route path="/dashboard/nutrition" element={<Nutrition />} />
-            <Route path="/dashboard/invoices" element={<Invoices />} />
-            <Route path="/dashboard/programs" element={<Programs />} />
-            <Route path="/dashboard/exercises" element={<Exerecices />} />
-            </Route>
-          </Route>
-          <Route element={<ProtectedRoute />}>
-            <Route path="/inscription" element={<InscriptionPage />} />
-          </Route>
-          {/* Auth Layout */}
-       
-
-          {/* Fallback Route */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </KeycloakProvider>
+              {/* Fallback Route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            
+            {/* Cookie Banner - Global */}
+            <CookieBanner />
+          </KeycloakProvider>
+        </CookieConsentProvider>
       </Router>
     </>
   );

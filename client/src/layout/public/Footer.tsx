@@ -187,6 +187,12 @@ const Footer: React.FC = () => {
                 CGV
               </Link>
               <Link
+                to="/privacy-policy"
+                className="text-gray-600 hover:text-orange-500 transition-colors"
+              >
+                Confidentialité
+              </Link>
+              <Link
                 to="/contact"
                 className="text-gray-600 hover:text-orange-500 transition-colors"
               >
