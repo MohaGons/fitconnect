@@ -1,26 +1,7 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
 import Header from "../../../layout/public/Header";
-
-// Constants pour éviter la duplication
-const SKEW_STYLE = {
-  transform: "skewX(-12deg)",
-  transformOrigin: "center",
-} as const;
-
-const COUNTER_SKEW_STYLE = {
-  transform: "skewX(12deg)",
-} as const;
-
-// Composant réutilisable pour les éléments avec style skew
-const SkewedElement: React.FC<{
-  children: React.ReactNode;
-  className?: string;
-}> = ({ children, className = "" }) => (
-  <div className={className} style={SKEW_STYLE}>
-    <div style={COUNTER_SKEW_STYLE}>{children}</div>
-  </div>
-);
+import SkewedElement from "../../../components/common/SkewedElement";
 
 const Cgu: React.FC = () => {
   return (

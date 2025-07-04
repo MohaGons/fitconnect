@@ -52,15 +52,21 @@ import Services from "../pages/public/Services/Services";
 import Cgu from "../pages/public/Cgu/Cgu";
 import Cgv from "../pages/public/Cgv/Cgv";
 import Contact from "../pages/public/Contact/Contact";
+import PrivacyPolicy from "../pages/public/PrivacyPolicy/PrivacyPolicy";
 import Chat from "../pages/admin/Chat";
 import Profile from "../pages/admin/profile/profile";
+
+// Cookie Consent Components
+import { CookieConsentProvider } from "../context/CookieConsentContext";
+import CookieBanner from "../components/privacy/CookieBanner";
 
 const App = () => {
   return (
     <Router>
-      <KeycloakProvider>
-        <ScrollToTop />
-        <Routes>
+      <CookieConsentProvider>
+        <KeycloakProvider>
+          <ScrollToTop />
+          <Routes>
           {/* ==================== ROUTES PUBLIQUES ==================== */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<Welcome />} />
@@ -70,6 +76,7 @@ const App = () => {
             <Route path="/services" element={<Services />} />
             <Route path="/cgu" element={<Cgu />} />
             <Route path="/cgv" element={<Cgv />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/contact" element={<Contact />} />
           </Route>
           {/* ==================== ROUTES D'AUTHENTIFICATION ==================== */}
@@ -114,7 +121,11 @@ const App = () => {
           {/* ==================== ROUTE 404 ==================== */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        
+        {/* Cookie Banner - Global */}
+        <CookieBanner />
       </KeycloakProvider>
+    </CookieConsentProvider>
     </Router>
   );
 };
