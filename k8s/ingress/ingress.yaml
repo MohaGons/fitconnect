@@ -56,3 +56,13 @@ spec:
             name: adminer-service
             port:
               number: 8080
+  - host: uptimekuma.fitnessconnect.fr
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: uptime-kuma-service
+            port:
+              number: 3001            
