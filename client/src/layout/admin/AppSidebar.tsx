@@ -44,8 +44,13 @@ const navItems: NavItem[] = [
   },
   {
     icon: <UserCircleIcon />,
-    name: "Utilisateurs",
-    path: "/dashboard/users",
+    name: "Tous les coaches",
+    path: "/dashboard/all-coaches",
+  },
+  {
+    icon: <UserCircleIcon />,
+    name: "Tous les clients",
+    path: "/dashboard/all-clients",
   },
   {
     icon: <GroupIcon />,

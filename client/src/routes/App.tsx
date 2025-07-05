@@ -93,7 +93,8 @@ const App = () => {
               <Route path="/dashboard/home" element={<AdminHome />} />
 
               {/* Gestion des Utilisateurs */}
-              <Route path="/dashboard/users" element={<Users />} />
+              <Route path="/dashboard/all-coaches" element={<Coach />} />
+              <Route path="/dashboard/all-clients" element={<Users />} />
               <Route path="/dashboard/customers" element={<Customers />} />
               <Route path="/dashboard/coaches" element={<Coaches />} />
               <Route path="/coach" element={<Coach />} />

@@ -1,8 +1,18 @@
+import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
+import DataTable from "../../../features/exercices/components/DataTable/DataTable";
 
-function Users() {
+const allCoaches: React.FC = () => {
   return (
-    <div>Users</div>
-  )
-}
+    <div className="dark:bg-gray-900">
+      <PageBreadcrumb pageTitle="Utilisateurs" />
+      
+      <DataTable 
+        apiEndpoint="clients"
+        featurePath="users"
+        searchPlaceholder="Rechercher un utilisateur..."
+      />
+    </div>
+  );
+};
 
-export default Users
+export default allCoaches;
