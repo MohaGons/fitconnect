@@ -1,8 +1,15 @@
+import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
+import DataTable from "../../../features/clients/components/DataTable/DataTable";
 
-function Users() {
+const allCoaches: React.FC = () => {
   return (
-    <div>Users</div>
-  )
-}
+    <div className="dark:bg-gray-900">
+      <PageBreadcrumb pageTitle="Tous les clients" />
+      
+      <DataTable 
+      />
+    </div>
+  );
+};
 
-export default Users
+export default allCoaches;

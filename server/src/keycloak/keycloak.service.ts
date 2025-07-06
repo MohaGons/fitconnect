@@ -30,7 +30,7 @@ export class KeycloakService {
       realmName: keycloakRealm,
     });
 
-    this.initKeycloakAdmin();
+   // this.initKeycloakAdmin();
   }
 
   private async initKeycloakAdmin() {
@@ -91,7 +91,7 @@ export class KeycloakService {
       this.lastAuthTime = Date.now();
 
       // Programmer le renouvellement du token avant expiration
-      this.scheduleTokenRefresh();
+      //this.scheduleTokenRefresh();
     } catch (error) {
       console.error('Failed to initialize Keycloak admin client:', error);
       if (error.response && error.response.data) {
@@ -112,7 +112,7 @@ export class KeycloakService {
   }
 
   async deleteUser(keycloakId: string): Promise<void> {
-  await this.initKeycloakAdmin();
+   await this.initKeycloakAdmin();
   await this.kcAdminClient.users.del({ id: keycloakId });
 }
 
@@ -169,94 +169,94 @@ export class KeycloakService {
   //   }
   // }
 
-  private scheduleTokenRefresh() {
-    try {
-      // Récupérer le token et sa durée de validité
-      const token = this.kcAdminClient.accessToken;
+  // private scheduleTokenRefresh() {
+  //   try {
+  //     // Récupérer le token et sa durée de validité
+  //     const token = this.kcAdminClient.accessToken;
 
-      if (!token) {
-        console.error('Access token is undefined, cannot schedule refresh');
-        return;
-      }
+  //     if (!token) {
+  //       console.error('Access token is undefined, cannot schedule refresh');
+  //       return;
+  //     }
 
-      console.log('Token exists, attempting to decode it');
-      console.log('Token type:', typeof token);
+  //     console.log('Token exists, attempting to decode it');
+  //     console.log('Token type:', typeof token);
 
-      try {
-        // Diviser le token en parties
-        const parts = token.split('.');
-        if (parts.length !== 3) {
-          console.error('Token does not appear to be a valid JWT');
-          return;
-        }
+  //     try {
+  //       // Diviser le token en parties
+  //       const parts = token.split('.');
+  //       if (parts.length !== 3) {
+  //         console.error('Token does not appear to be a valid JWT');
+  //         return;
+  //       }
 
-        // Décoder la partie payload du token (deuxième partie)
-        const payload = Buffer.from(parts[1], 'base64').toString();
-        const payloadObj = JSON.parse(payload);
+  //       // Décoder la partie payload du token (deuxième partie)
+  //       const payload = Buffer.from(parts[1], 'base64').toString();
+  //       const payloadObj = JSON.parse(payload);
 
-        if (payloadObj && payloadObj.exp) {
-          // Calculer le temps avant expiration (en ms)
-          const expiresIn = payloadObj.exp * 1000 - Date.now();
+  //       if (payloadObj && payloadObj.exp) {
+  //         // Calculer le temps avant expiration (en ms)
+  //         const expiresIn = payloadObj.exp * 1000 - Date.now();
 
-          // Afficher à la fois UTC et heure locale pour clarifier le problème de fuseau horaire
-          const expTimeUTC = new Date(payloadObj.exp * 1000).toISOString();
-          const expTimeLocal = new Date(payloadObj.exp * 1000).toString();
+  //         // Afficher à la fois UTC et heure locale pour clarifier le problème de fuseau horaire
+  //         const expTimeUTC = new Date(payloadObj.exp * 1000).toISOString();
+  //         const expTimeLocal = new Date(payloadObj.exp * 1000).toString();
 
-          console.log(`Token expiration time (UTC): ${expTimeUTC}`);
-          console.log(`Token expiration time (Local): ${expTimeLocal}`);
-          console.log(`Current time (UTC): ${new Date().toISOString()}`);
-          console.log(`Current time (Local): ${new Date().toString()}`);
-          console.log(
-            `Time until expiration: ${Math.floor(expiresIn / 1000)} seconds`,
-          );
+  //         console.log(`Token expiration time (UTC): ${expTimeUTC}`);
+  //         console.log(`Token expiration time (Local): ${expTimeLocal}`);
+  //         console.log(`Current time (UTC): ${new Date().toISOString()}`);
+  //         console.log(`Current time (Local): ${new Date().toString()}`);
+  //         console.log(
+  //           `Time until expiration: ${Math.floor(expiresIn / 1000)} seconds`,
+  //         );
 
-          // Si le token est déjà expiré ou va expirer très bientôt, rafraîchir immédiatement
-          if (expiresIn <= 60000) {
-            // 60 secondes ou moins
-            console.log(
-              'Token expired or expiring very soon, refreshing immediately',
-            );
-            this.refreshToken();
-            return;
-          }
+  //         // Si le token est déjà expiré ou va expirer très bientôt, rafraîchir immédiatement
+  //         if (expiresIn <= 60000) {
+  //           // 60 secondes ou moins
+  //           console.log(
+  //             'Token expired or expiring very soon, refreshing immediately',
+  //           );
+  //           this.refreshToken();
+  //           return;
+  //         }
 
-          // Renouveler le token 1 minute avant expiration
-          const refreshTime = Math.max(expiresIn - 60000, 0);
-          console.log(
-            `Token refresh scheduled in ${Math.floor(refreshTime / 1000)} seconds`,
-          );
+  //         // Renouveler le token 1 minute avant expiration
+  //         const refreshTime = Math.max(expiresIn - 60000, 0);
+  //         console.log(
+  //           `Token refresh scheduled in ${Math.floor(refreshTime / 1000)} seconds`,
+  //         );
 
-          setTimeout(() => this.refreshToken(), refreshTime);
-        } else {
-          console.error('Could not find expiration time in token payload');
-        }
-      } catch (decodeError) {
-        console.error('Error manually decoding token:', decodeError);
+  //         setTimeout(() => this.refreshToken(), refreshTime);
+  //       } else {
+  //         console.error('Could not find expiration time in token payload');
+  //       }
+  //     } catch (decodeError) {
+  //       console.error('Error manually decoding token:', decodeError);
 
-        // Fallback: planifier un refresh standard après 4 minutes
-        console.log('Scheduling default token refresh in 4 minutes');
-        setTimeout(() => this.refreshToken(), 4 * 60 * 1000);
-      }
-    } catch (error) {
-      console.error('Error in scheduleTokenRefresh:', error);
+  //       // Fallback: planifier un refresh standard après 4 minutes
+  //       console.log('Scheduling default token refresh in 4 minutes');
+  //       setTimeout(() => this.refreshToken(), 4 * 60 * 1000);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error in scheduleTokenRefresh:', error);
 
-      // Fallback: planifier un refresh standard après 4 minutes
-      console.log('Scheduling default token refresh in 4 minutes');
-      setTimeout(() => this.refreshToken(), 4 * 60 * 1000);
-    }
-  }
+  //     // Fallback: planifier un refresh standard après 4 minutes
+  //     console.log('Scheduling default token refresh in 4 minutes');
+  //     setTimeout(() => this.refreshToken(), 4 * 60 * 1000);
+  //   }
+  // }
 
-  private async refreshToken() {
-    try {
-      await this.initKeycloakAdmin();
-      console.log('Token refreshed successfully');
-    } catch (error) {
-      console.error('Failed to refresh token:', error);
+  // private async refreshToken() {
+  //   try {
+  //     await this.initKeycloakAdmin();
+  //     console.log('Token refreshed successfully');
+  //   } catch (error) {
+  //     console.error('Failed to refresh token:', error);
 
-      // Nouvelle tentative dans 30 secondes en cas d'échec
-      setTimeout(() => this.refreshToken(), 30 * 1000);
-    }
-  }
+  //     // Nouvelle tentative dans 30 secondes en cas d'échec
+  //     setTimeout(() => this.refreshToken(), 30 * 1000);
+  //   }
+  // }
 
   async getUserIdFromToken(token: string): Promise<string | null> {
     try {
@@ -283,7 +283,7 @@ export class KeycloakService {
     }
   }
 
-  // Fonction améliorée de gestion des rôles
+  // // Fonction améliorée de gestion des rôles
   async assignRole(userId: string, roleName: string): Promise<void> {
     try {
       console.log(`Attempting to assign role ${roleName} to user ${userId}`);
@@ -338,7 +338,7 @@ export class KeycloakService {
         );
 
         // Re-authentifier et réessayer une fois
-        await this.initKeycloakAdmin();
+        //await this.initKeycloakAdmin();
 
         try {
           // Récupérer le rôle après ré-authentification

@@ -51,6 +51,9 @@ export class Coach {
   photo: string; 
 
   @Column({ type: 'boolean', default: false })
+  termsAccepted: boolean;
+
+  @Column({ type: 'boolean', default: false })
   deleted: boolean; 
 
   // Champs pour le système de paiement plateforme

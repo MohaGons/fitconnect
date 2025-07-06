@@ -6,6 +6,9 @@ import { FaRocketchat } from "react-icons/fa6";
 import { GiMeal } from "react-icons/gi";
 import { LiaFileInvoiceDollarSolid } from "react-icons/lia";
 import { MdPayment } from "react-icons/md";
+import { FaPeopleGroup } from "react-icons/fa6";
+import { MdOutlineGroups } from "react-icons/md";
+
 
 import {
   CalenderIcon,
@@ -43,9 +46,14 @@ const navItems: NavItem[] = [
     path: "/dashboard/calendar",
   },
   {
-    icon: <UserCircleIcon />,
-    name: "Utilisateurs",
-    path: "/dashboard/users",
+    icon: <FaPeopleGroup />,
+    name: "Tous les coaches",
+    path: "/dashboard/all-coaches",
+  },
+  {
+    icon: <MdOutlineGroups />,
+    name: "Tous les clients",
+    path: "/dashboard/all-clients",
   },
   {
     icon: <GroupIcon />,

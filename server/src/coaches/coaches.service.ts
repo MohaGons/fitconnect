@@ -1,9 +1,23 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, ILike, FindOptionsWhere } from 'typeorm';
 import { Coach } from './entities/coach.entity';
 import { CreateCoachDto } from './dto/create-coach.dto';
 import { UpdateCoachDto } from './dto/update-coach.dto';
+
+interface FindAllOptions {
+  page?: number;
+  limit?: number;
+  search?: string;
+  deleted?: boolean;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+}
 
 @Injectable()
 export class CoachesService {
@@ -35,10 +49,72 @@ export class CoachesService {
     };
   }
 
-  async findAll(): Promise<Coach[]> {
-    return await this.coachRepository.find({
-      order: { created_at: 'DESC' },
-    });
+  async findAll(options: FindAllOptions = {}): Promise<PaginatedResponse<Coach>> {
+    try {
+      const { page = 1, limit = 10, search, deleted } = options;
+      const skip = (page - 1) * limit;
+
+      // Construction des conditions WHERE
+      const whereConditions: FindOptionsWhere<Coach> = {};
+
+      // Filtre par statut supprimé si spécifié
+      if (deleted !== undefined) {
+        whereConditions.deleted = deleted;
+      }
+
+      // Construction des conditions de recherche
+      let searchConditions: FindOptionsWhere<Coach>[] = [];
+      if (search && search.trim() !== '') {
+        const searchTerm = search.trim();
+        // Recherche insensible à la casse sur plusieurs champs
+        searchConditions = [
+          { firstName: ILike(`%${searchTerm}%`) },
+          { lastName: ILike(`%${searchTerm}%`) },
+          { email: ILike(`%${searchTerm}%`) },
+          { specialty: ILike(`%${searchTerm}%`) },
+        ];
+      }
+
+      // Log pour déboguer
+      console.log('Service - Find All Options:', { 
+        page, 
+        limit, 
+        search, 
+        deleted, 
+        skip,
+        whereConditions,
+        hasSearch: !!search
+      });
+
+      // Requête principale avec les conditions
+      const [coaches, total] = await this.coachRepository.findAndCount({
+        where: search 
+          ? [
+              ...searchConditions.map(condition => ({ ...whereConditions, ...condition }))
+            ] 
+          : whereConditions,
+        skip,
+        take: limit,
+        order: { created_at: 'DESC' },
+      });
+
+      // Log des résultats
+      console.log('Service - Résultats:', { 
+        coachesFound: coaches.length, 
+        total, 
+        searchApplied: !!search
+      });
+
+      return {
+        data: coaches,
+        total,
+        page,
+        limit,
+      };
+    } catch (error) {
+      console.error('Error in findAll coaches:', error);
+      throw error;
+    }
   }
 
   async findOne(id: number): Promise<Coach> {
@@ -53,28 +129,27 @@ export class CoachesService {
     return coach;
   }
 
-
-async getCoachProfile(userId: string) {
-  const coachProfile = await this.coachRepository.findOne({ where: { user_id: userId } });
-  if (!coachProfile) {
-    throw new NotFoundException(`Coach non trouvé pour l'userId: ${userId}`);
+  async getCoachProfile(userId: string) {
+    const coachProfile = await this.coachRepository.findOne({ where: { user_id: userId } });
+    if (!coachProfile) {
+      throw new NotFoundException(`Coach non trouvé pour l'userId: ${userId}`);
+    }
+    return coachProfile;
   }
-  return coachProfile;
-}
 
-async update(id: number, updateCoachDto: UpdateCoachDto): Promise<Coach> {
-  const coach = await this.findOne(id);
-  Object.assign(coach, updateCoachDto);
-  return await this.coachRepository.save(coach);
-}
-
-async remove(id: number): Promise<void> {
-  const result = await this.coachRepository.delete(id);
-
-  if (result.affected === 0) {
-    throw new NotFoundException(`Coach with id ${id} not found`);
+  async update(id: number, updateCoachDto: UpdateCoachDto): Promise<Coach> {
+    const coach = await this.findOne(id);
+    Object.assign(coach, updateCoachDto);
+    return await this.coachRepository.save(coach);
   }
-}
+
+  async remove(id: number): Promise<void> {
+    const result = await this.coachRepository.delete(id);
+
+    if (result.affected === 0) {
+      throw new NotFoundException(`Coach with id ${id} not found`);
+    }
+  }
 
   async updateSubscriptionStatus(
     coachId: number,
