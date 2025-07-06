@@ -1,15 +1,13 @@
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
-import DataTable from "../../../features/exercices/components/DataTable/DataTable";
+import DataTable from "../../../features/coaches/components/DataTable/DataTable";
 
 const Coach: React.FC = () => {
   return (
     <div className="dark:bg-gray-900">
-      <PageBreadcrumb pageTitle="Coachs" />
+      <PageBreadcrumb pageTitle="Tous les Coaches" />
       
       <DataTable 
-        apiEndpoint="coaches"
-        featurePath="coach"
-        searchPlaceholder="Rechercher un coach..."
+        
       />
     </div>
   );

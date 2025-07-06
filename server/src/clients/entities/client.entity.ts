@@ -65,6 +65,8 @@ export class Client {
   @UpdateDateColumn()
   updated_at: Date;
 
+  @Column({ type: 'boolean', default: false })
+  termsAccepted: boolean;
   
   @Column({ type: 'boolean', default: false })
   deleted: boolean;

@@ -1,15 +1,12 @@
 import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
-import DataTable from "../../../features/exercices/components/DataTable/DataTable";
+import DataTable from "../../../features/clients/components/DataTable/DataTable";
 
 const allCoaches: React.FC = () => {
   return (
     <div className="dark:bg-gray-900">
-      <PageBreadcrumb pageTitle="Utilisateurs" />
+      <PageBreadcrumb pageTitle="Tous les clients" />
       
       <DataTable 
-        apiEndpoint="clients"
-        featurePath="users"
-        searchPlaceholder="Rechercher un utilisateur..."
       />
     </div>
   );
