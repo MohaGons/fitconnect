@@ -11,6 +11,7 @@ import {
   ParseIntPipe,
   BadRequestException,
   NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -28,8 +29,10 @@ import { CalendarEvent } from './entities/calendar-event.entity';
 import { Client } from '../clients/entities/client.entity';
 import { Program } from '../programs/entities/program.entity';
 import { Meal } from '../meals/entities/meal.entity';
+import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 
 @ApiTags('calendar-events')
+@UseGuards(JwtAuthGuard)
 @Controller('calendar-events')
 export class CalendarEventsController {
   constructor(private readonly calendarEventsService: CalendarEventsService) {}

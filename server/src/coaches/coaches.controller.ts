@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { 
   ApiTags, 
@@ -19,8 +20,10 @@ import { CoachesService } from './coaches.service';
 import { CreateCoachDto } from './dto/create-coach.dto';
 import { UpdateCoachDto } from './dto/update-coach.dto';
 import { KeycloakService } from '../keycloak/keycloak.service';
+import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 
 @ApiTags('coaches')
+@UseGuards(JwtAuthGuard)
 @Controller('coaches')
 export class CoachesController {
   constructor(

@@ -9,6 +9,7 @@ import { useUser } from "../../context/UserContext";
 export default function UserDropdown() {
   const { keycloak } = useKeycloakContext();
   const userId = keycloak?.tokenParsed?.sub;
+  const token= keycloak?.token;
   const roles = keycloak.tokenParsed?.realm_access?.roles || [];
   const [isOpen, setIsOpen] = useState(false);
   const { user, setUser, role } = useUser();
@@ -23,7 +24,10 @@ export default function UserDropdown() {
 
   useEffect(() => {
   const fetchuser = async () => {
-    if (!userId) return;
+    if (!userId || !token) return;
+   
+      localStorage.setItem('token', token);
+    
 
     try {
       let response = null;

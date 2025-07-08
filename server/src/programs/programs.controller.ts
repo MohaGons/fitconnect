@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -21,8 +22,10 @@ import { CreateProgramDto } from './dto/create-program.dto';
 import { UpdateProgramDto } from './dto/update-program.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { Program } from './entities/program.entity';
+import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 
 @ApiTags('programs')
+@UseGuards(JwtAuthGuard)
 @Controller('programs')
 export class ProgramsController {
   constructor(private readonly programsService: ProgramsService) {}

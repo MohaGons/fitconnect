@@ -6,11 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { MealScheduleService } from './meal-schedule.service';
 import { CreateMealScheduleDto } from './dto/create-meal-schedule.dto';
 import { UpdateMealScheduleDto } from './dto/update-meal-schedule.dto';
+import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('meal-schedule')
 export class MealScheduleController {
   constructor(private readonly mealScheduleService: MealScheduleService) {}

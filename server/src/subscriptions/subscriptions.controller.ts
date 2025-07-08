@@ -8,6 +8,7 @@ import {
   Delete,
   ParseIntPipe,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { SubscriptionsService } from './subscriptions.service';
@@ -16,8 +17,10 @@ import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
 import { CreateCoachingRequestDto } from './dto/create-coaching-request.dto';
 import { UpdateSubscriptionStatusDto } from './dto/update-subscription-status.dto';
 import { Subscription } from './entities/subscription.entity';
+import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 
 @ApiTags('subscriptions')
+@UseGuards(JwtAuthGuard)
 @Controller('subscriptions')
 export class SubscriptionsController {
   constructor(private readonly subscriptionsService: SubscriptionsService) {}

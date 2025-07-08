@@ -7,10 +7,13 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { FoodItemsService } from './food-items.service';
 import { CreateFoodItemDto } from './dto/create-food-item.dto';
 import { UpdateFoodItemDto } from './dto/update-food-item.dto';
+import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
+
 
 interface QueryFilters {
   page?: string;
@@ -19,6 +22,7 @@ interface QueryFilters {
   search?: string;
 }
 
+@UseGuards(JwtAuthGuard)
 @Controller('food-items')
 export class FoodItemsController {
   constructor(private readonly foodItemsService: FoodItemsService) {}
