@@ -11,6 +11,7 @@ export const useUserRole = () => {
 
   const isCoach = roles.includes("COACH");
   const isClient = roles.includes("CLIENT");
+  const isAdmin = roles.includes("ADMIN"); // Ajout du rôle ADMIN
 
   // Hook pour les données du coach
   const coachQuery = useQuery({
@@ -55,17 +56,28 @@ export const useUserRole = () => {
   let subscriptionStatus = "free";
   let userId_entity = null;
 
-  if (isCoach && coachQuery.data) {
+  if (isAdmin) {
+    // Les admins ont toujours accès à tout
+    subscriptionStatus = "active";
+    hasActiveSubscription = true;
+    userId_entity = userId; // Utiliser l'ID utilisateur pour les admins
+  } else if (isCoach && coachQuery.data) {
     // Pour les coachs, vérifier le statut d'abonnement
     subscriptionStatus = coachQuery.data.subscription_status || "free";
     hasActiveSubscription = subscriptionStatus === "active";
     userId_entity = coachQuery.data.coach_id;
   } else if (isClient && clientQuery.data) {
-    // Pour les clients, accès gratuit
-    subscriptionStatus = "active"; // Les clients ont toujours accès
+    subscriptionStatus = "active"; 
     hasActiveSubscription = true;
     userId_entity = clientQuery.data.client_id;
   }
+
+  const getUserRole = () => {
+    if (isAdmin) return "ADMIN";
+    if (isCoach) return "COACH";
+    if (isClient) return "CLIENT";
+    return null;
+  };
 
   const isLoading = isCoach
     ? coachQuery.isLoading
@@ -96,9 +108,10 @@ export const useUserRole = () => {
     // Informations de rôle
     isCoach,
     isClient,
-    userRole: isCoach ? "COACH" : isClient ? "CLIENT" : null,
+    isAdmin, // Ajout du rôle admin
+    userRole: getUserRole(), // Rôle principal déterminé par priorité
 
-    // ID de l'entité (coach_id ou client_id)
+    // ID de l'entité (coach_id, client_id, ou userId pour admin)
     userId_entity,
 
     // Statut d'abonnement

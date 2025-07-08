@@ -59,11 +59,11 @@ const Coaches: React.FC = () => {
     },
     enabled: !activeCoachSubscription, // Ne charger la liste que si pas de coach attribué
   });
-
+   console.log("coaches:", coaches);
   // Filtrer les coachs qui ont un abonnement actif - avec vérification de type
-  const activeCoaches = Array.isArray(coaches)
-    ? coaches.filter((coach) => coach.subscription_status === "active")
-    : [];
+const activeCoaches = (coaches?.data && Array.isArray(coaches.data)) 
+  ? coaches.data.filter((coach) => coach.subscription_status === "active")
+  : [];    console.log("activeCoaches:", activeCoaches);
 
   // Mutation pour créer une demande de coaching
   const createRequestMutation = useMutation({

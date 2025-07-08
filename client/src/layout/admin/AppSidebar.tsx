@@ -4,11 +4,9 @@ import { GiMuscularTorso } from "react-icons/gi";
 import { IoMdFitness } from "react-icons/io";
 import { FaRocketchat } from "react-icons/fa6";
 import { GiMeal } from "react-icons/gi";
-import { LiaFileInvoiceDollarSolid } from "react-icons/lia";
 import { MdPayment } from "react-icons/md";
 import { FaPeopleGroup } from "react-icons/fa6";
 import { MdOutlineGroups } from "react-icons/md";
-
 
 import {
   CalenderIcon,
@@ -16,7 +14,6 @@ import {
   GridIcon,
   GroupIcon,
   HorizontaLDots,
-  UserCircleIcon,
 } from "../../icons";
 import { useSidebar } from "../../context/SidebarContext";
 import { useUserRole } from "../../hooks/useUserRole";
@@ -25,8 +22,17 @@ type NavItem = {
   name: string;
   icon: React.ReactNode;
   path?: string;
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  subItems?: { 
+    name: string; 
+    path: string; 
+    pro?: boolean; 
+    new?: boolean;
+    allowedRoles?: string[];
+    requireSubscription?: boolean;
+  }[];
   badgeCount?: number;
+  allowedRoles?: string[];
+  requireSubscription?: boolean;
 };
 
 const navItems: NavItem[] = [
@@ -34,62 +40,98 @@ const navItems: NavItem[] = [
     icon: <MdPayment />,
     name: "Paiement",
     path: "/dashboard/payment",
+    allowedRoles: ["COACH"],
   },
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    subItems: [{ name: "Statistiques", path: "/dashboard/home", pro: false }],
+    allowedRoles: ["CLIENT", "COACH", "ADMIN"],
+        requireSubscription: true,
+
+    subItems: [
+      { 
+        name: "Statistiques", 
+        path: "/dashboard/home", 
+        pro: false,
+        allowedRoles: [ "CLIENT", "COACH" ]
+      }
+    ],
   },
   {
     icon: <CalenderIcon />,
-    name: "Calendrier ",
+    name: "Calendrier",
     path: "/dashboard/calendar",
+    allowedRoles: ["COACH", "CLIENT"],
+    requireSubscription: true,
   },
   {
     icon: <FaPeopleGroup />,
     name: "Tous les coaches",
     path: "/dashboard/all-coaches",
+    allowedRoles: ["ADMIN"],
+
   },
   {
     icon: <MdOutlineGroups />,
     name: "Tous les clients",
     path: "/dashboard/all-clients",
+    allowedRoles: ["ADMIN"],
   },
   {
     icon: <GroupIcon />,
     name: "Clients",
     path: "/dashboard/customers",
+    allowedRoles: ["COACH", "CLIENT", "ADMIN"],
+    requireSubscription: true,
+
   },
   {
     name: "Programmes",
     icon: <GiMuscularTorso />,
     path: "/dashboard/programs",
+    allowedRoles: ["COACH"],
+    requireSubscription: true,
   },
   {
     name: "Exercices",
     icon: <IoMdFitness />,
     path: "/dashboard/exercises",
+    allowedRoles: ["COACH"],
+    requireSubscription: true,
   },
   {
     name: "Messagerie",
     icon: <FaRocketchat />,
     path: "/dashboard/chat",
+    allowedRoles: ["COACH", "CLIENT"],
+    requireSubscription: true,
   },
-
   {
     name: "Nutrition & Repas",
     icon: <GiMeal />,
+    allowedRoles: ["COACH", "ADMIN"],
+    requireSubscription: true,
     subItems: [
-      { name: "Plans nutritionnels", path: "/dashboard/nutrition" },
-      { name: "Repas", path: "/dashboard/meals" },
-      { name: "Ingrédients", path: "/dashboard/ingredients" },
+      { 
+        name: "Plans nutritionnels", 
+        path: "/dashboard/nutrition",
+        allowedRoles: ["COACH", "ADMIN"],
+        requireSubscription: true,
+      },
+      { 
+        name: "Repas", 
+        path: "/dashboard/meals",
+        allowedRoles: ["COACH", "ADMIN"],
+        requireSubscription: true,
+      },
+      { 
+        name: "Ingrédients", 
+        path: "/dashboard/ingredients",
+        allowedRoles: ["COACH", "ADMIN"],
+        requireSubscription: true,
+      },
     ],
-  },
-  {
-    name: "Factures",
-    icon: <LiaFileInvoiceDollarSolid />,
-    path: "/dashboard/invoices",
-  },
+  }
 ];
 
 const AppSidebar: React.FC = () => {
@@ -97,44 +139,72 @@ const AppSidebar: React.FC = () => {
   const location = useLocation();
   const {
     hasActiveSubscription,
-    isLoading: isUserLoading,
     isCoach,
+    isClient,
+    isAdmin,
+    userRole,
     pendingRequestsCount,
   } = useUserRole();
 
-  // Adapter les éléments de navigation selon le rôle
+  const hasRequiredRole = (allowedRoles?: string[]) => {
+    if (!allowedRoles || allowedRoles.length === 0) return true;
+    return allowedRoles.includes(userRole || "");
+  };
+
+  const shouldShowItem = (item: NavItem) => {
+    if (!hasRequiredRole(item.allowedRoles)) {
+      return false;
+    }
+    return true;
+  };
+
+  const shouldShowSubItem = (subItem: { allowedRoles?: string[] }) => {
+    return hasRequiredRole(subItem.allowedRoles);
+  };
+
   const adaptedNavItems = navItems
+    .filter(shouldShowItem)
+    .map((item) => {
+      if (item.name === "Clients") {
+        if (isCoach || isAdmin) {
+          return {
+            ...item,
+            name: "Clients",
+            path: "/dashboard/customers",
+            badgeCount: isCoach ? pendingRequestsCount : undefined,
+          };
+        } else if (isClient) {
+          return {
+            ...item,
+            name: "Coach",
+            path: "/dashboard/coaches",
+          };
+        }
+      }
+      if (item.subItems) {
+        const filteredSubItems = item.subItems.filter(shouldShowSubItem);
+        return {
+          ...item,
+          subItems: filteredSubItems.length > 0 ? filteredSubItems : undefined,
+        };
+      }
+
+      return item;
+    })
     .filter((item) => {
-      // Masquer "Paiement" pour les clients
-      if (item.name === "Paiement" && !isCoach) {
+      if (item.subItems !== undefined && item.subItems.length === 0) {
         return false;
       }
       return true;
-    })
-    .map((item) => {
-      // Adapter l'onglet "Clients/Coach" selon le rôle
-      if (item.name === "Clients") {
-        return {
-          ...item,
-          name: isCoach ? "Clients" : "Coach",
-          path: isCoach ? "/dashboard/customers" : "/dashboard/coaches",
-          // Ajouter le nombre de demandes en attente pour les coachs
-          badgeCount: isCoach ? pendingRequestsCount : undefined,
-        };
-      }
-      return item;
     });
 
   const [openSubmenu, setOpenSubmenu] = useState<{
     type: "main";
     index: number;
   } | null>(null);
-  const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
-    {}
-  );
+  const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>({});
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // const isActive = (path: string) => location.pathname === path;
   const isActive = useCallback(
     (path: string) => location.pathname === path,
     [location.pathname]
@@ -176,19 +246,35 @@ const AppSidebar: React.FC = () => {
     }
   }, [openSubmenu]);
 
-  // Fonction pour vérifier si un élément est désactivé
-  const isItemDisabled = (itemName: string) => {
-    // Les clients ont toujours accès, seuls les coachs doivent payer
-    if (!isCoach) return false;
+  const isItemDisabled = (item: NavItem) => {
+    if (!hasRequiredRole(item.allowedRoles)) {
+      return true;
+    }
+    if (item.requireSubscription) {
+      if (!isCoach) return false;
+        return !hasActiveSubscription && item.name !== "Paiement";
+    }
 
-    // Pour les coachs, vérifier l'abonnement (sauf pour la page de paiement)
-    return !hasActiveSubscription && itemName !== "Paiement";
+    return false;
+  };
+
+  const isSubItemDisabled = (subItem: { requireSubscription?: boolean; allowedRoles?: string[] }) => {
+    if (!hasRequiredRole(subItem.allowedRoles)) {
+      return true;
+    }
+
+    if (subItem.requireSubscription) {
+      if (!isCoach) return false;
+      
+      return !hasActiveSubscription;
+    }
+
+    return false;
   };
 
   const handleSubmenuToggle = (index: number, menuType: "main") => {
-    // Empêcher l'ouverture du submenu si l'élément est désactivé
     const item = adaptedNavItems[index];
-    if (isItemDisabled(item.name)) {
+    if (isItemDisabled(item)) {
       return;
     }
 
@@ -207,7 +293,7 @@ const AppSidebar: React.FC = () => {
   const renderMenuItems = (items: NavItem[], menuType: "main") => (
     <ul className="flex flex-col gap-4">
       {items.map((nav, index) => {
-        const isDisabled = isItemDisabled(nav.name);
+        const isDisabled = isItemDisabled(nav);
 
         return (
           <li key={nav.name} className={isDisabled ? "relative" : ""}>
@@ -334,58 +420,62 @@ const AppSidebar: React.FC = () => {
                 }}
               >
                 <ul className="mt-2 space-y-1 ml-9">
-                  {nav.subItems.map((subItem) => (
-                    <li key={subItem.name}>
-                      {isDisabled ? (
-                        <div
-                          title="Débloquez cette fonctionnalité avec un abonnement PRO"
-                          className="menu-dropdown-item menu-dropdown-item-inactive opacity-50 cursor-not-allowed"
-                        >
-                          {subItem.name}
-                          <span className="flex items-center gap-1 ml-auto">
-                            <span className="ml-auto menu-dropdown-badge-inactive menu-dropdown-badge">
-                              PRO
+                  {nav.subItems.map((subItem) => {
+                    const isSubDisabled = isSubItemDisabled(subItem);
+                    
+                    return (
+                      <li key={subItem.name}>
+                        {isSubDisabled ? (
+                          <div
+                            title="Débloquez cette fonctionnalité avec un abonnement PRO"
+                            className="menu-dropdown-item menu-dropdown-item-inactive opacity-50 cursor-not-allowed"
+                          >
+                            {subItem.name}
+                            <span className="flex items-center gap-1 ml-auto">
+                              <span className="ml-auto menu-dropdown-badge-inactive menu-dropdown-badge">
+                                PRO
+                              </span>
                             </span>
-                          </span>
-                        </div>
-                      ) : (
-                        <Link
-                          to={subItem.path}
-                          className={`menu-dropdown-item ${
-                            isActive(subItem.path)
-                              ? "menu-dropdown-item-active"
-                              : "menu-dropdown-item-inactive"
-                          }`}
-                        >
-                          {subItem.name}
-                          <span className="flex items-center gap-1 ml-auto">
-                            {subItem.new && (
-                              <span
-                                className={`ml-auto ${
-                                  isActive(subItem.path)
-                                    ? "menu-dropdown-badge-active"
-                                    : "menu-dropdown-badge-inactive"
-                                } menu-dropdown-badge`}
-                              >
-                                new
-                              </span>
-                            )}
-                            {subItem.pro && (
-                              <span
-                                className={`ml-auto ${
-                                  isActive(subItem.path)
-                                    ? "menu-dropdown-badge-active"
-                                    : "menu-dropdown-badge-inactive"
-                                } menu-dropdown-badge`}
-                              >
-                                pro
-                              </span>
-                            )}
-                          </span>
-                        </Link>
-                      )}
-                    </li>
-                  ))}
+                          </div>
+                        ) : (
+                          <Link
+                            to={subItem.path}
+                            className={`menu-dropdown-item ${
+                              isActive(subItem.path)
+                                ? "menu-dropdown-item-active"
+                                : "menu-dropdown-item-inactive"
+                            }`}
+                          >
+                            {subItem.name}
+                            <span className="flex items-center gap-1 ml-auto">
+                              {subItem.new && (
+                                <span
+                                  className={`ml-auto ${
+                                    isActive(subItem.path)
+                                      ? "menu-dropdown-badge-active"
+                                      : "menu-dropdown-badge-inactive"
+                                  } menu-dropdown-badge`}
+                                >
+                                  new
+                                </span>
+                              )}
+                              {subItem.pro && (
+                                <span
+                                  className={`ml-auto ${
+                                    isActive(subItem.path)
+                                      ? "menu-dropdown-badge-active"
+                                      : "menu-dropdown-badge-inactive"
+                                  } menu-dropdown-badge`}
+                                >
+                                  pro
+                                </span>
+                              )}
+                            </span>
+                          </Link>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             )}
