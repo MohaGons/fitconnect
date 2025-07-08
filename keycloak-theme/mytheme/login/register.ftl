@@ -28,7 +28,7 @@
     <!-- Colonne gauche : formulaire -->
     <div class="w-full md:w-1/2 flex items-center justify-center px-6 md:px-12">
       <div class="w-full max-w-md">
-        <a href="http://localhost:5173/" class="inline-flex items-center mb-4 text-sm text-gray-500 hover:text-gray-700">
+        <a href="/" class="inline-flex items-center mb-4 text-sm text-gray-500 hover:text-gray-700">
           <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
@@ -132,20 +132,6 @@
               </svg>
             </button>
           </div>
-
-            <div class="flex items-center gap-3">
-            <label class="flex items-center space-x-3 group cursor-pointer">
-                <div class="relative w-5 h-5">
-                <input class="w-5 h-5 appearance-none cursor-pointer dark:border-gray-700 border border-gray-300 checked:border-transparent rounded-md checked:bg-orange-500 disabled:opacity-60 checked:dark:bg-brand-500" type="checkbox">
-                </div>
-            </label>
-            <p class="inline-block text-xs text-gray-500 dark:text-gray-400">
-                En créant un compte, vous acceptez les 
-                <a class="text-orange-400" href="https://www.google.com" target="_blank" rel="noopener noreferrer">Conditions Générales d'Utilisation</a> 
-                et notre 
-                <a class="text-orange-400" href="https://www.google.com" target="_blank" rel="noopener noreferrer">Politique de Confidentialité</a>
-            </p>
-            </div>
 
           <button type="submit" class="w-full px-4 py-2 text-sm font-medium text-white bg-orange-500 rounded-md hover:bg-orange-600">S'inscrire</button>
         </form>

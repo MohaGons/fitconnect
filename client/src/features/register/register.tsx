@@ -11,6 +11,9 @@ const Inscription: React.FC = () => {
  
     const { keycloak } = useKeycloakContext();
     const token = keycloak?.token;
+    if (token) {
+      localStorage.setItem('token', token);
+    }
     const roles = keycloak?.tokenParsed?.realm_access?.roles || []; 
     const userId = keycloak?.tokenParsed?.sub; 
 
