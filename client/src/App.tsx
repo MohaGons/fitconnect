@@ -1,3 +1,4 @@
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router";
 //import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
@@ -27,6 +28,13 @@ import { CookieConsentProvider } from './context/CookieConsentContext';
 import CookieBanner from './components/privacy/CookieBanner';
 
 export default function App() {
+  React.useEffect(() => {
+    var _mtm = window._mtm = window._mtm || [];
+    _mtm.push({'mtm.startTime': (new Date().getTime()), 'event': 'mtm.Start'});
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.async=true; g.src='https://cdn.matomo.cloud/fitnessconnect.matomo.cloud/container_kHUYHHcx.js'; s.parentNode.insertBefore(g,s);
+  }, []);
+
   return (
     <>
       <Router>
