@@ -3,6 +3,7 @@ import { Check, Star, Users, Clock, Target, Zap } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import Header from "../../../layout/public/Header";
 import SkewedElement from "../../../components/common/SkewedElement";
+import { Link } from "react-router-dom";
 
 const Prices = () => {
   const pricingPlans = [
@@ -285,12 +286,12 @@ const Prices = () => {
               Rejoignez des milliers de clients satisfaits et commencez votre transformation dès aujourd'hui.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-white text-orange-500 font-bold px-8 py-3 hover:bg-gray-100 transition-colors">
+              <Link to="#" className="bg-white text-orange-500 font-bold px-8 py-3 hover:bg-gray-100 transition-colors">
                 Commencer Maintenant
-              </button>
-              <button className="border-2 border-white text-white font-bold px-8 py-3 hover:bg-white hover:text-orange-500 transition-colors">
+              </Link>
+              <Link to="/contact" className="border-2 border-white text-white font-bold px-8 py-3 hover:bg-white hover:text-orange-500 transition-colors">
                 Nous Contacter
-              </button>
+              </Link>
             </div>
           </div>
         </div>
