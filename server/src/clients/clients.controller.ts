@@ -9,6 +9,7 @@ import {
   HttpStatus,
   ParseIntPipe,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { ClientsService } from './clients.service';
@@ -16,9 +17,11 @@ import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { Client } from './entities/client.entity';
 import { KeycloakService } from '../keycloak/keycloak.service';
+import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 
 
 @ApiTags('clients')
+@UseGuards(JwtAuthGuard)
 @Controller('clients')
 export class ClientsController {
   constructor(private readonly clientsService: ClientsService,

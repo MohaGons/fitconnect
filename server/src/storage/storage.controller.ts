@@ -7,14 +7,17 @@ import {
   BadRequestException,
   ParseFilePipe,
   MaxFileSizeValidator,
+  UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Multer } from 'multer';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 
 @ApiTags('storage')
+@UseGuards(JwtAuthGuard)
 @Controller('storage')
 export class StorageController {
   @Post('upload')

@@ -3,7 +3,9 @@ import { Controller, Get, UseGuards, Req } from '@nestjs/common';
 import { Request } from 'express';
 import { UserProfileService } from './user-profile.service';
 import { CompleteRegistrationGuard } from './profile-completion.guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwtAuth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('user-profile')
 export class UserProfileController {
   @Get('check')

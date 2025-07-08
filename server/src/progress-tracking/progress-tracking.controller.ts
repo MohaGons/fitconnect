@@ -6,11 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { ProgressTrackingService } from './progress-tracking.service';
 import { CreateProgressTrackingDto } from './dto/create-progress-tracking.dto';
 import { UpdateProgressTrackingDto } from './dto/update-progress-tracking.dto';
+import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('progress-tracking')
 export class ProgressTrackingController {
   constructor(

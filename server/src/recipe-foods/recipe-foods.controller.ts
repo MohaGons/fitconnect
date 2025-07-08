@@ -6,11 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { RecipeFoodsService } from './recipe-foods.service';
 import { CreateRecipeFoodDto } from './dto/create-recipe-food.dto';
 import { UpdateRecipeFoodDto } from './dto/update-recipe-food.dto';
+import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('recipe-foods')
 export class RecipeFoodsController {
   constructor(private readonly recipeFoodsService: RecipeFoodsService) {}
