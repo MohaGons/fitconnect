@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import api from '../../../api/api';
+import apiClient from '../../../api/axios';
 import { processFileToBase64 } from '../../../services/fileUploadService';
 import { useKeycloakContext } from '../../../services/useKeycloakContext';
 
@@ -23,10 +23,10 @@ const CoachForm = () => {
       data.firstName = firstName;
       data.lastName = lastName;
       data.email = email;
-      await api.post('/coaches', data);
+      await apiClient.post('/coaches', data);
        // 2. Assigner le rôle "COACH"
        const token = keycloak.token;
-       await api.post(
+       await apiClient.post(
          '/auth/choose-role',
          { role: 'COACH' },
          { headers: { Authorization: `Bearer ${token}` } }

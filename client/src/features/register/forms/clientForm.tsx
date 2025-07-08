@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import api from '../../../api/api';
+import apiClient from '../../../api/axios';
 import { useKeycloakContext } from '../../../services/useKeycloakContext';
 import { useState } from 'react';
 import { processFileToBase64 } from '../../../services/fileUploadService';
@@ -25,11 +25,11 @@ const ClientForm = () => {
       data.firstName = firstName;
       data.lastName = lastName;
       data.email = email;
-      await api.post('/clients', data);
+      await apiClient.post('/clients', data);
 
       // Attribution du rôle "CLIENT"
       const token = keycloak.token;
-      await api.post(
+      await apiClient.post(
         '/auth/choose-role',
         { role: 'CLIENT' },
         { headers: { Authorization: `Bearer ${token}` } }
