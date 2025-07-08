@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import KcAdminClient from '@keycloak/keycloak-admin-client';
 
-const jwt = require('jsonwebtoken');
 
 @Injectable()
 export class KeycloakService {
@@ -116,147 +115,6 @@ export class KeycloakService {
   await this.kcAdminClient.users.del({ id: keycloakId });
 }
 
-  // Méthode d'assistance pour s'assurer que l'authentification est fraîche
-  // private async ensureFreshAuth() {
-  //   try {
-  //     // Vérifier si le token existe
-  //     if (!this.kcAdminClient.accessToken) {
-  //       console.log('No access token available, authenticating...');
-  //       await this.initKeycloakAdmin();
-  //       return;
-  //     }
-
-  //     // Décoder le token pour vérifier l'expiration
-  //     const parts = this.kcAdminClient.accessToken.split('.');
-  //     if (parts.length !== 3) {
-  //       console.log('Invalid token format, re-authenticating...');
-  //       await this.initKeycloakAdmin();
-  //       return;
-  //     }
-
-  //     // Décoder la partie payload
-  //     const payload = Buffer.from(parts[1], 'base64').toString();
-  //     const payloadObj = JSON.parse(payload);
-
-  //     if (payloadObj && payloadObj.exp) {
-  //       // Calculer le temps restant avant expiration
-  //       const expiresIn = payloadObj.exp * 1000 - Date.now();
-
-  //       // Si le token expire dans moins de 30 secondes, renouveler
-  //       if (expiresIn < 30000) {
-  //         console.log(
-  //           'Token expiring soon (less than 30 seconds), refreshing...',
-  //         );
-  //         await this.initKeycloakAdmin();
-  //       } else {
-  //         console.log(
-  //           `Token still valid for ${Math.floor(expiresIn / 1000)} seconds`,
-  //         );
-  //       }
-  //     } else {
-  //       // Si pas d'expiration trouvée, renouveler par précaution
-  //       console.log(
-  //         'Cannot determine token expiration, re-authenticating to be safe',
-  //       );
-  //       await this.initKeycloakAdmin();
-  //     }
-  //   } catch (error) {
-  //     console.error(
-  //       'Error checking token freshness, re-authenticating:',
-  //       error,
-  //     );
-  //     await this.initKeycloakAdmin();
-  //   }
-  // }
-
-  // private scheduleTokenRefresh() {
-  //   try {
-  //     // Récupérer le token et sa durée de validité
-  //     const token = this.kcAdminClient.accessToken;
-
-  //     if (!token) {
-  //       console.error('Access token is undefined, cannot schedule refresh');
-  //       return;
-  //     }
-
-  //     console.log('Token exists, attempting to decode it');
-  //     console.log('Token type:', typeof token);
-
-  //     try {
-  //       // Diviser le token en parties
-  //       const parts = token.split('.');
-  //       if (parts.length !== 3) {
-  //         console.error('Token does not appear to be a valid JWT');
-  //         return;
-  //       }
-
-  //       // Décoder la partie payload du token (deuxième partie)
-  //       const payload = Buffer.from(parts[1], 'base64').toString();
-  //       const payloadObj = JSON.parse(payload);
-
-  //       if (payloadObj && payloadObj.exp) {
-  //         // Calculer le temps avant expiration (en ms)
-  //         const expiresIn = payloadObj.exp * 1000 - Date.now();
-
-  //         // Afficher à la fois UTC et heure locale pour clarifier le problème de fuseau horaire
-  //         const expTimeUTC = new Date(payloadObj.exp * 1000).toISOString();
-  //         const expTimeLocal = new Date(payloadObj.exp * 1000).toString();
-
-  //         console.log(`Token expiration time (UTC): ${expTimeUTC}`);
-  //         console.log(`Token expiration time (Local): ${expTimeLocal}`);
-  //         console.log(`Current time (UTC): ${new Date().toISOString()}`);
-  //         console.log(`Current time (Local): ${new Date().toString()}`);
-  //         console.log(
-  //           `Time until expiration: ${Math.floor(expiresIn / 1000)} seconds`,
-  //         );
-
-  //         // Si le token est déjà expiré ou va expirer très bientôt, rafraîchir immédiatement
-  //         if (expiresIn <= 60000) {
-  //           // 60 secondes ou moins
-  //           console.log(
-  //             'Token expired or expiring very soon, refreshing immediately',
-  //           );
-  //           this.refreshToken();
-  //           return;
-  //         }
-
-  //         // Renouveler le token 1 minute avant expiration
-  //         const refreshTime = Math.max(expiresIn - 60000, 0);
-  //         console.log(
-  //           `Token refresh scheduled in ${Math.floor(refreshTime / 1000)} seconds`,
-  //         );
-
-  //         setTimeout(() => this.refreshToken(), refreshTime);
-  //       } else {
-  //         console.error('Could not find expiration time in token payload');
-  //       }
-  //     } catch (decodeError) {
-  //       console.error('Error manually decoding token:', decodeError);
-
-  //       // Fallback: planifier un refresh standard après 4 minutes
-  //       console.log('Scheduling default token refresh in 4 minutes');
-  //       setTimeout(() => this.refreshToken(), 4 * 60 * 1000);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error in scheduleTokenRefresh:', error);
-
-  //     // Fallback: planifier un refresh standard après 4 minutes
-  //     console.log('Scheduling default token refresh in 4 minutes');
-  //     setTimeout(() => this.refreshToken(), 4 * 60 * 1000);
-  //   }
-  // }
-
-  // private async refreshToken() {
-  //   try {
-  //     await this.initKeycloakAdmin();
-  //     console.log('Token refreshed successfully');
-  //   } catch (error) {
-  //     console.error('Failed to refresh token:', error);
-
-  //     // Nouvelle tentative dans 30 secondes en cas d'échec
-  //     setTimeout(() => this.refreshToken(), 30 * 1000);
-  //   }
-  // }
 
   async getUserIdFromToken(token: string): Promise<string | null> {
     try {
@@ -388,5 +246,4 @@ export class KeycloakService {
   }
 
   
-
 }
