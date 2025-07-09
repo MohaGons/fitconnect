@@ -191,8 +191,8 @@ const DataTable = ({
     }),
     columnHelper.accessor(
       (row) => {
-        if (row.coach && row.coach.first_name && row.coach.last_name) {
-          return `${row.coach.first_name} ${row.coach.last_name}`;
+        if (row.coach && row.coach.firstName && row.coach.lastName) {
+          return `${row.coach.firstName} ${row.coach.lastName}`;
         }
         if (row.coach_id) {
           return `ID: ${row.coach_id}`;
@@ -207,8 +207,8 @@ const DataTable = ({
     ),
     columnHelper.accessor(
       (row) => {
-        if (row.client && row.client.first_name && row.client.last_name) {
-          return `${row.client.first_name} ${row.client.last_name}`;
+        if (row.client && row.client.firstName && row.client.lastName) {
+          return `${row.client.firstName} ${row.client.lastName}`;
         }
         if (row.client_id) {
           return `ID: ${row.client_id}`;
@@ -615,7 +615,7 @@ const DataTable = ({
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
                           {selectedPlan.coach
-                            ? `${selectedPlan.coach.first_name} ${selectedPlan.coach.last_name}`
+                            ? `${selectedPlan.coach.firstName} ${selectedPlan.coach.lastName}`
                             : "Non assigné"}
                         </p>
                       </div>
@@ -625,7 +625,7 @@ const DataTable = ({
                         </p>
                         <p className="font-medium text-gray-900 dark:text-white">
                           {selectedPlan.client
-                            ? `${selectedPlan.client.first_name} ${selectedPlan.client.last_name}`
+                            ? `${selectedPlan.client.firstName} ${selectedPlan.client.lastName}`
                             : "Non assigné"}
                         </p>
                       </div>

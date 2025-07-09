@@ -17,13 +17,13 @@ export interface NutritionPlan {
   updated_at: string;
   coach?: {
     coach_id: number;
-    first_name: string;
-    last_name: string;
+    firstName: string;
+    lastName: string;
   };
   client?: {
     client_id: number;
-    first_name: string;
-    last_name: string;
+    firstName: string;
+    lastName: string;
   };
   meals?: Meal[];
 }
@@ -51,7 +51,14 @@ export interface NutritionPlanCreate {
   comments?: string;
 }
 
-export interface NutritionPlanUpdate extends Partial<NutritionPlanCreate> {}
+export interface NutritionPlanUpdate {
+  coach_id?: number;
+  client_id?: number;
+  name?: string;
+  daily_calories?: number;
+  goal?: NutritionGoal;
+  comments?: string;
+}
 
 export interface PaginationParams {
   page: number;
