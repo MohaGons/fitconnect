@@ -1,4 +1,4 @@
-import api from './api';
+import apiClient from './axios';
 
 export interface Message {
   message_id: number;
@@ -53,17 +53,17 @@ export interface Conversation {
 
 export const messagesApi = {
   create: async (data: CreateMessageDto) => {
-    const response = await api.post<Message>('/messages', data);
+    const response = await apiClient.post<Message>('/messages', data);
     return response.data;
   },
 
   getAll: async () => {
-    const response = await api.get<Message[]>('/messages');
+    const response = await apiClient.get<Message[]>('/messages');
     return response.data;
   },
 
   getConversationsList: async (userId: number, userType: 'coach' | 'client') => {
-    const response = await api.get<Conversation[]>(`/messages/conversations?userId=${userId}&userType=${userType}`);
+    const response = await apiClient.get<Conversation[]>(`/messages/conversations?userId=${userId}&userType=${userType}`);
     return response.data;
   },
 
@@ -77,22 +77,22 @@ export const messagesApi = {
       params.append('otherUserId', otherUserId.toString());
     }
     
-    const response = await api.get<Message[]>(`/messages/conversation/${userId}?${params.toString()}`);
+    const response = await apiClient.get<Message[]>(`/messages/conversation/${userId}?${params.toString()}`);
     return response.data;
   },
 
   markAsRead: async (messageId: number, userId: number, userType: 'coach' | 'client') => {
-    const response = await api.patch<Message>(`/messages/${messageId}/read?userId=${userId}&userType=${userType}`);
+    const response = await apiClient.patch<Message>(`/messages/${messageId}/read?userId=${userId}&userType=${userType}`);
     return response.data;
   },
 
   markConversationAsRead: async (userId: number, userType: 'coach' | 'client', otherUserId: number) => {
-    const response = await api.patch<Message>(`/messages/conversation/read?userId=${userId}&userType=${userType}&otherUserId=${otherUserId}`);
+    const response = await apiClient.patch<Message>(`/messages/conversation/read?userId=${userId}&userType=${userType}&otherUserId=${otherUserId}`);
     return response.data;
   },
 
   getUnreadCount: async (userId: number, userType: 'coach' | 'client') => {
-    const response = await api.get<number>(`/messages/unread/count?userId=${userId}&userType=${userType}`);
+    const response = await apiClient.get<number>(`/messages/unread/count?userId=${userId}&userType=${userType}`);
     return response.data;
   },
 
@@ -100,7 +100,7 @@ export const messagesApi = {
     const formData = new FormData();
     formData.append('file', file);
     
-    const response = await api.post('/storage/upload/message', formData, {
+    const response = await apiClient.post('/storage/upload/message', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
