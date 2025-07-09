@@ -26,17 +26,16 @@
   <div class="flex h-screen overflow-hidden">
 
     <!-- Colonne gauche : formulaire -->
-    <div class="w-full md:w-1/2 flex items-center justify-center px-6 md:px-12">
-      <div class="w-full max-w-md">
-        <a href="/" class="inline-flex items-center mb-8 text-sm text-gray-500 hover:text-gray-700">
-          <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-          Retour au site
-        </a>
+    <div class="w-full md:w-1/2 flex items-center justify-center px-6 md:px-10 lg:px-12">
+    <div class="w-full max-w-sm"> <!-- Changement ici -->
+      <a href="/" class="inline-flex items-center mb-6 text-sm text-gray-500 hover:text-gray-700">
+        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Retour au site
+      </a>
 
-        <h1 class="mb-2 text-2xl font-semibold">Connexion</h1>
-        <p class="mb-6 text-sm text-gray-500">Entrez votre email et mot de passe pour vous connecter</p>
+    <h1 class="mb-2 text-xl font-semibold">Connexion</h1> <!-- text-2xl → text-xl -->
       <#if message??>
       <div id="error-message" class="relative mb-4 p-3 text-sm bg-red-400 text-black rounded">
         Une erreur est survenue. Veuillez réessayer !
@@ -49,8 +48,8 @@
         </button>
       </div>
       </#if>
-        <div class="grid grid-cols-1">
-        <a href="${url.loginAction}?provider=google">
+       
+        <a class="grid grid-cols-1" href="${url.loginAction}?provider=google">
           <button class="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 ">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M18.7511 10.1944C18.7511 9.47495 18.6915 8.94995 18.5626 8.40552H10.1797V11.6527H15.1003C15.0011 12.4597 14.4654 13.675 13.2749 14.4916L13.2582 14.6003L15.9087 16.6126L16.0924 16.6305C17.7788 15.1041 18.7511 12.8583 18.7511 10.1944Z" fill="#4285F4"></path>
@@ -61,7 +60,7 @@
             Continuer avec Google
           </button>
           </a>
-        </div>
+      
 
         <div class="relative py-3 sm:py-5">
           <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200 "></div></div>

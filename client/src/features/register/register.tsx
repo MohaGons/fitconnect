@@ -17,8 +17,9 @@ const Inscription: React.FC = () => {
     const roles = keycloak?.tokenParsed?.realm_access?.roles || []; 
     const userId = keycloak?.tokenParsed?.sub; 
 
-     const handleLogout = () => {
-    keycloak.logout();
+    const handleLogout = () => {
+      localStorage.removeItem('token');
+      keycloak.logout();
     };
 
   
