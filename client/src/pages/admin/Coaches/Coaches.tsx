@@ -478,7 +478,14 @@ const Coaches: React.FC = () => {
 
       {/* Modal de détail du coach */}
       {selectedCoach && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-black/70 flex items-center justify-center p-4 z-50">
+        <div
+          className="fixed inset-0 bg-black/20 dark:bg-black/50 flex items-center justify-center p-4 z-[999999] backdrop-blur-md"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setSelectedCoach(null);
+            }
+          }}
+        >
           <div className="bg-white dark:bg-gray-900 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-800">
             {/* Header du modal */}
             <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-800">
@@ -602,7 +609,7 @@ const Coaches: React.FC = () => {
       {/* Modal de confirmation de demande */}
       {confirmationModal.isOpen && confirmationModal.coach && (
         <div
-          className="fixed inset-0 bg-black/20 dark:bg-black/50 flex items-center justify-center p-4 z-[9999] backdrop-blur-md"
+          className="fixed inset-0 bg-black/20 dark:bg-black/50 flex items-center justify-center p-4 z-[999999] backdrop-blur-md"
           onClick={handleModalBackdropClick}
         >
           <div className="bg-white dark:bg-gray-900 rounded-xl max-w-md w-full p-6 shadow-2xl transform transition-all border border-gray-200 dark:border-gray-800">
@@ -696,7 +703,7 @@ const Coaches: React.FC = () => {
       {/* Modal de succès */}
       {successModal && (
         <div
-          className="fixed inset-0 bg-black/20 dark:bg-black/50 flex items-center justify-center p-4 z-[9999] backdrop-blur-md"
+          className="fixed inset-0 bg-black/20 dark:bg-black/50 flex items-center justify-center p-4 z-[999999] backdrop-blur-md"
           onClick={handleSuccessModalBackdropClick}
         >
           <div className="bg-white dark:bg-gray-900 rounded-xl max-w-md w-full p-6 shadow-2xl transform transition-all border border-gray-200 dark:border-gray-800">
@@ -774,7 +781,7 @@ const Coaches: React.FC = () => {
       {/* Modal de profil du coach */}
       {profileModal.isOpen && profileModal.coach && (
         <div
-          className="fixed inset-0 bg-black/20 dark:bg-black/50 flex items-start justify-center p-4 pt-24 z-[9999] backdrop-blur-md"
+          className="fixed inset-0 bg-black/20 dark:bg-black/50 flex items-start justify-center p-4 pt-24 z-[999999] backdrop-blur-md"
           onClick={handleProfileModalBackdropClick}
         >
           <div className="bg-white dark:bg-gray-900 rounded-xl max-w-3xl w-full max-h-[80vh] overflow-y-auto shadow-2xl transform transition-all border border-gray-200 dark:border-gray-800">
