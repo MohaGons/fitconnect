@@ -16,8 +16,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         rateLimit: true,
         jwksRequestsPerMinute: 5,
         jwksUri:
-          'http://keycloak:8080/realms/MY-REALM/protocol/openid-connect/certs', //change to prod uri in prod
-        // 'https://login.fitnessconnect.com/realms/MY-REALM/protocol/openid-connect/certs',
+          'https://login.fitnessconnect.fr/realms/MY-REALM/protocol/openid-connect/certs',
       }),
     });
   }
