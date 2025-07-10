@@ -2,15 +2,14 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { NestExpressApplication } from '@nestjs/platform-express';
+import { NestApplication } from '@nestjs/core';
 import { SentryExceptionFilter } from './sentry/sentry-exception.filter';
-import "./sentry/instrument";
+import './sentry/instrument';
 import { join } from 'path';
-import * as bodyParser from 'body-parser'; 
-
+import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestApplication>(AppModule);
   app.useGlobalFilters(new SentryExceptionFilter());
   app.use(bodyParser.json({ limit: '10mb' }));
   app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
@@ -26,12 +25,11 @@ async function bootstrap() {
     }),
   );
 
-
-
   app.enableCors({
-    origin: 'http://localhost:5173',
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
   });
 
   // Configuration pour servir les fichiers statiques
