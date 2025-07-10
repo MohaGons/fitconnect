@@ -1,5 +1,4 @@
 import { CookieCategories } from "../context/CookieConsentContext";
-import { CookieService } from "../services/cookieService";
 
 // Types pour les droits GDPR
 export type GDPRRight =

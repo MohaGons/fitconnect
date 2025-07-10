@@ -10,7 +10,7 @@ import AppLayout from "../layout/admin/AppLayout";
 // Components
 import { ScrollToTop } from "../components/common/ScrollToTop";
 import ProtectedRoute from "../routes/protectedRoute";
-import RoleBasedRoute from "../routes/RoleBasedRoute"; // Nouveau composant à créer
+import RoleBasedRoute from "../routes/RoleBasedRoute";
 
 // Pages d'Authentification
 import Login from "../pages/auth/login";
@@ -59,8 +59,27 @@ import Profile from "../pages/admin/profile/profile";
 // Cookie Consent Components
 import { CookieConsentProvider } from "../context/CookieConsentContext";
 import CookieBanner from "../components/privacy/CookieBanner";
+import React from "react";
+// Déclaration des types pour Matomo
+declare global {
+  interface Window {
+    _mtm: Array<Record<string, string | number>>;
+  }
+}
 
-const App = () => {
+ function App() {
+  React.useEffect(() => {
+    const _mtm = window._mtm = window._mtm || [];
+    _mtm.push({'mtm.startTime': (new Date().getTime()), 'event': 'mtm.Start'});
+    const d = document;
+    const g = d.createElement('script');
+    const s = d.getElementsByTagName('script')[0];
+    g.async = true;
+    g.src = 'https://cdn.matomo.cloud/fitnessconnect.matomo.cloud/container_kHUYHHcx.js';
+    if (s.parentNode) {
+      s.parentNode.insertBefore(g, s);
+    }
+  }, []);
   return (
     <Router>
       <CookieConsentProvider>

@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useState } from "react";
+import React, { lazy, useState } from "react";
 import { useKeycloakContext } from '../../services/useKeycloakContext';
 import CoachImage from "../../assets/coach2.jpg";
 import ComanyImage from "../../assets/client.jpg";

@@ -20,7 +20,7 @@ export const useMessageNotifications = () => {
     if (!userId_entity || !userType) return;
     
     try {
-      const count = await messagesApi.getUnreadCount(userId_entity, userType);
+      const count = await messagesApi.getUnreadCount(userId_entity as number, userType);
       setUnreadCount(count);
     } catch (error) {
       console.error('Erreur lors du chargement du compteur de messages non lus:', error);
@@ -49,13 +49,13 @@ export const useMessageNotifications = () => {
     
     try {
       // Récupérer toutes les conversations
-      const conversations = await messagesApi.getConversationsList(userId_entity, userType);
+      const conversations = await messagesApi.getConversationsList(userId_entity as number, userType);
       
       // Marquer chaque conversation comme lue
       for (const conversation of conversations) {
         if (conversation.unreadCount > 0) {
           await messagesApi.markConversationAsRead(
-            userId_entity,
+            userId_entity as number,
             userType,
             conversation.otherUserId
           );

@@ -1,4 +1,3 @@
-import React from "react";
 import { Check, Star, Users, Clock, Target, Zap } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import Header from "../../../layout/public/Header";

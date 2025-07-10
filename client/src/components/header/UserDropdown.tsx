@@ -12,7 +12,7 @@ export default function UserDropdown() {
   const token= keycloak?.token;
   const roles = keycloak.tokenParsed?.realm_access?.roles || [];
   const [isOpen, setIsOpen] = useState(false);
-  const { user, setUser, role } = useUser();
+  const { user, setUser } = useUser();
 
   function toggleDropdown() {
     setIsOpen(!isOpen);

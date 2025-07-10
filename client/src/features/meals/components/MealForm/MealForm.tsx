@@ -194,7 +194,7 @@ const MealForm = ({
                 return (
                   <Select
                     options={planOptions}
-                    value={selectedPlanId || ""}
+                    defaultValue={selectedPlanId || ""}
                     onChange={(value) => handleSelectChange("plan_id", value)}
                     placeholder="Sélectionner un plan nutritionnel"
                     className="w-full"
@@ -230,7 +230,7 @@ const MealForm = ({
             </label>
             <Select
               options={MEAL_TYPE_OPTIONS}
-              value={formData.meal_type || ""}
+              defaultValue={formData.meal_type || ""}
               onChange={(value) => handleSelectChange("meal_type", value)}
               placeholder="Sélectionner un type de repas"
               className="w-full"
