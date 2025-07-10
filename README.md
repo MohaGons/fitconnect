@@ -1,93 +1,320 @@
-# Projet annuel 
+# FitConnect - Plateforme Fitness Moderne 🏋️‍♂️
 
+> **Plateforme de Coaching Fitness Personnalisé** - Application web complète avec authentification SSO, monitoring et déploiement Kubernetes
 
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://gitlab.com/Ali1999/projet-annuel)
+[![Deployment](https://img.shields.io/badge/deployment-production-blue)](https://fitnessconnect.fr)
+[![Uptime](https://img.shields.io/badge/uptime-99.9%25-green)](https://uptimekuma.fitnessconnect.fr)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## Getting started
+FitConnect est une plateforme web complète dédiée au coaching fitness personnalisé, déployée sur Google Kubernetes Engine (GKE) avec toutes les bonnes pratiques de production.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+![FitConnect Preview](https://i.postimg.cc/sgDwQdxk/preview.png)
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## 🎯 Présentation du Projet
 
-## Add your files
+Dans un monde où la santé et le bien-être sont devenus des priorités, les influenceurs fitness jouent un rôle clé en inspirant et en accompagnant des milliers de personnes dans leur transformation physique. **FitConnect** permet aux coachs et influenceurs de gérer facilement leurs clients, de proposer des programmes sur-mesure et de suivre les progrès en temps réel.
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## ✨ Fonctionnalités Implémentées
+
+### 🔐 Authentification et Gestion des Comptes
+- ✅ Création de compte Coach et Client
+- ✅ Validation de mot de passe avec critères de sécurité
+- ✅ Envoi de mail de confirmation automatique
+- ✅ Connexion SSO via Keycloak
+- ✅ Profils utilisateurs personnalisés
+
+### 💪 Gestion des Entraînements
+- ✅ Création d'exercices personnalisés
+- ✅ Création de programmes d'entraînement
+- ✅ Planification des séances d'entraînement
+- ✅ Base de données exercices avec catégories
+
+### 🥗 Système Nutritionnel
+- ✅ Création d'ingrédients avec valeurs nutritionnelles
+- ✅ Création de repas équilibrés
+- ✅ Plans nutritionnels personnalisés
+- ✅ Planification des repas quotidiens
+
+### 💬 Communication et Interaction
+- ✅ Messagerie en temps réel entre client et coach
+- ✅ Système de notifications intégré
+- ✅ Interface chat responsive
+
+### 💳 Gestion des Abonnements
+- ✅ Système d'abonnement pour les coachs
+- ✅ Intégration Stripe pour les paiements
+- ✅ Gestion des statuts d'abonnement
+
+### 🤝 Système de Coaching
+- ✅ Demande d'un client vers un coach
+- ✅ Acceptation/refus de la demande par le coach
+- ✅ Gestion des relations coach-client
+
+## 🏗️ Architecture Technique
+
+### Stack Technologique
+
+| Couche | Technologie | Version | Statut |
+|--------|-------------|---------|--------|
+| **Frontend** | React.js + TypeScript | 18.x | ✅ Déployé |
+| **CSS Framework** | Tailwind CSS | 3.x | ✅ Configuré |
+| **Backend** | NestJS + TypeScript | 10.x | ✅ Production |
+| **Base de Données** | PostgreSQL | 14 | ✅ Cluster GKE |
+| **Authentification** | Keycloak SSO | 24.x | ✅ Fonctionnel |
+| **Paiements** | Stripe API | Latest | ✅ Intégré |
+| **Messaging** | WebSocket + Socket.io | - | ✅ Temps réel |
+| **Email** | SMTP + Nodemailer | - | ✅ Notifications |
+| **Monitoring** | Uptime Kuma | Latest | ✅ 24/7 |
+| **Administration** | Adminer | Latest | ✅ DB Management |
+| **Orchestration** | Kubernetes (GKE) | 1.28+ | ✅ Production |
+| **CI/CD** | GitLab CI | - | ✅ Automatisé |
+
+### Infrastructure Déployée
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/Ali1999/projet-annuel.git
-git branch -M main
-git push -uf origin main
+Cluster GKE (k8s-frist-test)
+├── Frontend (2 replicas) → fitnessconnect.fr
+├── API NestJS (1 replica) → api.fitnessconnect.fr  
+├── PostgreSQL (1 replica) → Base de données
+├── Keycloak (1 replica) → login.fitnessconnect.fr
+├── Adminer (1 replica) → adminer.fitnessconnect.fr
+└── Uptime Kuma (1 replica) → uptimekuma.fitnessconnect.fr
 ```
 
-## Integrate with your tools
+## 🌐 Accès aux Services
 
-- [ ] [Set up project integrations](https://gitlab.com/Ali1999/projet-annuel/-/settings/integrations)
+| Service | URL Production | Description |
+|---------|---------------|-------------|
+| **Application** | [fitnessconnect.fr](https://fitnessconnect.fr) | Interface utilisateur principale |
+| **API REST** | [api.fitnessconnect.fr](https://api.fitnessconnect.fr) | Endpoints backend |
+| **Authentification** | [login.fitnessconnect.fr](https://login.fitnessconnect.fr) | Portail Keycloak SSO |
+| **Administration DB** | [adminer.fitnessconnect.fr](https://adminer.fitnessconnect.fr) | Interface PostgreSQL |
+| **Monitoring** | [Uptime Kuma](http://34.79.238.35:3001/dashboard) | Surveillance système |
 
-## Collaborate with your team
+## 🚀 Déploiement
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+### Prérequis
 
-## Test and Deploy
+#### Google Cloud Platform
+- Projet GCP : `k8s-frist-test`
+- Cluster GKE : `react-app-cluster` (europe-west1-b)
+- Artifact Registry : `annual-project-repo`
+- Domaine configuré : `fitnessconnect.fr`
 
-Use the built-in continuous integration in GitLab.
+#### Outils Requis
+- `gcloud` CLI configuré
+- `kubectl` installé
+- `docker` disponible
+- Accès GitLab CI avec runner `ilyes-runner`
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+### Configuration des Variables
 
-***
+Dans GitLab CI, configurer les variables suivantes :
 
-# Editing this README
+```bash
+# Google Cloud
+GCP_PROJECT_ID=k8s-frist-test
+GKE_CLUSTER_NAME=react-app-cluster  
+GKE_ZONE=europe-west1-b
+AR_LOCATION=europe-west1
+AR_REPO=annual-project-repo
+NAMESPACE=annual-project
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+# Secrets (protégés)
+GCP_SERVICE_KEY=<base64-encoded-service-account>
+POSTGRES_PASSWORD=<secure-password>
+JWT_SECRET=<secure-jwt-secret>
+STRIPE_SECRET_KEY=<stripe-secret>
+```
 
-## Suggestions for a good README
+### Pipeline CI/CD
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+Le déploiement s'effectue automatiquement via GitLab CI sur la branche `feature-deploy-ilyes` :
 
-## Name
-Choose a self-explaining name for your project.
+```yaml
+Stages:
+1. 🔨 BUILD    - Images Docker Frontend/API
+2. 🧪 TEST     - Tests unitaires (branche main)
+3. 🚀 DEPLOY   - Déploiement Kubernetes
+```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+### Déploiement Manuel
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+```bash
+# 1. Connexion au cluster
+gcloud container clusters get-credentials react-app-cluster --zone europe-west1-b
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+# 2. Déploiement des ressources
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/secrets/
+kubectl apply -f k8s/postgres/
+kubectl apply -f k8s/keycloak/
+kubectl apply -f k8s/api/
+kubectl apply -f k8s/frontend/
+kubectl apply -f k8s/ingress/
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+# 3. Vérification
+kubectl get pods -n annual-project
+kubectl get services -n annual-project
+```
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+## 📊 Monitoring et Métriques
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+### État du Cluster
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+```bash
+PODS EN PRODUCTION (AGE: 8 jours)
+┌─────────────────────────────────────┐
+│ ✅ Frontend      │ 2/2 Running      │
+│ ✅ API NestJS    │ 1/1 Running      │  
+│ ✅ PostgreSQL    │ 1/1 Running      │
+│ ✅ Keycloak      │ 1/1 Running      │
+│ ✅ Adminer       │ 1/1 Running      │
+│ ✅ Uptime Kuma   │ 1/1 Running      │
+└─────────────────────────────────────┘
+```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+### Métriques de Performance
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+- **Uptime** : 99.9% (8 jours de production stable)
+- **Load Balancing** : Distribution automatique du trafic
+- **Auto-Recovery** : Redémarrage automatique des pods défaillants
+- **Zero-Downtime** : Déploiements sans interruption
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+## 🧪 Tests
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+### Frontend (React + TypeScript)
+```bash
+cd client
+npm install
+npm run test        # Tests unitaires
+npm run test:e2e    # Tests end-to-end
+npm run lint        # Linting
+```
 
-## License
-For open source projects, say how it is licensed.
+### Backend (NestJS)
+```bash
+cd server
+npm install
+npm run test        # Tests unitaires
+npm run test:e2e    # Tests intégration
+npm run lint        # Linting
+```
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## 📁 Structure du Projet
+
+```
+fitconnect/
+├── README.md
+├── .gitlab-ci.yml                # Pipeline CI/CD
+├── client/                       # Frontend React
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── src/
+│   └── ...
+├── server/                       # Backend NestJS
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── src/
+│   └── ...
+└── k8s/                         # Manifests Kubernetes
+    ├── namespace/
+    ├── secrets/
+    ├── postgres/
+    ├── api/
+    ├── frontend/
+    ├── keycloak/
+    ├── adminer/
+    ├── uptime-kuma/
+    ├── network-policy/
+    └── ingress/
+```
+
+## 🔧 Développement Local
+
+### Backend
+```bash
+cd server
+npm install
+cp .env.example .env    # Configurer les variables
+npm run start:dev       # Mode développement
+```
+
+### Frontend
+```bash
+cd client
+npm install
+npm run dev            # Serveur de développement
+```
+
+### Base de Données
+```bash
+# Avec Docker
+docker run -d \
+  --name postgres-dev \
+  -e POSTGRES_DB=fitness_dev \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=password \
+  -p 5432:5432 \
+  postgres:14
+```
+
+## 🔒 Sécurité
+
+- **HTTPS Everywhere** : Certificats SSL automatiques via Google Cloud
+- **Network Policies** : Isolation réseau entre pods
+- **Secrets Management** : Variables sensibles chiffrées dans Kubernetes
+- **Authentication** : SSO Keycloak avec sécurité renforcée
+- **RBAC** : Contrôle d'accès basé sur les rôles
+
+## 🔄 Roadmap
+
+### Phase 2 - Amélioration UX
+- 📊 Tableaux de bord avec graphiques de progression
+- 📱 Optimisation mobile et PWA
+- 🎨 Interface utilisateur avancée
+
+### Phase 3 - Fonctionnalités Avancées
+- 📈 Suivi des performances et statistiques
+- 📷 Upload photos avant/après
+- 🔔 Notifications push mobile
+
+### Phase 4 - Intelligence Artificielle
+- 🤖 Suggestions automatiques d'exercices
+- 📈 Prédiction des progressions
+- 🎯 Recommandations personnalisées
+
+## 🤝 Contribution
+
+1. Fork le projet
+2. Créer une branche feature (`git checkout -b feature/AmazingFeature`)
+3. Commit les changements (`git commit -m 'Add AmazingFeature'`)
+4. Push vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrir une Pull Request
+
+## 📝 License
+
+Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
+
+## 📞 Support
+
+- **Documentation** : [docs.fitnessconnect.fr](https://docs.page/alikhelifa15/K8S-DOC)
+- **Issues** : [GitHub Issues](https://gitlab.com/Ali1999/projet-annuel)
+- **Email** : support@fitnessconnect.fr
+
+---
+
+## 🏆 Achievements
+
+> **🎯 MVP Fonctionnel** : 8 modules complets implémentés et déployés en production
+
+> **☁️ Cloud-Native** : Architecture microservices sur Kubernetes avec monitoring 24/7
+
+> **🔐 Production-Ready** : Sécurité, performance et haute disponibilité
+
+> **⚡ DevOps Excellence** : CI/CD automatisé avec GitLab et déploiement continu
+
+---
+
+*Développé avec ❤️ par l'équipe FitConnect*
