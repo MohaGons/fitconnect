@@ -1,39 +1,64 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { messagesApi, Message, Conversation } from '../../../api/messages';
-import { useUserRole } from '../../../hooks/useUserRole';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { 
-  Send, 
-  MessageSquare, 
-  Search, 
+import React, { useState, useEffect, useRef } from "react";
+import { messagesApi, Message, Conversation } from "../../../api/messages";
+import { useUserRole } from "../../../hooks/useUserRole";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import {
+  Send,
+  MessageSquare,
+  Search,
   Paperclip,
   CheckCheck,
   Download,
   FileText,
-  Image
-} from 'lucide-react';
-import NoActiveCoachMessage from '../../../components/ui/NoActiveCoachMessage';
+  Image,
+} from "lucide-react";
+import NoActiveCoachMessage from "../../../components/ui/NoActiveCoachMessage";
+import { useMessageSocket } from "../../../hooks/useMessageSocket";
 
 const Chat = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState('');
+  const [selectedConversation, setSelectedConversation] =
+    useState<Conversation | null>(null);
+  const [newMessage, setNewMessage] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [uploading, setUploading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  const { userId_entity, userRole } = useUserRole();
-  const userType = userRole === 'COACH' ? 'coach' : userRole === 'CLIENT' ? 'client' : '';
-  
-  // Convertir userId_entity en number pour les appels API
-  const userId = typeof userId_entity === 'string' ? parseInt(userId_entity, 10) : userId_entity;
 
+  const { userId_entity, userRole } = useUserRole();
+  const userType =
+    userRole === "COACH"
+      ? "coach"
+      : userRole === "CLIENT"
+      ? "client"
+      : undefined;
+  const userId = userId_entity
+    ? typeof userId_entity === "string"
+      ? parseInt(userId_entity, 10)
+      : userId_entity
+    : undefined;
+
+  // Récupération du token JWT (à adapter selon votre logique d'authentification)
+  const token = localStorage.getItem("token") || "";
+
+  // Utilisation du hook WebSocket
+  const {
+    messages,
+    setMessages,
+    sendMessage,
+    joinConversation,
+    leaveConversation,
+  } = useMessageSocket({
+    token,
+    userId: userId || 0,
+    userType: (userType as "coach" | "client") || "client",
+  });
+
+  // Suppression du polling : on ne garde que le chargement initial des conversations
   useEffect(() => {
     if (userId && userType) {
       loadConversations();
@@ -41,12 +66,34 @@ const Chat = () => {
     }
   }, [userId, userType]);
 
+  // Lorsqu'une conversation est sélectionnée, on la rejoint via WebSocket
   useEffect(() => {
     if (selectedConversation && userId && userType) {
-      loadConversation();
+      joinConversation(
+        selectedConversation.otherUserId,
+        selectedConversation.otherUserType
+      );
+      loadConversation(); // On peut garder le chargement initial pour l'historique
       markConversationAsRead();
     }
+    // On quitte la conversation précédente si besoin
+    return () => {
+      if (selectedConversation && userId && userType) {
+        leaveConversation(
+          selectedConversation.otherUserId,
+          selectedConversation.otherUserType
+        );
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedConversation, userId, userType]);
+
+  // Met à jour les messages affichés lors de la réception via WebSocket
+  useEffect(() => {
+    setMessages(messages);
+    scrollToBottom();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages]);
 
   useEffect(() => {
     scrollToBottom();
@@ -62,67 +109,21 @@ const Chat = () => {
     }
   }, [messages.length]);
 
-  // Système de polling pour mettre à jour les messages en temps réel
-  useEffect(() => {
-    if (!userId || !userType) return;
-
-    const interval = setInterval(async () => {
-      try {
-        // Mettre à jour les conversations et le compteur de messages non lus
-        const updatedConversations = await messagesApi.getConversationsList(userId, userType);
-        const updatedUnreadCount = await messagesApi.getUnreadCount(userId, userType);
-        
-        setConversations(updatedConversations);
-        setUnreadCount(updatedUnreadCount);
-
-        // Si une conversation est sélectionnée, mettre à jour ses messages
-        if (selectedConversation) {
-          const updatedMessages = await messagesApi.getConversation(
-            userId,
-            userType,
-            selectedConversation.otherUserId
-          );
-          
-          // Vérifier s'il y a de nouveaux messages en comparant les IDs
-          const hasNewMessages = updatedMessages.length > messages.length || 
-            (updatedMessages.length > 0 && messages.length > 0 && 
-             updatedMessages[updatedMessages.length - 1].message_id !== messages[messages.length - 1].message_id);
-          
-          if (hasNewMessages) {
-            setMessages(updatedMessages);
-            
-            // Mettre à jour la conversation sélectionnée avec les nouvelles données
-            const updatedSelectedConversation = updatedConversations.find(
-              conv => conv.otherUserId === selectedConversation.otherUserId
-            );
-            if (updatedSelectedConversation) {
-              setSelectedConversation(updatedSelectedConversation);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Erreur lors de la mise à jour en temps réel:', error);
-      }
-    }, 3000); // Vérifier toutes les 3 secondes pour une meilleure réactivité
-
-    return () => clearInterval(interval);
-  }, [userId, userType, messages.length]); // Ajouter messages.length pour détecter les changements
-
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   const loadConversations = async () => {
     if (!userId || !userType) return;
-    
+
     setLoading(true);
     try {
       const data = await messagesApi.getConversationsList(userId, userType);
       setConversations(data);
       setError(null);
     } catch (error) {
-      console.error('Erreur lors du chargement des conversations:', error);
-      setError('Impossible de charger les conversations');
+      console.error("Erreur lors du chargement des conversations:", error);
+      setError("Impossible de charger les conversations");
       setConversations([]);
     } finally {
       setLoading(false);
@@ -131,152 +132,135 @@ const Chat = () => {
 
   const loadUnreadCount = async () => {
     if (!userId || !userType) return;
-    
+
     try {
       const count = await messagesApi.getUnreadCount(userId, userType);
       setUnreadCount(count);
       setError(null);
     } catch (error) {
-      console.error('Erreur lors du chargement du compteur de messages non lus:', error);
+      console.error(
+        "Erreur lors du chargement du compteur de messages non lus:",
+        error
+      );
       setUnreadCount(0);
     }
   };
 
   const loadConversation = async () => {
     if (!selectedConversation || !userId || !userType) return;
-    
+
     try {
       const data = await messagesApi.getConversation(
-        userId, 
-        userType, 
+        userId,
+        userType,
         selectedConversation.otherUserId
       );
       setMessages(data);
       setError(null);
     } catch (error) {
-      console.error('Erreur lors du chargement de la conversation:', error);
-      setError('Impossible de charger la conversation');
+      console.error("Erreur lors du chargement de la conversation:", error);
+      setError("Impossible de charger la conversation");
       setMessages([]);
     }
   };
 
   const markConversationAsRead = async () => {
     if (!selectedConversation || !userId || !userType) return;
-    
+
     try {
       await messagesApi.markConversationAsRead(
-        userId, 
-        userType, 
+        userId,
+        userType,
         selectedConversation.otherUserId
       );
       // Mettre à jour le compteur local
-      setUnreadCount(prev => Math.max(0, prev - selectedConversation.unreadCount));
+      setUnreadCount((prev) =>
+        Math.max(0, prev - selectedConversation.unreadCount)
+      );
       // Mettre à jour la conversation dans la liste
-      setConversations(prev => 
-        prev.map(conv => 
-          conv.otherUserId === selectedConversation.otherUserId 
+      setConversations((prev) =>
+        prev.map((conv) =>
+          conv.otherUserId === selectedConversation.otherUserId
             ? { ...conv, unreadCount: 0 }
             : conv
         )
       );
     } catch (error) {
-      console.error('Erreur lors du marquage comme lu:', error);
+      console.error("Erreur lors du marquage comme lu:", error);
     }
   };
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedConversation || !newMessage.trim() || !userId || !userType) return;
-
+  // Remplace l'envoi de message par la fonction du hook
+  const handleSendMessage = async () => {
+    if (!selectedConversation || !userId || !userType || !newMessage.trim())
+      return;
     const messageData = {
       sender_id: userId,
-      sender_type: userType as 'coach' | 'client',
+      sender_type: userType as "coach" | "client",
       recipient_id: selectedConversation.otherUserId,
       recipient_type: selectedConversation.otherUserType,
-      content: newMessage.trim(),
+      content: newMessage,
+      message_type: "text",
     };
-
-    try {
-      const message = await messagesApi.create(messageData);
-      setMessages(prev => [...prev, message]);
-      setNewMessage('');
-      setError(null);
-      
-      // Mettre à jour la conversation dans la liste
-      setConversations(prev => 
-        prev.map(conv => 
-          conv.otherUserId === selectedConversation.otherUserId 
-            ? { 
-                ...conv, 
-                lastMessage: message,
-                unreadCount: 0
-              }
-            : conv
-        )
-      );
-    } catch (error) {
-      console.error('Erreur lors de l\'envoi du message:', error);
-      setError('Impossible d\'envoyer le message');
-    }
+    sendMessage(messageData);
+    setNewMessage("");
   };
 
   const handleSelectConversation = (conversation: Conversation) => {
     setSelectedConversation(conversation);
   };
 
-  const filteredConversations = conversations.filter(conv =>
+  const filteredConversations = conversations.filter((conv) =>
     conv.otherUserName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const isOwnMessage = (message: Message) => {
-    if (userType === 'coach') {
+    if (userType === "coach") {
       return message.sender_coach_id === userId;
     } else {
       return message.sender_client_id === userId;
     }
   };
 
-
-
   const handleFileUpload = async (file: File) => {
     if (!selectedConversation || !userId || !userType) return;
-    
+
     setUploading(true);
     setError(null);
-    
+
     try {
       // Upload du fichier
       const uploadResult = await messagesApi.uploadFile(file);
-      
+
       // Créer le message avec le fichier attaché
       const messageData = {
         sender_id: userId,
-        sender_type: userType as 'coach' | 'client',
+        sender_type: userType as "coach" | "client",
         recipient_id: selectedConversation.otherUserId,
         recipient_type: selectedConversation.otherUserType,
         content: `Fichier: ${file.name}`,
-        message_type: 'file',
+        message_type: "file",
         attachment_url: uploadResult.url,
       };
 
       const message = await messagesApi.create(messageData);
-      setMessages(prev => [...prev, message]);
-      
+      setMessages((prev) => [...prev, message]);
+
       // Mettre à jour la conversation dans la liste
-      setConversations(prev => 
-        prev.map(conv => 
-          conv.otherUserId === selectedConversation.otherUserId 
-            ? { 
-                ...conv, 
+      setConversations((prev) =>
+        prev.map((conv) =>
+          conv.otherUserId === selectedConversation.otherUserId
+            ? {
+                ...conv,
                 lastMessage: message,
-                unreadCount: 0
+                unreadCount: 0,
               }
             : conv
         )
       );
     } catch (error) {
-      console.error('Erreur lors de l\'upload du fichier:', error);
-      setError('Impossible d\'uploader le fichier');
+      console.error("Erreur lors de l'upload du fichier:", error);
+      setError("Impossible d'uploader le fichier");
     } finally {
       setUploading(false);
     }
@@ -289,7 +273,7 @@ const Chat = () => {
     }
     // Reset l'input pour permettre de sélectionner le même fichier
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.value = "";
     }
   };
 
@@ -299,11 +283,13 @@ const Chat = () => {
 
   const renderMessageContent = (message: Message) => {
     // Si c'est un message avec fichier attaché
-    if (message.message_type === 'file' && message.attachment_url) {
-      const isImage = message.attachment_url.match(/\.(jpg|jpeg|png|gif|webp)$/i);
+    if (message.message_type === "file" && message.attachment_url) {
+      const isImage = message.attachment_url.match(
+        /\.(jpg|jpeg|png|gif|webp)$/i
+      );
       const isPdf = message.attachment_url.match(/\.pdf$/i);
       const isDocument = message.attachment_url.match(/\.(doc|docx|txt)$/i);
-      
+
       return (
         <div className="space-y-2">
           <p className="text-sm">{message.content}</p>
@@ -314,11 +300,11 @@ const Chat = () => {
                   <Image className="h-4 w-4" />
                   <span>Image</span>
                 </div>
-                <img 
-                  src={message.attachment_url} 
-                  alt="Image jointe" 
+                <img
+                  src={message.attachment_url}
+                  alt="Image jointe"
                   className="max-w-full max-h-64 rounded-lg cursor-pointer hover:opacity-90"
-                  onClick={() => window.open(message.attachment_url, '_blank')}
+                  onClick={() => window.open(message.attachment_url, "_blank")}
                 />
               </div>
             ) : isPdf ? (
@@ -328,10 +314,12 @@ const Chat = () => {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium">Document PDF</p>
-                  <p className="text-xs text-gray-500">Cliquez pour télécharger</p>
+                  <p className="text-xs text-gray-500">
+                    Cliquez pour télécharger
+                  </p>
                 </div>
                 <button
-                  onClick={() => window.open(message.attachment_url, '_blank')}
+                  onClick={() => window.open(message.attachment_url, "_blank")}
                   className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
                 >
                   <Download className="h-4 w-4" />
@@ -344,10 +332,12 @@ const Chat = () => {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium">Document</p>
-                  <p className="text-xs text-gray-500">Cliquez pour télécharger</p>
+                  <p className="text-xs text-gray-500">
+                    Cliquez pour télécharger
+                  </p>
                 </div>
                 <button
-                  onClick={() => window.open(message.attachment_url, '_blank')}
+                  onClick={() => window.open(message.attachment_url, "_blank")}
                   className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
                 >
                   <Download className="h-4 w-4" />
@@ -360,10 +350,12 @@ const Chat = () => {
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium">Fichier joint</p>
-                  <p className="text-xs text-gray-500">Cliquez pour télécharger</p>
+                  <p className="text-xs text-gray-500">
+                    Cliquez pour télécharger
+                  </p>
                 </div>
                 <button
-                  onClick={() => window.open(message.attachment_url, '_blank')}
+                  onClick={() => window.open(message.attachment_url, "_blank")}
                   className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
                 >
                   <Download className="h-4 w-4" />
@@ -374,10 +366,18 @@ const Chat = () => {
         </div>
       );
     }
-    
+
     // Message texte normal
     return <p className="text-sm">{message.content}</p>;
   };
+
+  if (!userId || !userType) {
+    return (
+      <div>
+        Impossible de charger la messagerie (utilisateur non authentifié).
+      </div>
+    );
+  }
 
   if (error) {
     return (
@@ -388,7 +388,7 @@ const Chat = () => {
   }
 
   // Si c'est un client et qu'il n'a pas de conversations (pas de coach actif)
-  if (userType === 'client' && !loading && conversations.length === 0) {
+  if (userType === "client" && !loading && conversations.length === 0) {
     return <NoActiveCoachMessage />;
   }
 
@@ -405,7 +405,7 @@ const Chat = () => {
                 Messages
               </h2>
             </div>
-            
+
             {/* Barre de recherche */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -417,7 +417,7 @@ const Chat = () => {
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
-            
+
             {/* Compteur de messages non lus */}
             {unreadCount > 0 && (
               <div className="mt-2 text-sm text-blue-600 font-medium">
@@ -437,10 +437,9 @@ const Chat = () => {
                 <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                 <p>Aucune conversation</p>
                 <p className="text-sm">
-                  {userType === 'coach' 
-                    ? 'Aucun client actif pour le moment' 
-                    : 'Aucun coach actif pour le moment'
-                  }
+                  {userType === "coach"
+                    ? "Aucun client actif pour le moment"
+                    : "Aucun coach actif pour le moment"}
                 </p>
               </div>
             ) : (
@@ -448,9 +447,10 @@ const Chat = () => {
                 <div
                   key={`${conversation.otherUserType}-${conversation.otherUserId}`}
                   className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
-                    selectedConversation?.otherUserId === conversation.otherUserId 
-                      ? 'bg-blue-50 border-l-4 border-l-blue-500' 
-                      : ''
+                    selectedConversation?.otherUserId ===
+                    conversation.otherUserId
+                      ? "bg-blue-50 border-l-4 border-l-blue-500"
+                      : ""
                   }`}
                   onClick={() => handleSelectConversation(conversation)}
                 >
@@ -459,7 +459,11 @@ const Chat = () => {
                       {conversation.otherUserName}
                     </h3>
                     <span className="text-xs text-gray-500">
-                      {format(new Date(conversation.lastMessage.sent_date), 'HH:mm', { locale: fr })}
+                      {format(
+                        new Date(conversation.lastMessage.sent_date),
+                        "HH:mm",
+                        { locale: fr }
+                      )}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -488,7 +492,10 @@ const Chat = () => {
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
                       <span className="text-white font-medium">
-                        {selectedConversation.otherUserName.split(' ').map(n => n[0]).join('')}
+                        {selectedConversation.otherUserName
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")}
                       </span>
                     </div>
                     <div>
@@ -496,7 +503,9 @@ const Chat = () => {
                         {selectedConversation.otherUserName}
                       </h3>
                       <p className="text-sm text-gray-500">
-                        {selectedConversation.otherUserType === 'coach' ? 'Coach' : 'Client'}
+                        {selectedConversation.otherUserType === "coach"
+                          ? "Coach"
+                          : "Client"}
                       </p>
                     </div>
                   </div>
@@ -515,23 +524,33 @@ const Chat = () => {
                   messages.map((message) => (
                     <div
                       key={message.message_id}
-                      className={`flex ${isOwnMessage(message) ? 'justify-end' : 'justify-start'}`}
+                      className={`flex ${
+                        isOwnMessage(message) ? "justify-end" : "justify-start"
+                      }`}
                     >
                       <div
                         className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
                           isOwnMessage(message)
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-200 text-gray-900'
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-200 text-gray-900"
                         }`}
                       >
                         <div className="space-y-2">
                           {renderMessageContent(message)}
                           <div className="flex items-center gap-1">
                             <span className="text-xs opacity-75">
-                              {format(new Date(message.sent_date), 'HH:mm', { locale: fr })}
+                              {format(new Date(message.sent_date), "HH:mm", {
+                                locale: fr,
+                              })}
                             </span>
                             {isOwnMessage(message) && (
-                              <CheckCheck className={`h-3 w-3 ${message.read ? 'text-blue-300' : 'text-gray-400'}`} />
+                              <CheckCheck
+                                className={`h-3 w-3 ${
+                                  message.read
+                                    ? "text-blue-300"
+                                    : "text-gray-400"
+                                }`}
+                              />
                             )}
                           </div>
                         </div>
@@ -544,7 +563,10 @@ const Chat = () => {
 
               {/* Zone de saisie */}
               <div className="bg-white border-t border-gray-200 p-4">
-                <form onSubmit={handleSendMessage} className="flex items-end gap-2">
+                <form
+                  onSubmit={handleSendMessage}
+                  className="flex items-end gap-2"
+                >
                   <div className="flex-1 flex items-end gap-2">
                     <input
                       ref={fileInputRef}
@@ -568,9 +590,9 @@ const Chat = () => {
                       className="flex-1 resize-none border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       rows={1}
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
+                        if (e.key === "Enter" && !e.shiftKey) {
                           e.preventDefault();
-                          handleSendMessage(e);
+                          handleSendMessage();
                         }
                       }}
                     />
@@ -594,8 +616,12 @@ const Chat = () => {
             <div className="flex-1 flex items-center justify-center text-gray-500">
               <div className="text-center">
                 <MessageSquare className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-medium mb-2">Sélectionnez une conversation</h3>
-                <p className="text-sm">Choisissez une conversation pour commencer à discuter</p>
+                <h3 className="text-lg font-medium mb-2">
+                  Sélectionnez une conversation
+                </h3>
+                <p className="text-sm">
+                  Choisissez une conversation pour commencer à discuter
+                </p>
               </div>
             </div>
           )}
