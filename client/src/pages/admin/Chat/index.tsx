@@ -30,20 +30,23 @@ const Chat = () => {
   
   const { userId_entity, userRole } = useUserRole();
   const userType = userRole === 'COACH' ? 'coach' : userRole === 'CLIENT' ? 'client' : '';
+  
+  // Convertir userId_entity en number pour l'API
+  const userId = typeof userId_entity === 'string' ? parseInt(userId_entity, 10) : userId_entity;
 
   useEffect(() => {
-    if (userId_entity && userType) {
+    if (userId && userType) {
       loadConversations();
       loadUnreadCount();
     }
-  }, [userId_entity, userType]);
+  }, [userId, userType]);
 
   useEffect(() => {
-    if (selectedConversation && userId_entity && userType) {
+    if (selectedConversation && userId && userType) {
       loadConversation();
       markConversationAsRead();
     }
-  }, [selectedConversation, userId_entity, userType]);
+  }, [selectedConversation, userId, userType]);
 
   useEffect(() => {
     scrollToBottom();
@@ -54,11 +57,11 @@ const Chat = () => {
   };
 
   const loadConversations = async () => {
-    if (!userId_entity || !userType) return;
+    if (!userId || !userType) return;
     
     setLoading(true);
     try {
-      const data = await messagesApi.getConversationsList(userId_entity, userType);
+      const data = await messagesApi.getConversationsList(userId, userType);
       setConversations(data);
       setError(null);
     } catch (error) {
@@ -71,10 +74,10 @@ const Chat = () => {
   };
 
   const loadUnreadCount = async () => {
-    if (!userId_entity || !userType) return;
+    if (!userId || !userType) return;
     
     try {
-      const count = await messagesApi.getUnreadCount(userId_entity, userType);
+      const count = await messagesApi.getUnreadCount(userId, userType);
       setUnreadCount(count);
       setError(null);
     } catch (error) {
@@ -84,11 +87,11 @@ const Chat = () => {
   };
 
   const loadConversation = async () => {
-    if (!selectedConversation || !userId_entity || !userType) return;
+    if (!selectedConversation || !userId || !userType) return;
     
     try {
       const data = await messagesApi.getConversation(
-        userId_entity, 
+        userId, 
         userType, 
         selectedConversation.otherUserId
       );
@@ -102,11 +105,11 @@ const Chat = () => {
   };
 
   const markConversationAsRead = async () => {
-    if (!selectedConversation || !userId_entity || !userType) return;
+    if (!selectedConversation || !userId || !userType) return;
     
     try {
       await messagesApi.markConversationAsRead(
-        userId_entity, 
+        userId, 
         userType, 
         selectedConversation.otherUserId
       );
@@ -127,10 +130,10 @@ const Chat = () => {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedConversation || !newMessage.trim() || !userId_entity || !userType) return;
+    if (!selectedConversation || !newMessage.trim() || !userId || !userType) return;
 
     const messageData = {
-      sender_id: userId_entity,
+      sender_id: userId,
       sender_type: userType as 'coach' | 'client',
       recipient_id: selectedConversation.otherUserId,
       recipient_type: selectedConversation.otherUserType,
@@ -171,16 +174,16 @@ const Chat = () => {
 
   const isOwnMessage = (message: Message) => {
     if (userType === 'coach') {
-      return message.sender_coach_id === userId_entity;
+      return message.sender_coach_id === userId;
     } else {
-      return message.sender_client_id === userId_entity;
+      return message.sender_client_id === userId;
     }
   };
 
   
 
   const handleFileUpload = async (file: File) => {
-    if (!selectedConversation || !userId_entity || !userType) return;
+    if (!selectedConversation || !userId || !userType) return;
     
     setUploading(true);
     setError(null);
@@ -191,7 +194,7 @@ const Chat = () => {
       
       // Créer le message avec le fichier attaché
       const messageData = {
-        sender_id: userId_entity,
+        sender_id: userId,
         sender_type: userType as 'coach' | 'client',
         recipient_id: selectedConversation.otherUserId,
         recipient_type: selectedConversation.otherUserType,
