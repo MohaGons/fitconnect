@@ -16,20 +16,34 @@ import Customers from "./pages/admin/Customers/Customers";
 import Invoices from "./pages/admin/Invoices/Invoices";
 import Exerecices from "./pages/admin/Exercices/Exerecices";
 import ProtectedRoute from "./routes/protectedRoute";
-import InscriptionPage from "./pages/inscription/inscription";
-import SignIn from "./pages/AuthPages/SignIn";
+import InscriptionPage from "./pages/admin/inscription/inscription";
+import SignIn from "./pages/public/AuthPages/SignIn";
 import PrivacyPolicy from "./pages/public/PrivacyPolicy/PrivacyPolicy";
+import Welcome from "./pages/public/Welcome/Welcome";
 
 // Cookie Consent Components
 import { CookieConsentProvider } from './context/CookieConsentContext';
 import CookieBanner from './components/privacy/CookieBanner';
 
+// Déclaration des types pour Matomo
+declare global {
+  interface Window {
+    _mtm: Array<Record<string, string | number>>;
+  }
+}
+
 export default function App() {
   React.useEffect(() => {
-    var _mtm = window._mtm = window._mtm || [];
+    const _mtm = window._mtm = window._mtm || [];
     _mtm.push({'mtm.startTime': (new Date().getTime()), 'event': 'mtm.Start'});
-    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-    g.async=true; g.src='https://cdn.matomo.cloud/fitnessconnect.matomo.cloud/container_kHUYHHcx.js'; s.parentNode.insertBefore(g,s);
+    const d = document;
+    const g = d.createElement('script');
+    const s = d.getElementsByTagName('script')[0];
+    g.async = true;
+    g.src = 'https://cdn.matomo.cloud/fitnessconnect.matomo.cloud/container_kHUYHHcx.js';
+    if (s.parentNode) {
+      s.parentNode.insertBefore(g, s);
+    }
   }, []);
 
   return (
@@ -40,7 +54,7 @@ export default function App() {
             <ScrollToTop />
             <Routes>
               {/* Public Routes */}
-              <Route index path="/" element={<FrontHome />} />
+              <Route index path="/" element={<Welcome />} />
               <Route path="/signin" element={<SignIn />} />
               <Route path="/signup" element={<SignUp />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
