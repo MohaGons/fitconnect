@@ -47,6 +47,9 @@ export const useUserRole = () => {
       return requests.length;
     },
     enabled: !!coachQuery.data?.coach_id && isCoach,
+    refetchInterval: 10000, // Actualise toutes les 10 secondes (synchronisé avec Customers.tsx)
+    refetchIntervalInBackground: false, // Pas de polling en arrière-plan
+    refetchOnWindowFocus: true, // Actualise quand on revient sur l'onglet
     staleTime: 1000 * 30, // 30 secondes - plus fréquent pour les notifications
     retry: 1,
   });

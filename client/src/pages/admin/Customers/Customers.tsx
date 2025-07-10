@@ -31,20 +31,26 @@ const Customers: React.FC = () => {
     client: any;
   }>({ isOpen: false, client: null });
 
-  // Récupérer les demandes en attente
+  // Récupérer les demandes en attente avec polling intelligent
   const { data: pendingRequests, isLoading: loadingPending } = useQuery({
     queryKey: ["pending-requests", coachId],
     queryFn: () =>
       subscriptionsService.getPendingRequestsByCoach(Number(coachId)),
     enabled: !!coachId && isCoach,
+    refetchInterval: 10000, // Actualise toutes les 10 secondes
+    refetchIntervalInBackground: false, // Pas de polling en arrière-plan
+    refetchOnWindowFocus: true, // Actualise quand on revient sur l'onglet
+    staleTime: 1000 * 30, // 30 secondes avant de considérer les données comme obsolètes
   });
 
-  // Récupérer les clients actifs
+  // Récupérer les clients actifs (sans polling automatique)
   const { data: activeClients, isLoading: loadingActive } = useQuery({
     queryKey: ["active-clients", coachId],
     queryFn: () =>
       subscriptionsService.getActiveClientsByCoach(Number(coachId)),
     enabled: !!coachId && isCoach,
+    refetchOnWindowFocus: true, // Actualise seulement quand on revient sur l'onglet
+    staleTime: 1000 * 60 * 5, // 5 minutes avant de considérer les données comme obsolètes
   });
 
   // Mutation pour accepter/refuser une demande
@@ -424,7 +430,7 @@ const Customers: React.FC = () => {
       {/* Modal de profil du client */}
       {clientProfileModal.isOpen && clientProfileModal.client && (
         <div
-          className="fixed inset-0 bg-black/20 dark:bg-black/50 flex items-start justify-center p-4 pt-24 z-[9999] backdrop-blur-md"
+          className="fixed inset-0 bg-black/20 dark:bg-black/50 flex items-start justify-center p-4 pt-24 z-[999999] backdrop-blur-md"
           onClick={handleClientProfileBackdropClick}
         >
           <div className="bg-white dark:bg-gray-900 rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl transform transition-all border border-gray-200 dark:border-gray-800">
@@ -637,7 +643,7 @@ const Customers: React.FC = () => {
       {/* Modal de confirmation */}
       {confirmModal.isOpen && (
         <div
-          className="fixed inset-0 bg-black/20 dark:bg-black/50 flex items-center justify-center p-4 z-[9999] backdrop-blur-md"
+          className="fixed inset-0 bg-black/20 dark:bg-black/50 flex items-center justify-center p-4 z-[999999] backdrop-blur-md"
           onClick={handleModalBackdropClick}
         >
           <div className="bg-white dark:bg-gray-900 rounded-xl max-w-md w-full p-6 shadow-2xl transform transition-all border border-gray-200 dark:border-gray-800">
@@ -786,7 +792,7 @@ const Customers: React.FC = () => {
       {/* Modal de notification */}
       {notificationModal.isOpen && (
         <div
-          className="fixed inset-0 bg-black/20 dark:bg-black/50 flex items-center justify-center p-4 z-[9999] backdrop-blur-md"
+          className="fixed inset-0 bg-black/20 dark:bg-black/50 flex items-center justify-center p-4 z-[999999] backdrop-blur-md"
           onClick={handleNotificationBackdropClick}
         >
           <div className="bg-white dark:bg-gray-900 rounded-xl max-w-md w-full p-6 shadow-2xl transform transition-all border border-gray-200 dark:border-gray-800">
