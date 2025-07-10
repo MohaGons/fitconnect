@@ -54,7 +54,6 @@ export class CreateCoachDto {
   @IsString()
   photo: string;
 
-  
   @IsBoolean()
   termsAccepted: boolean;
 }

@@ -18,9 +18,7 @@ export class SentryExceptionFilter implements ExceptionFilter {
     const res = ctx.getResponse<Response>();
 
     const status =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : 500;
+      exception instanceof HttpException ? exception.getStatus() : 500;
 
     Sentry.captureException(exception);
 

@@ -14,7 +14,6 @@ import { UpdateClientGoalDto } from './dto/update-client-goal.dto';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 
 @UseGuards(JwtAuthGuard)
-
 @Controller('client-goals')
 export class ClientGoalsController {
   constructor(private readonly clientGoalsService: ClientGoalsService) {}

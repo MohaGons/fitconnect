@@ -6,7 +6,7 @@ import { Coach } from './entities/coach.entity';
 import { KeycloakModule } from '../keycloak/keycloak.module'; // Import du module Keycloak
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Coach]),KeycloakModule],
+  imports: [TypeOrmModule.forFeature([Coach]), KeycloakModule],
   controllers: [CoachesController],
   providers: [CoachesService],
   exports: [CoachesService],

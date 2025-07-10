@@ -54,7 +54,7 @@ export class Coach {
   termsAccepted: boolean;
 
   @Column({ type: 'boolean', default: false })
-  deleted: boolean; 
+  deleted: boolean;
 
   // Champs pour le système de paiement plateforme
   @Column({

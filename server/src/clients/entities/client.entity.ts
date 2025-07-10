@@ -67,7 +67,7 @@ export class Client {
 
   @Column({ type: 'boolean', default: false })
   termsAccepted: boolean;
-  
+
   @Column({ type: 'boolean', default: false })
   deleted: boolean;
 

@@ -4,10 +4,9 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { SentryExceptionFilter } from './sentry/sentry-exception.filter';
-import "./sentry/instrument";
+import './sentry/instrument';
 import { join } from 'path';
 import * as bodyParser from 'body-parser';
-
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -25,8 +24,6 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-
-
 
   app.enableCors({
     origin: 'https://fitnessconnect.fr',

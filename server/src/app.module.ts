@@ -87,6 +87,6 @@ import { JwtStrategy } from './auth/jwt.strategy';
     CalendarEventsModule,
   ],
   controllers: [AppController],
-  providers: [AppService , JwtStrategy],
+  providers: [AppService, JwtStrategy],
 })
 export class AppModule {}
