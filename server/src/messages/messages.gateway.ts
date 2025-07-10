@@ -14,6 +14,10 @@ import { UserType } from './dto/create-message.dto';
 import { Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import * as jwksRsa from 'jwks-rsa';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Coach } from '../coaches/entities/coach.entity';
+import { Client } from '../clients/entities/client.entity';
 
 interface AuthenticatedSocket extends Socket {
   userId?: number;
@@ -64,7 +68,13 @@ export class MessagesGateway
     jwksRequestsPerMinute: 5,
   });
 
-  constructor(private readonly messagesService: MessagesService) {}
+  constructor(
+    private readonly messagesService: MessagesService,
+    @InjectRepository(Coach)
+    private readonly coachRepository: Repository<Coach>,
+    @InjectRepository(Client)
+    private readonly clientRepository: Repository<Client>,
+  ) {}
 
   async handleConnection(client: AuthenticatedSocket) {
     try {
@@ -310,19 +320,48 @@ export class MessagesGateway
       console.log('Token payload après vérification:', payload);
 
       // Extraire les informations utilisateur du payload
-      const userId = payload.sub || payload.user_id;
+      const keycloakUserId = payload.sub;
       const userType = payload.realm_access?.roles?.includes('COACH')
         ? UserType.COACH
         : UserType.CLIENT;
 
-      if (!userId || !userType) {
-        console.log('userId ou userType manquant:', { userId, userType });
+      if (!keycloakUserId || !userType) {
+        console.log('keycloakUserId ou userType manquant:', {
+          keycloakUserId,
+          userType,
+        });
         return null;
       }
 
+      // Récupérer l'ID numérique depuis la base de données
+      let userId: number;
+
+      if (userType === UserType.COACH) {
+        const coach = await this.coachRepository.findOne({
+          where: { user_id: keycloakUserId },
+        });
+        if (!coach) {
+          console.log('Coach non trouvé pour user_id:', keycloakUserId);
+          return null;
+        }
+        userId = coach.coach_id;
+      } else {
+        const client = await this.clientRepository.findOne({
+          where: { user_id: keycloakUserId },
+        });
+        if (!client) {
+          console.log('Client non trouvé pour user_id:', keycloakUserId);
+          return null;
+        }
+        userId = client.client_id;
+      }
+
+      console.log(
+        `Utilisateur trouvé: ${userId} (${userType}) pour keycloakUserId: ${keycloakUserId}`,
+      );
+
       return {
-        userId:
-          typeof userId === 'string' ? parseInt(userId, 10) : Number(userId),
+        userId,
         userType,
       };
     } catch (error) {
