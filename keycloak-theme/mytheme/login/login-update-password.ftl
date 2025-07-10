@@ -28,7 +28,7 @@
     <!-- Colonne gauche -->
     <div class="w-full md:w-1/2 flex items-center justify-center px-6 md:px-12">
       <div class="w-full max-w-md">
-        <a href="http://localhost:5173/" class="inline-flex items-center mb-8 text-sm text-gray-500 hover:text-gray-700">
+        <a href="https://fitnessconnect.fr/" class="inline-flex items-center mb-8 text-sm text-gray-500 hover:text-gray-700">
           <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
@@ -72,7 +72,7 @@
                 class="w-full px-4 py-2 text-sm bg-white border border-gray-300 rounded-md 
                 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"/>
             <button type="button" id="togglePassword" 
-              class="absolute top-9 right-3 text-gray-400 hover:text-gray-600 focus:outline-none" aria-label="Afficher/Cacher le mot de passe">
+              class="absolute top-5 right-3 text-gray-400 hover:text-gray-600 focus:outline-none" aria-label="Afficher/Cacher le mot de passe">
               <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                   d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -103,7 +103,7 @@
 
         <p class="mt-6 text-sm text-center text-gray-700">
           Vous avez déjà un compte ? 
-          <a href="http://localhost:5173/login" class="text-orange-500 hover:text-orange-600">Se connecter</a>
+          <a href="${url.loginUrl}" class="text-orange-500 hover:text-orange-600">Se connecter</a>
         </p>
       </div>
     </div>

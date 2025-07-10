@@ -8,7 +8,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       console.error('❌ JWT Auth Error:', err || info);
       throw err || new UnauthorizedException();
     }
-    console.log('✅ Utilisateur autorisé :', user);
+    console.log('✅ Utilisateur autorisé ');
     return user;
   }
 }

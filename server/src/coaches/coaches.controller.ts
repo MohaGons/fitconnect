@@ -74,6 +74,11 @@ export class CoachesController {
     return this.coachesService.getCoachProfile(userId);
   }
 
+  @Get('sesntry-test')
+  lauchSentryTest() {
+    throw new Error('Test Sentry - Erreur lancée depuis le controller');
+  }
+
   @Get()
   @ApiOperation({ summary: 'Récupérer tous les coachs avec filtrage et pagination' })
   @ApiQuery({ name: 'page', required: false, type: Number, description: 'Numéro de page' })
