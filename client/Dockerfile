@@ -3,7 +3,7 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci
+RUN npm cache clean --force && npm ci
 
 COPY . .
 
