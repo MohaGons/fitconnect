@@ -193,7 +193,6 @@ export function DataTable({
     mutationFn: (data: { id: number; formData: ProgramFormData }) => {
       const updateData: ProgramUpdate = {
         ...data.formData,
-        updated_at: new Date().toISOString(),
       };
       return programsService.updateProgram(data.id, updateData);
     },

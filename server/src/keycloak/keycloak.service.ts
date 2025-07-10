@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import KcAdminClient from '@keycloak/keycloak-admin-client';
 
-const jwt = require('jsonwebtoken');
 
 @Injectable()
 export class KeycloakService {
@@ -32,7 +31,7 @@ export class KeycloakService {
   private async initKeycloakAdmin() {
     try {
       const username = 'admin';
-      const password = 'admin';
+      const password = 'admin?fit';
       const clientId = 'admin-cli';
       const clientSecret = 'ObkISiWU00ydpPjjmTpL9lvOkrJAWlzy';
 

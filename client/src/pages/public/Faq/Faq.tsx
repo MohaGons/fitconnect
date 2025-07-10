@@ -1,33 +1,16 @@
 import React, { useState, useCallback } from "react";
 import { ChevronDown } from "lucide-react";
 import Header from "../../../layout/public/Header";
+import SkewedElement, {
+  SKEW_STYLE,
+  COUNTER_SKEW_STYLE,
+} from "../../../components/common/SkewedElement";
 
 interface FAQItem {
   id: number;
   question: string;
   answer: string;
 }
-
-// Constants pour éviter la duplication
-const SKEW_STYLE = {
-  transform: "skewX(-12deg)",
-  transformOrigin: "center",
-} as const;
-
-const COUNTER_SKEW_STYLE = {
-  transform: "skewX(12deg)",
-} as const;
-
-// Composant réutilisable pour les éléments avec style skew
-const SkewedElement: React.FC<{
-  children: React.ReactNode;
-  className?: string;
-  onClick?: () => void;
-}> = ({ children, className = "", onClick }) => (
-  <div className={className} style={SKEW_STYLE} onClick={onClick}>
-    <div style={COUNTER_SKEW_STYLE}>{children}</div>
-  </div>
-);
 
 // Composant pour un élément FAQ individuel
 const FAQItemComponent: React.FC<{

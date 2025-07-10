@@ -1,8 +1,8 @@
-export type NutritionGoal = 
-  | 'weight_loss'
-  | 'muscle_gain'
-  | 'maintenance'
-  | 'performance';
+export type NutritionGoal =
+  | "weight_loss"
+  | "muscle_gain"
+  | "maintenance"
+  | "performance";
 
 export interface NutritionPlan {
   plan_id: number;
@@ -17,13 +17,13 @@ export interface NutritionPlan {
   updated_at: string;
   coach?: {
     coach_id: number;
-    first_name: string;
-    last_name: string;
+    firstName: string;
+    lastName: string;
   };
   client?: {
     client_id: number;
-    first_name: string;
-    last_name: string;
+    firstName: string;
+    lastName: string;
   };
   meals?: Meal[];
 }
@@ -51,8 +51,13 @@ export interface NutritionPlanCreate {
   comments?: string;
 }
 
-export interface NutritionPlanUpdate extends Partial<NutritionPlanCreate> {
-  updated_at: string;
+export interface NutritionPlanUpdate {
+  coach_id?: number;
+  client_id?: number;
+  name?: string;
+  daily_calories?: number;
+  goal?: NutritionGoal;
+  comments?: string;
 }
 
 export interface PaginationParams {
@@ -77,12 +82,12 @@ export interface PaginatedResponse<T> {
 export interface NutritionPlanFilters extends PaginationParams, FilterParams {}
 
 export const NutritionGoalLabels: Record<NutritionGoal, string> = {
-  weight_loss: 'Perte de poids',
-  muscle_gain: 'Prise de muscle',
-  maintenance: 'Maintien',
-  performance: 'Performance',
+  weight_loss: "Perte de poids",
+  muscle_gain: "Prise de muscle",
+  maintenance: "Maintien",
+  performance: "Performance",
 };
 
 export const NUTRITION_GOAL_OPTIONS = Object.entries(NutritionGoalLabels).map(
   ([value, label]) => ({ value, label })
-); 
+);

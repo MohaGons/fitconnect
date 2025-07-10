@@ -1,19 +1,18 @@
+export type MuscleCategory =
+  | "chest"
+  | "back"
+  | "shoulders"
+  | "arms"
+  | "legs"
+  | "core"
+  | "full_body"
+  | "cardio";
 
-export type MuscleCategory = 
-  | 'chest'
-  | 'back'
-  | 'shoulders'
-  | 'arms'
-  | 'legs'
-  | 'core'
-  | 'full_body'
-  | 'cardio';
-
-export type DifficultyLevel = 
-  | 'beginner'
-  | 'intermediate'
-  | 'advanced'
-  | 'expert';
+export type DifficultyLevel =
+  | "beginner"
+  | "intermediate"
+  | "advanced"
+  | "expert";
 
 export interface Exercise {
   exercise_id: number;
@@ -36,9 +35,7 @@ export interface ExerciseCreate {
   video_url?: string;
 }
 
-export interface ExerciseUpdate extends Partial<ExerciseCreate> {
-    updated_at: string;
-}
+export interface ExerciseUpdate extends Partial<ExerciseCreate> {}
 
 export interface PaginationParams {
   page: number;
@@ -61,27 +58,27 @@ export interface PaginatedResponse<T> {
 export interface ExerciseFilters extends PaginationParams, FilterParams {}
 
 export const MuscleCategoryLabels: Record<MuscleCategory, string> = {
-  chest: 'Poitrine',
-  back: 'Dos',
-  shoulders: 'Épaules',
-  arms: 'Bras',
-  legs: 'Jambes',
-  core: 'Abdominaux',
-  full_body: 'Corps entier',
-  cardio: 'Cardio',
+  chest: "Poitrine",
+  back: "Dos",
+  shoulders: "Épaules",
+  arms: "Bras",
+  legs: "Jambes",
+  core: "Abdominaux",
+  full_body: "Corps entier",
+  cardio: "Cardio",
 };
 
 export const DifficultyLevelLabels: Record<DifficultyLevel, string> = {
-  beginner: 'Débutant',
-  intermediate: 'Intermédiaire',
-  advanced: 'Avancé',
-  expert: 'Expert',
+  beginner: "Débutant",
+  intermediate: "Intermédiaire",
+  advanced: "Avancé",
+  expert: "Expert",
 };
 
 export const MUSCLE_CATEGORY_OPTIONS = Object.entries(MuscleCategoryLabels).map(
   ([value, label]) => ({ value, label })
 );
 
-export const DIFFICULTY_LEVEL_OPTIONS = Object.entries(DifficultyLevelLabels).map(
-  ([value, label]) => ({ value, label })
-);
+export const DIFFICULTY_LEVEL_OPTIONS = Object.entries(
+  DifficultyLevelLabels
+).map(([value, label]) => ({ value, label }));

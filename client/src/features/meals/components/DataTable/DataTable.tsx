@@ -26,7 +26,15 @@ import Select from "../../../../components/form/Select";
 import Badge from "../../../../components/ui/badge/Badge";
 import { Modal } from "../../../../components/ui/modal/index";
 import mealService from "../../services/mealService";
-import { Meal, MealType, MealTypeLabels, MEAL_TYPE_OPTIONS, MealCreate, MealUpdate, MealFoodCreate } from "../../types";
+import {
+  Meal,
+  MealType,
+  MealTypeLabels,
+  MEAL_TYPE_OPTIONS,
+  MealCreate,
+  MealUpdate,
+  MealFoodCreate,
+} from "../../types";
 import { MdRestaurant } from "react-icons/md";
 import MealForm from "../MealForm/MealForm";
 import TableSkeleton from "../../../../components/common/TableSkeleton";
@@ -50,8 +58,8 @@ interface MealFormData {
 }
 
 const queryKeys = {
-  lists: () => ['meals'],
-  detail: (id: number) => ['meals', id],
+  lists: () => ["meals"],
+  detail: (id: number) => ["meals", id],
 };
 
 const DataTable = ({
@@ -81,13 +89,11 @@ const DataTable = ({
     limit: pagination.pageSize,
     search: globalFilter,
     plan_id: planId,
-    ...Object.fromEntries(
-      columnFilters.map(f => [f.id, f.value])
-    )
+    ...Object.fromEntries(columnFilters.map((f) => [f.id, f.value])),
   };
 
   // Harmonisation : la clé de cache dépend de tous les filtres
-  const queryKey = ['meals', filters];
+  const queryKey = ["meals", filters];
 
   const { data, isLoading, error } = useQuery({
     queryKey,
@@ -95,24 +101,20 @@ const DataTable = ({
   });
 
   // DEBUG : Affiche la réponse reçue de l'API
-  console.log('[DEBUG] Réponse reçue de l\'API meals:', data);
+  console.log("[DEBUG] Réponse reçue de l'API meals:", data);
 
   // Requête pour récupérer les détails d'un repas
-  const { 
-    data: selectedMeal,
-    isLoading: isLoadingDetails,
-  } = useQuery({
+  const { data: selectedMeal, isLoading: isLoadingDetails } = useQuery({
     queryKey: queryKeys.detail(selectedMealId || 0),
     queryFn: () => mealService.getMealById(selectedMealId || 0),
-    enabled: !!selectedMealId && (isDetailModalOpen || (isFormModalOpen && formMode === "edit")),
+    enabled:
+      !!selectedMealId &&
+      (isDetailModalOpen || (isFormModalOpen && formMode === "edit")),
   });
 
   // Requête pour récupérer les ingrédients du repas sélectionné
-  const { 
-    data: mealIngredients,
-    isLoading: isLoadingIngredients,
-  } = useQuery({
-    queryKey: ['meal-foods', selectedMealId],
+  const { data: mealIngredients, isLoading: isLoadingIngredients } = useQuery({
+    queryKey: ["meal-foods", selectedMealId],
     queryFn: () => mealService.getMealFoods(selectedMealId || 0),
     enabled: !!selectedMealId && isDetailModalOpen,
   });
@@ -130,12 +132,15 @@ const DataTable = ({
 
   // Mutation pour la création
   const createMealMutation = useMutation({
-    mutationFn: async (data: { mealData: MealCreate, temporaryIngredients?: MealFoodCreate[] }) => {
+    mutationFn: async (data: {
+      mealData: MealCreate;
+      temporaryIngredients?: MealFoodCreate[];
+    }) => {
       const { mealData, temporaryIngredients } = data;
-      
+
       // D'abord créer le repas
       const createdMeal = await mealService.createMeal(mealData);
-      
+
       // Ensuite ajouter les ingrédients si il y en a
       if (temporaryIngredients && temporaryIngredients.length > 0) {
         for (const ingredient of temporaryIngredients) {
@@ -146,18 +151,18 @@ const DataTable = ({
           await mealService.addMealFood(ingredientWithMealId);
         }
       }
-      
+
       return createdMeal;
     },
     onSuccess: (newMeal) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.lists() });
       setIsFormModalOpen(false);
-      
+
       // Proposer d'ajouter plus d'ingrédients ou de voir le repas
       const shouldViewMeal = window.confirm(
-        'Repas créé avec succès ! Voulez-vous voir le résultat final ?'
+        "Repas créé avec succès ! Voulez-vous voir le résultat final ?"
       );
-      
+
       if (shouldViewMeal) {
         setTimeout(() => {
           handleOpenDetailModal(newMeal.meal_id);
@@ -168,10 +173,9 @@ const DataTable = ({
 
   // Mutation pour la mise à jour
   const updateMealMutation = useMutation({
-    mutationFn: (data: { id: number, formData: MealCreate }) => {
+    mutationFn: (data: { id: number; formData: MealCreate }) => {
       const updateData: MealUpdate = {
         ...data.formData,
-        updated_at: new Date().toISOString(),
       };
       return mealService.updateMeal(data.id, updateData);
     },
@@ -216,12 +220,17 @@ const DataTable = ({
     }
   };
 
-  const handleSubmitForm = (formData: MealFormData, temporaryIngredients?: MealFoodCreate[]) => {
+  const handleSubmitForm = (
+    formData: MealFormData,
+    temporaryIngredients?: MealFoodCreate[]
+  ) => {
     // Conversion des types string en number pour les champs numériques
     const mealData: MealCreate = {
       ...formData,
       calories: formData.calories ? Number(formData.calories) : undefined,
-      protein: formData.protein ? parseFloat(String(formData.protein)) : undefined,
+      protein: formData.protein
+        ? parseFloat(String(formData.protein))
+        : undefined,
       carbs: formData.carbs ? parseFloat(String(formData.carbs)) : undefined,
       fat: formData.fat ? parseFloat(String(formData.fat)) : undefined,
     };
@@ -238,65 +247,79 @@ const DataTable = ({
   const columnHelper = createColumnHelper<Meal>();
 
   const columns = [
-    columnHelper.accessor('meal_id', {
-      header: 'ID',
-      cell: info => info.getValue(),
+    columnHelper.accessor("meal_id", {
+      header: "ID",
+      cell: (info) => info.getValue(),
     }),
-    columnHelper.accessor('name', {
-      header: 'Nom du repas',
-      cell: info => info.getValue(),
+    columnHelper.accessor("name", {
+      header: "Nom du repas",
+      cell: (info) => info.getValue(),
     }),
-    columnHelper.accessor('meal_type', {
-      header: 'Type',
-      cell: info => {
+    columnHelper.accessor("meal_type", {
+      header: "Type",
+      cell: (info) => {
         const mealType = info.getValue() as MealType;
         return mealType ? (
           <Badge color="info" variant="light" size="md">
             {MealTypeLabels[mealType]}
           </Badge>
-        ) : 'Non défini';
+        ) : (
+          "Non défini"
+        );
       },
     }),
-    columnHelper.accessor('calories', {
-      header: 'Calories',
-      cell: info => info.getValue() ? `${info.getValue()} kcal` : 'Non défini',
+    columnHelper.accessor("calories", {
+      header: "Calories",
+      cell: (info) =>
+        info.getValue() ? `${info.getValue()} kcal` : "Non défini",
     }),
-    columnHelper.accessor(row => {
-      const macros = [];
-      if (row.protein) macros.push(`P: ${row.protein}g`);
-      if (row.carbs) macros.push(`G: ${row.carbs}g`);
-      if (row.fat) macros.push(`L: ${row.fat}g`);
-      return macros.length > 0 ? macros.join(' | ') : 'Non défini';
-    }, {
-      id: 'macros',
-      header: 'Macros (P/G/L)',
-      cell: info => (
-        <span className="text-sm text-gray-600 dark:text-gray-400">
-          {info.getValue()}
-        </span>
-      ),
-    }),
-    columnHelper.accessor(row => {
-      if (!row.plan_id) {
-        return 'Aucun plan (repas libre)';
+    columnHelper.accessor(
+      (row) => {
+        const macros = [];
+        if (row.protein) macros.push(`P: ${row.protein}g`);
+        if (row.carbs) macros.push(`G: ${row.carbs}g`);
+        if (row.fat) macros.push(`L: ${row.fat}g`);
+        return macros.length > 0 ? macros.join(" | ") : "Non défini";
+      },
+      {
+        id: "macros",
+        header: "Macros (P/G/L)",
+        cell: (info) => (
+          <span className="text-sm text-gray-600 dark:text-gray-400">
+            {info.getValue()}
+          </span>
+        ),
       }
-      if (row.nutrition_plan?.name) {
-        return row.nutrition_plan.name;
+    ),
+    columnHelper.accessor(
+      (row) => {
+        if (!row.plan_id) {
+          return "Aucun plan (repas libre)";
+        }
+        if (row.nutrition_plan?.name) {
+          return row.nutrition_plan.name;
+        }
+        return `Plan #${row.plan_id}`;
+      },
+      {
+        id: "nutrition_plan",
+        header: "Plan nutritionnel",
+        cell: (info) => (
+          <span
+            className={
+              info.getValue() === "Aucun plan (repas libre)"
+                ? "text-gray-500 dark:text-gray-400 italic"
+                : ""
+            }
+          >
+            {info.getValue()}
+          </span>
+        ),
       }
-      return `Plan #${row.plan_id}`;
-    }, {
-      id: 'nutrition_plan',
-      header: 'Plan nutritionnel',
-      cell: info => (
-        <span className={info.getValue() === 'Aucun plan (repas libre)' ? 
-          'text-gray-500 dark:text-gray-400 italic' : ''}>
-          {info.getValue()}
-        </span>
-      ),
-    }),
+    ),
     columnHelper.display({
-      id: 'actions',
-      header: 'Actions',
+      id: "actions",
+      header: "Actions",
       cell: ({ row }) => {
         const meal = row.original;
         return (
@@ -332,7 +355,8 @@ const DataTable = ({
   const table = useReactTable({
     data: data?.data || [],
     columns,
-    pageCount: (data && data.total) ? Math.ceil(data.total / pagination.pageSize) : -1,
+    pageCount:
+      data && data.total ? Math.ceil(data.total / pagination.pageSize) : -1,
     state: {
       sorting,
       columnFilters,
@@ -351,7 +375,8 @@ const DataTable = ({
 
   // Rendu des icônes de tri
   const renderSortingIcon = (isSorted: false | string) => {
-    if (!isSorted) return <FaSort className="ml-1 text-gray-400 inline-block" />;
+    if (!isSorted)
+      return <FaSort className="ml-1 text-gray-400 inline-block" />;
     return isSorted === "asc" ? (
       <FaSortUp className="ml-1 text-blue-600 inline-block" />
     ) : (
@@ -371,7 +396,10 @@ const DataTable = ({
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="relative w-full sm:w-72">
-          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 " color="gray" />
+          <FaSearch
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 "
+            color="gray"
+          />
           <Input
             type="text"
             value={globalFilter}
@@ -380,18 +408,22 @@ const DataTable = ({
             className="pl-10 pr-4 py-2 w-full border rounded-lg"
           />
         </div>
-        
+
         {/* Filtres par types de repas - badges cliquables */}
         <div className="flex flex-wrap gap-2 items-center">
-          <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">Types :</span>
+          <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+            Types :
+          </span>
           <button
             onClick={() => {
-              setColumnFilters(prev => prev.filter(f => f.id !== 'meal_type'));
+              setColumnFilters((prev) =>
+                prev.filter((f) => f.id !== "meal_type")
+              );
             }}
             className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-              !columnFilters.find(f => f.id === 'meal_type')
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+              !columnFilters.find((f) => f.id === "meal_type")
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
             }`}
           >
             Tous
@@ -400,15 +432,19 @@ const DataTable = ({
             <button
               key={option.value}
               onClick={() => {
-                setColumnFilters(prev => {
-                  const filtered = prev.filter(f => f.id !== 'meal_type');
-                  return [...filtered, { id: 'meal_type', value: option.value as MealType }];
+                setColumnFilters((prev) => {
+                  const filtered = prev.filter((f) => f.id !== "meal_type");
+                  return [
+                    ...filtered,
+                    { id: "meal_type", value: option.value as MealType },
+                  ];
                 });
               }}
               className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                columnFilters.find(f => f.id === 'meal_type')?.value === option.value
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                columnFilters.find((f) => f.id === "meal_type")?.value ===
+                option.value
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
               }`}
             >
               {option.label}
@@ -476,9 +512,15 @@ const DataTable = ({
                 </tr>
               ) : (
                 table.getRowModel().rows.map((row) => (
-                  <tr key={row.id} className="hover:bg-gray-50 dark:bg-gray-900 dark:text-white">
+                  <tr
+                    key={row.id}
+                    className="hover:bg-gray-50 dark:bg-gray-900 dark:text-white"
+                  >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-6 py-4 whitespace-nowrap ">
+                      <td
+                        key={cell.id}
+                        className="px-6 py-4 whitespace-nowrap "
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -499,7 +541,11 @@ const DataTable = ({
               disabled={!table.getCanPreviousPage()}
               variant="outline"
               size="sm"
-              className={!table.getCanPreviousPage() ? "cursor-not-allowed opacity-50" : ""}
+              className={
+                !table.getCanPreviousPage()
+                  ? "cursor-not-allowed opacity-50"
+                  : ""
+              }
             >
               Précédent
             </Button>
@@ -508,7 +554,9 @@ const DataTable = ({
               disabled={!table.getCanNextPage()}
               variant="outline"
               size="sm"
-              className={!table.getCanNextPage() ? "cursor-not-allowed opacity-50" : ""}
+              className={
+                !table.getCanNextPage() ? "cursor-not-allowed opacity-50" : ""
+              }
             >
               Suivant
             </Button>
@@ -532,9 +580,9 @@ const DataTable = ({
             <div className="flex gap-x-2 items-center">
               <span className="text-sm text-gray-700">Afficher</span>
               <Select
-                options={[10, 20, 30, 40, 50].map(pageSize => ({
+                options={[10, 20, 30, 40, 50].map((pageSize) => ({
                   value: pageSize.toString(),
-                  label: pageSize.toString()
+                  label: pageSize.toString(),
                 }))}
                 defaultValue={table.getState().pagination.pageSize.toString()}
                 onChange={(value) => {
@@ -548,7 +596,11 @@ const DataTable = ({
                   disabled={!table.getCanPreviousPage()}
                   variant="outline"
                   size="sm"
-                  className={!table.getCanPreviousPage() ? "cursor-not-allowed opacity-50" : ""}
+                  className={
+                    !table.getCanPreviousPage()
+                      ? "cursor-not-allowed opacity-50"
+                      : ""
+                  }
                 >
                   <FaChevronLeft className="h-4 w-4" />
                   <FaChevronLeft className="h-4 w-4 -ml-1" />
@@ -558,7 +610,11 @@ const DataTable = ({
                   disabled={!table.getCanPreviousPage()}
                   variant="outline"
                   size="sm"
-                  className={!table.getCanPreviousPage() ? "cursor-not-allowed opacity-50" : ""}
+                  className={
+                    !table.getCanPreviousPage()
+                      ? "cursor-not-allowed opacity-50"
+                      : ""
+                  }
                 >
                   <FaChevronLeft className="h-4 w-4" />
                 </Button>
@@ -567,7 +623,11 @@ const DataTable = ({
                   disabled={!table.getCanNextPage()}
                   variant="outline"
                   size="sm"
-                  className={!table.getCanNextPage() ? "cursor-not-allowed opacity-50" : ""}
+                  className={
+                    !table.getCanNextPage()
+                      ? "cursor-not-allowed opacity-50"
+                      : ""
+                  }
                 >
                   <FaChevronRight className="h-4 w-4" />
                 </Button>
@@ -576,7 +636,11 @@ const DataTable = ({
                   disabled={!table.getCanNextPage()}
                   variant="outline"
                   size="sm"
-                  className={!table.getCanNextPage() ? "cursor-not-allowed opacity-50" : ""}
+                  className={
+                    !table.getCanNextPage()
+                      ? "cursor-not-allowed opacity-50"
+                      : ""
+                  }
                 >
                   <FaChevronRight className="h-4 w-4" />
                   <FaChevronRight className="h-4 w-4 -ml-1" />
@@ -603,7 +667,7 @@ const DataTable = ({
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
               Détails du repas
             </h2>
-            
+
             <div className="space-y-4">
               {/* Informations de base */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -615,7 +679,7 @@ const DataTable = ({
                     {selectedMeal.name}
                   </p>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Type de repas
@@ -642,15 +706,18 @@ const DataTable = ({
                     </span>
                   ) : (
                     <>
-                      {selectedMeal.nutrition_plan?.name || `Plan #${selectedMeal.plan_id}`}
+                      {selectedMeal.nutrition_plan?.name ||
+                        `Plan #${selectedMeal.plan_id}`}
                       {selectedMeal.nutrition_plan?.client && (
                         <span className="text-gray-600 dark:text-gray-400 ml-2">
-                          - {selectedMeal.nutrition_plan.client.first_name} {selectedMeal.nutrition_plan.client.last_name}
+                          - {selectedMeal.nutrition_plan.client.first_name}{" "}
+                          {selectedMeal.nutrition_plan.client.last_name}
                         </span>
                       )}
                       {selectedMeal.nutrition_plan?.coach && (
                         <span className="text-gray-600 dark:text-gray-400 ml-2">
-                          (Coach: {selectedMeal.nutrition_plan.coach.first_name} {selectedMeal.nutrition_plan.coach.last_name})
+                          (Coach: {selectedMeal.nutrition_plan.coach.first_name}{" "}
+                          {selectedMeal.nutrition_plan.coach.last_name})
                         </span>
                       )}
                     </>
@@ -666,34 +733,34 @@ const DataTable = ({
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
                     <div className="text-lg font-bold text-gray-900 dark:text-white">
-                      {selectedMeal.calories || '-'}
+                      {selectedMeal.calories || "-"}
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">
                       Calories (kcal)
                     </div>
                   </div>
-                  
+
                   <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
                     <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                      {selectedMeal.protein || '-'}
+                      {selectedMeal.protein || "-"}
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">
                       Protéines (g)
                     </div>
                   </div>
-                  
+
                   <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
                     <div className="text-lg font-bold text-green-600 dark:text-green-400">
-                      {selectedMeal.carbs || '-'}
+                      {selectedMeal.carbs || "-"}
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">
                       Glucides (g)
                     </div>
                   </div>
-                  
+
                   <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg text-center">
                     <div className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
-                      {selectedMeal.fat || '-'}
+                      {selectedMeal.fat || "-"}
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">
                       Lipides (g)
@@ -710,18 +777,21 @@ const DataTable = ({
                 {isLoadingIngredients ? (
                   <div className="flex items-center space-x-2">
                     <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-sm text-gray-500">Chargement des ingrédients...</span>
+                    <span className="text-sm text-gray-500">
+                      Chargement des ingrédients...
+                    </span>
                   </div>
                 ) : mealIngredients && mealIngredients.length > 0 ? (
                   <div className="space-y-3">
                     {mealIngredients.map((ingredient) => (
-                      <div 
-                        key={ingredient.meal_food_id} 
+                      <div
+                        key={ingredient.meal_food_id}
                         className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
                       >
                         <div className="flex-1">
                           <div className="font-medium text-gray-900 dark:text-white">
-                            {ingredient.food_item?.name || `Aliment #${ingredient.food_item_id}`}
+                            {ingredient.food_item?.name ||
+                              `Aliment #${ingredient.food_item_id}`}
                           </div>
                           {ingredient.food_item?.category && (
                             <div className="text-sm text-gray-600 dark:text-gray-400">
@@ -733,18 +803,27 @@ const DataTable = ({
                           <div className="font-semibold text-gray-900 dark:text-white">
                             {ingredient.quantity} {ingredient.unit}
                           </div>
-                          {ingredient.food_item && ingredient.food_item.calories && (
-                            <div className="text-sm text-gray-600 dark:text-gray-400">
-                              ~{Math.round((ingredient.food_item.calories * ingredient.quantity) / 100)} kcal
-                            </div>
-                          )}
+                          {ingredient.food_item &&
+                            ingredient.food_item.calories && (
+                              <div className="text-sm text-gray-600 dark:text-gray-400">
+                                ~
+                                {Math.round(
+                                  (ingredient.food_item.calories *
+                                    ingredient.quantity) /
+                                    100
+                                )}{" "}
+                                kcal
+                              </div>
+                            )}
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <div className="text-center py-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <p className="text-gray-500 dark:text-gray-400">Aucun ingrédient ajouté</p>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      Aucun ingrédient ajouté
+                    </p>
                   </div>
                 )}
               </div>
@@ -770,16 +849,16 @@ const DataTable = ({
                     Créé le
                   </label>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {new Date(selectedMeal.created_at).toLocaleString('fr-FR')}
+                    {new Date(selectedMeal.created_at).toLocaleString("fr-FR")}
                   </p>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Modifié le
                   </label>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {new Date(selectedMeal.updated_at).toLocaleString('fr-FR')}
+                    {new Date(selectedMeal.updated_at).toLocaleString("fr-FR")}
                   </p>
                 </div>
               </div>
@@ -827,9 +906,15 @@ const DataTable = ({
         ) : (
           <MealForm
             mealData={selectedMeal}
-            isSubmitting={createMealMutation.isPending || updateMealMutation.isPending}
-            formError={(createMealMutation.error || updateMealMutation.error)?.toString()}
-            onSubmit={(formData, temporaryIngredients) => handleSubmitForm(formData, temporaryIngredients)}
+            isSubmitting={
+              createMealMutation.isPending || updateMealMutation.isPending
+            }
+            formError={(
+              createMealMutation.error || updateMealMutation.error
+            )?.toString()}
+            onSubmit={(formData, temporaryIngredients) =>
+              handleSubmitForm(formData, temporaryIngredients)
+            }
             onCancel={handleCloseFormModal}
             mode={formMode}
           />
@@ -848,7 +933,8 @@ const DataTable = ({
               Confirmation de suppression
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Êtes-vous sûr de vouloir supprimer ce repas ? Cette action est irréversible.
+              Êtes-vous sûr de vouloir supprimer ce repas ? Cette action est
+              irréversible.
             </p>
           </div>
           <div className="flex justify-around space-x-3">
@@ -874,4 +960,4 @@ const DataTable = ({
   );
 };
 
-export default DataTable; 
+export default DataTable;

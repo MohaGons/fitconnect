@@ -10,6 +10,7 @@ import AppLayout from "../layout/admin/AppLayout";
 // Components
 import { ScrollToTop } from "../components/common/ScrollToTop";
 import ProtectedRoute from "../routes/protectedRoute";
+import RoleBasedRoute from "../routes/RoleBasedRoute"; // Nouveau composant à créer
 
 // Pages d'Authentification
 import Login from "../pages/auth/login";
@@ -37,7 +38,6 @@ import Programs from "../pages/admin/Programs/Programs";
 import Exercises from "../pages/admin/Exercices/Exerecices";
 
 // Pages Admin - Finances
-import Invoices from "../pages/admin/Invoices/Invoices";
 import Payment from "../pages/admin/Payment/Payment";
 
 // Pages Admin - Autres
@@ -52,67 +52,197 @@ import Services from "../pages/public/Services/Services";
 import Cgu from "../pages/public/Cgu/Cgu";
 import Cgv from "../pages/public/Cgv/Cgv";
 import Contact from "../pages/public/Contact/Contact";
+import PrivacyPolicy from "../pages/public/PrivacyPolicy/PrivacyPolicy";
 import Chat from "../pages/admin/Chat";
+import Profile from "../pages/admin/profile/profile";
+
+// Cookie Consent Components
+import { CookieConsentProvider } from "../context/CookieConsentContext";
+import CookieBanner from "../components/privacy/CookieBanner";
 
 const App = () => {
   return (
     <Router>
-      <KeycloakProvider>
-        <ScrollToTop />
-        <Routes>
-          {/* ==================== ROUTES PUBLIQUES ==================== */}
-          <Route element={<PublicLayout />}>
-            <Route path="/" element={<Welcome />} />
-            <Route path="/our-team" element={<OurTeam />} />
-            <Route path="/prices" element={<Prices />} />
-            <Route path="/faq" element={<Faq />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/cgu" element={<Cgu />} />
-            <Route path="/cgv" element={<Cgv />} />
-            <Route path="/contact" element={<Contact />} />
-          </Route>
-          {/* ==================== ROUTES D'AUTHENTIFICATION ==================== */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signin" element={<Login />} />{" "}
-          {/* Alias pour compatibilité */}
-          <Route path="/register" element={<Register />} />
-          <Route path="/signup" element={<SignUp />} />
-          {/* ==================== ROUTES ADMIN PROTÉGÉES ==================== */}
-          <Route element={<ProtectedRoute />}>
-            <Route element={<AppLayout />}>
-              {/* Dashboard Principal */}
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/dashboard/home" element={<AdminHome />} />
-
-              {/* Gestion des Utilisateurs */}
-              <Route path="/dashboard/users" element={<Users />} />
-              <Route path="/dashboard/customers" element={<Customers />} />
-              <Route path="/dashboard/coaches" element={<Coaches />} />
-              <Route path="/coach" element={<Coach />} />
-
-              {/* Planning & Communication */}
-              <Route path="/dashboard/calendar" element={<Calendar />} />
-              <Route path="/dashboard/chat" element={<Chat />} />
-
-              {/* Services */}
-              <Route path="/dashboard/nutrition" element={<Nutrition />} />
-              <Route path="/dashboard/meals" element={<Meals />} />
-              <Route path="/dashboard/ingredients" element={<Ingredients />} />
-              <Route path="/dashboard/programs" element={<Programs />} />
-              <Route path="/dashboard/exercises" element={<Exercises />} />
-
-              {/* Finances */}
-              <Route path="/dashboard/invoices" element={<Invoices />} />
-              <Route path="/dashboard/payment" element={<Payment />} />
-
-              {/* Autres */}
+      <CookieConsentProvider>
+        <KeycloakProvider>
+          <ScrollToTop />
+          <Routes>
+            {/* ==================== ROUTES PUBLIQUES ==================== */}
+            <Route element={<PublicLayout />}>
+              <Route path="/" element={<Welcome />} />
+              <Route path="/our-team" element={<OurTeam />} />
+              <Route path="/prices" element={<Prices />} />
+              <Route path="/faq" element={<Faq />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/cgu" element={<Cgu />} />
+              <Route path="/cgv" element={<Cgv />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/contact" element={<Contact />} />
             </Route>
-            <Route path="/inscription" element={<InscriptionPage />} />
-          </Route>
-          {/* ==================== ROUTE 404 ==================== */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </KeycloakProvider>
+
+            {/* ==================== ROUTES D'AUTHENTIFICATION ==================== */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/signin" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/signup" element={<SignUp />} />
+
+            {/* ==================== ROUTES ADMIN PROTÉGÉES ==================== */}
+            <Route element={<ProtectedRoute />}>
+              <Route element={<AppLayout />}>
+                {/* Dashboard Principal - Accessible à tous */}
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/dashboard/home" element={<AdminHome />} />
+
+                {/* Profil - Accessible à tous */}
+                <Route path="/dashboard/profile" element={<Profile />} />
+
+                {/* ================ ROUTES SPÉCIFIQUES AUX COACHES ================ */}
+
+                {/* Paiement - Coaches seulement */}
+                <Route
+                  path="/dashboard/payment"
+                  element={
+                    <RoleBasedRoute allowedRoles={["COACH"]}>
+                      <Payment />
+                    </RoleBasedRoute>
+                  }
+                />
+
+                {/* Gestion des utilisateurs - Coaches seulement */}
+                <Route
+                  path="/dashboard/all-coaches"
+                  element={
+                    <RoleBasedRoute allowedRoles={["ADMIN"]}>
+                      <Coach />
+                    </RoleBasedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/all-clients"
+                  element={
+                    <RoleBasedRoute allowedRoles={["ADMIN"]}>
+                      <Users />
+                    </RoleBasedRoute>
+                  }
+                />
+
+                {/* Gestion des clients/coaches selon le rôle */}
+                <Route
+                  path="/dashboard/customers"
+                  element={
+                    <RoleBasedRoute allowedRoles={["COACH","ADMIN"] }>
+                      <Customers />
+                    </RoleBasedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/coaches"
+                  element={
+                    <RoleBasedRoute allowedRoles={["CLIENT","ADMIN"]}>
+                      <Coaches />
+                    </RoleBasedRoute>
+                  }
+                />
+                <Route
+                  path="/coach"
+                  element={
+                    <RoleBasedRoute allowedRoles={["ADMIN"]}>
+                      <Coach />
+                    </RoleBasedRoute>
+                  }
+                />
+
+                {/* Planning & Communication */}
+                <Route
+                  path="/dashboard/calendar"
+                  element={
+                    <RoleBasedRoute
+                      allowedRoles={["COACH", "CLIENT"]}
+                      requireSubscription={true}
+                    >
+                      <Calendar />
+                    </RoleBasedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/chat"
+                  element={
+                    <RoleBasedRoute
+                      allowedRoles={["COACH", "CLIENT"]}
+                      requireSubscription={true}
+                    >
+                      <Chat />
+                    </RoleBasedRoute>
+                  }
+                />
+
+                {/* Services - Avec contrôle d'abonnement pour les coaches */}
+                <Route
+                  path="/dashboard/nutrition"
+                  element={
+                    <RoleBasedRoute
+                      allowedRoles={["COACH", "ADMIN"]}
+                      requireSubscription={true}
+                    >
+                      <Nutrition />
+                    </RoleBasedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/meals"
+                  element={
+                    <RoleBasedRoute
+                      allowedRoles={["COACH", "ADMIN"]}
+                      requireSubscription={true}
+                    >
+                      <Meals />
+                    </RoleBasedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/ingredients"
+                  element={
+                    <RoleBasedRoute
+                      allowedRoles={["COACH", "ADMIN"]}
+                      requireSubscription={true}
+                    >
+                      <Ingredients />
+                    </RoleBasedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/programs"
+                  element={
+                    <RoleBasedRoute
+                      allowedRoles={["COACH"]}
+                      requireSubscription={true}
+                    >
+                      <Programs />
+                    </RoleBasedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/exercises"
+                  element={
+                    <RoleBasedRoute
+                      allowedRoles={["COACH", "CLIENT"]}
+                      requireSubscription={true}
+                    >
+                      <Exercises />
+                    </RoleBasedRoute>
+                  }
+                />
+               
+              </Route>
+              <Route path="/inscription" element={<InscriptionPage />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+
+          {/* Cookie Banner - Global */}
+          <CookieBanner />
+        </KeycloakProvider>
+      </CookieConsentProvider>
     </Router>
   );
 };

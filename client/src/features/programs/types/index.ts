@@ -77,8 +77,22 @@ export interface ProgramCreate {
   exercises: ProgramExerciseCreate[];
 }
 
-export interface ProgramUpdate extends Partial<ProgramCreate> {
-  updated_at: string;
+export interface ProgramUpdate {
+  coach_id?: number;
+  name?: string;
+  description?: string;
+  difficulty_level?: DifficultyLevel;
+  category?: ProgramCategory;
+  exercises?: {
+    exercise_id: number;
+    order_number: number;
+    sets?: number;
+    repetitions?: number;
+    recommended_weight?: number;
+    duration_seconds?: number;
+    rest_seconds?: number;
+    instructions?: string;
+  }[];
 }
 
 export interface PaginationParams {

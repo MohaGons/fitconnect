@@ -28,7 +28,7 @@
     <!-- Colonne gauche : message de vérification -->
     <div class="w-full md:w-1/2 flex items-center justify-center px-6 md:px-12">
       <div class="w-full max-w-md">
-        <a href="http://localhost:5173/" class="inline-flex items-center mb-8 text-sm text-gray-500 hover:text-gray-700">
+        <a href="https://fitnessconnect.fr/" class="inline-flex items-center mb-8 text-sm text-gray-500 hover:text-gray-700">
           <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
@@ -50,7 +50,7 @@
 
         <p class="mt-6 text-sm text-center text-gray-700">
           Vous avez déjà confirmé ? 
-          <a href="http://localhost:5173/" class="text-orange-500 hover:text-orange-600">Se connecter</a>
+          <a href="${url.loginUrl}" class="text-orange-500 hover:text-orange-600">Se connecter</a>
         </p>
       </div>
     </div>

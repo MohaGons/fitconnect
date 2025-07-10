@@ -1,29 +1,19 @@
 import React from "react";
+import { Helmet } from "react-helmet-async";
 import Header from "../../../layout/public/Header";
-
-// Constants pour éviter la duplication
-const SKEW_STYLE = {
-  transform: "skewX(-12deg)",
-  transformOrigin: "center",
-} as const;
-
-const COUNTER_SKEW_STYLE = {
-  transform: "skewX(12deg)",
-} as const;
-
-// Composant réutilisable pour les éléments avec style skew
-const SkewedElement: React.FC<{
-  children: React.ReactNode;
-  className?: string;
-}> = ({ children, className = "" }) => (
-  <div className={className} style={SKEW_STYLE}>
-    <div style={COUNTER_SKEW_STYLE}>{children}</div>
-  </div>
-);
+import SkewedElement from "../../../components/common/SkewedElement";
 
 const Cgu: React.FC = () => {
   return (
     <>
+      <Helmet>
+        <title>CGU - Conditions Générales d'Utilisation | Fitconnect</title>
+        <meta
+          name="description"
+          content="Consultez les Conditions Générales d'Utilisation de Fitconnect, plateforme de coaching fitness personnalisé."
+        />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </Helmet>
       <Header />
 
       {/* Hero Section */}
@@ -40,7 +30,10 @@ const Cgu: React.FC = () => {
             Conditions Générales d'Utilisation
           </h1>
 
-          <SkewedElement className="inline-block bg-orange-500 text-white px-6 py-2.5 hover:bg-orange-600 transition-colors duration-200 shadow-lg">
+          <SkewedElement
+            data-cy="breadcrumb"
+            className="inline-block bg-orange-500 text-white px-6 py-2.5 hover:bg-orange-600 transition-colors duration-200 shadow-lg"
+          >
             <span className="text-sm font-medium">Pages</span>
             <span className="mx-2">›</span>
             <span className="text-sm font-medium">CGU</span>
@@ -52,7 +45,10 @@ const Cgu: React.FC = () => {
       <section className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="prose prose-lg max-w-none">
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 mb-8">
+            <div
+              className="bg-orange-50 border border-orange-200 rounded-lg p-6 mb-8"
+              data-cy="last-updated"
+            >
               <p className="text-gray-700 mb-0">
                 <strong>Dernière mise à jour :</strong>{" "}
                 {new Date().toLocaleDateString("fr-FR")}
@@ -327,8 +323,24 @@ const Cgu: React.FC = () => {
                     </strong>
                   </p>
                   <ul className="space-y-1 text-gray-700">
-                    <li>• Email : legal@fitconnect.com</li>
-                    <li>• Téléphone : +33 1 23 45 67 89</li>
+                    <li>
+                      • Email :{" "}
+                      <a
+                        href="mailto:legal@fitconnect.com"
+                        className="text-orange-500 hover:text-orange-600"
+                      >
+                        legal@fitconnect.com
+                      </a>
+                    </li>
+                    <li>
+                      • Téléphone :{" "}
+                      <a
+                        href="tel:+33123456789"
+                        className="text-orange-500 hover:text-orange-600"
+                      >
+                        +33 1 23 45 67 89
+                      </a>
+                    </li>
                     <li>• Adresse : 123 Rue de la Paix, 75001 Paris, France</li>
                   </ul>
                 </div>

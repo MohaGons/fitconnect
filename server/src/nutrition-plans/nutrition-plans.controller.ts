@@ -9,6 +9,7 @@ import {
   Query,
   HttpStatus,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -21,6 +22,7 @@ import { NutritionPlansService } from './nutrition-plans.service';
 import { CreateNutritionPlanDto } from './dto/create-nutrition-plan.dto';
 import { UpdateNutritionPlanDto } from './dto/update-nutrition-plan.dto';
 import { NutritionPlan } from './entities/nutrition-plan.entity';
+import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 
 interface QueryFilters {
   page?: string;
@@ -30,6 +32,7 @@ interface QueryFilters {
 }
 
 @ApiTags('nutrition-plans')
+@UseGuards(JwtAuthGuard)
 @Controller('nutrition-plans')
 export class NutritionPlansController {
   constructor(private readonly nutritionPlansService: NutritionPlansService) {}

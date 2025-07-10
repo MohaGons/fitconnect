@@ -1,3 +1,8 @@
+import React from "react";
+import SkewedElement, {
+  SKEW_STYLE,
+  COUNTER_SKEW_STYLE,
+} from "../../../components/common/SkewedElement";
 
 const OurTeam = () => {
   const teamMembers = [
@@ -6,42 +11,42 @@ const OurTeam = () => {
       name: "EMILY",
       role: "PROFESSEURE DE YOGA",
       image: "/images/team/TRAINER6.png",
-      selected: false
+      selected: false,
     },
     {
       id: 2,
-      name: "EMMA", 
+      name: "EMMA",
       role: "ENTRAÎNEUSE FITNESS",
       image: "/images/team/TRAINER5.png",
-      selected: false
+      selected: false,
     },
     {
       id: 3,
       name: "OLIVER",
       role: "ENTRAÎNEUR DE MUSCULATION",
       image: "/images/team/TRAINER4.png",
-      selected: false
+      selected: false,
     },
     {
       id: 4,
       name: "ELIJAH",
-      role: "ENTRAÎNEUR MUSCULATION", 
+      role: "ENTRAÎNEUR MUSCULATION",
       image: "/images/team/TRAINER3.png",
-      selected: false
+      selected: false,
     },
     {
       id: 5,
       name: "JAMES",
       role: "ENTRAÎNEUR PERSONNEL",
       image: "/images/team/TRAINER2.png",
-      selected: false
+      selected: false,
     },
     {
       id: 6,
       name: "AMELIA",
       role: "PROFESSEURE DE YOGA",
       image: "/images/team/TRAINER1.png",
-      selected: false
+      selected: false,
     },
   ];
 
@@ -61,19 +66,11 @@ const OurTeam = () => {
             Notre Équipe
           </h1>
 
-          <div 
-            className="inline-block bg-orange-500 text-white px-6 py-2.5 hover:bg-orange-600 transition-colors duration-200 shadow-lg"
-            style={{
-              transform: "skewX(-12deg)",
-              transformOrigin: "center",
-            }}
-          >
-            <div style={{ transform: "skewX(12deg)" }}>
-              <span className="text-sm font-medium">Pages</span>
-              <span className="mx-2">›</span>
-              <span className="text-sm font-medium">Notre équipe</span>
-            </div>
-          </div>
+          <SkewedElement className="inline-block bg-orange-500 text-white px-6 py-2.5 hover:bg-orange-600 transition-colors duration-200 shadow-lg">
+            <span className="text-sm font-medium">Pages</span>
+            <span className="mx-2">›</span>
+            <span className="text-sm font-medium">Notre équipe</span>
+          </SkewedElement>
         </div>
       </section>
 
@@ -84,45 +81,52 @@ const OurTeam = () => {
             <div key={member.id} className="relative mx-auto">
               {/* Bordure bleue pour la carte sélectionnée */}
               {member.selected && (
-                <div 
+                <div
                   className="absolute inset-0 bg-blue-500 transform -translate-x-1 translate-y-1 z-0"
                   style={{
-                    clipPath: "polygon(20px 0%, 100% 0%, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0% 100%, 0% 20px)",
+                    clipPath:
+                      "polygon(20px 0%, 100% 0%, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0% 100%, 0% 20px)",
                   }}
                 />
               )}
-              
+
               {/* Carte principale */}
-              <div 
+              <div
                 className="relative bg-white shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 z-10"
                 style={{
-                  clipPath: "polygon(20px 0%, 100% 0%, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0% 100%, 0% 20px)",
-                  width: '280px',
-                  height: '320px'
+                  clipPath:
+                    "polygon(20px 0%, 100% 0%, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0% 100%, 0% 20px)",
+                  width: "280px",
+                  height: "320px",
                 }}
               >
                 {/* Image */}
                 <div className="relative h-full w-full overflow-hidden">
-                  <img 
-                    src={member.image} 
+                  <img
+                    src={member.image}
                     alt={member.name}
                     className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                   />
                 </div>
               </div>
-              
+
               {/* Badge orange avec nom et rôle */}
               <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-3 z-20">
-                <div 
+                <div
                   className="bg-orange-500 text-white px-6 py-3 shadow-lg"
                   style={{
-                    clipPath: "polygon(15px 0%, 100% 0%, calc(100% - 15px) 100%, 0% 100%)",
-                    minWidth: '220px'
+                    clipPath:
+                      "polygon(15px 0%, 100% 0%, calc(100% - 15px) 100%, 0% 100%)",
+                    minWidth: "220px",
                   }}
                 >
                   <div className="text-center">
-                    <div className="text-lg font-bold text-white mb-1">{member.name}</div>
-                    <div className="text-xs font-semibold uppercase tracking-wider">{member.role}</div>
+                    <div className="text-lg font-bold text-white mb-1">
+                      {member.name}
+                    </div>
+                    <div className="text-xs font-semibold uppercase tracking-wider">
+                      {member.role}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -140,35 +144,22 @@ const OurTeam = () => {
             </h2>
 
             <div className="flex items-center gap-4">
-              <div 
-                className="bg-white" 
-                style={{
-                  transform: "skewX(-12deg)",
-                  transformOrigin: "center",
-                }}
-              >
+              <div className="bg-white" style={SKEW_STYLE}>
                 <input
                   type="email"
                   placeholder="Votre adresse email"
                   className="w-80 px-4 py-3 bg-transparent text-gray-800 border-0 focus:ring-0 focus:outline-none"
-                  style={{
-                    transform: "skewX(12deg)",
-                  }}
+                  style={COUNTER_SKEW_STYLE}
                 />
               </div>
-              <div 
-                className="bg-gray-900 cursor-pointer" 
-                style={{
-                  transform: "skewX(-12deg)",
-                  transformOrigin: "center",
-                }}
-                onClick={() => console.log('Inscription à la newsletter')}
+              <div
+                className="bg-gray-900 cursor-pointer"
+                style={SKEW_STYLE}
+                onClick={() => console.log("Inscription à la newsletter")}
               >
                 <div
                   className="bg-transparent text-white px-8 py-3 hover:bg-gray-800 transition-colors font-medium"
-                  style={{
-                    transform: "skewX(12deg)",
-                  }}
+                  style={COUNTER_SKEW_STYLE}
                 >
                   S'abonner
                 </div>

@@ -1,4 +1,12 @@
+import {
+  IsOptional,
+  IsBoolean,
+} from 'class-validator';
 import { PartialType } from '@nestjs/swagger';
 import { CreateClientDto } from './create-client.dto';
 
-export class UpdateClientDto extends PartialType(CreateClientDto) {}
+export class UpdateClientDto extends PartialType(CreateClientDto) {
+    @IsOptional()
+      @IsBoolean()
+      deleted?: boolean;
+}

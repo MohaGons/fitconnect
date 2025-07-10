@@ -56,8 +56,8 @@ const MealIngredientsManager = ({
     queryFn: () => mealService.getFoodItems(searchTerm),
   });
 
-  // Log de débogage pour vérifier les données
-  console.log('[DEBUG] availableFoods:', availableFoods, 'isArray:', Array.isArray(availableFoods));
+  // Déterminer quelle liste d'ingrédients afficher
+  const isTemporaryMode = !mealId;
 
   // Mutation pour ajouter un ingrédient
   const addIngredientMutation = useMutation({
@@ -91,18 +91,10 @@ const MealIngredientsManager = ({
   });
 
   const handleAddIngredient = () => {
-    console.log('Current newIngredient state:', newIngredient); // Debug
-    
     if (!newIngredient.food_id || newIngredient.food_id === 0 || !newIngredient.quantity) {
-      console.log('Validation failed:', {
-        food_id: newIngredient.food_id,
-        quantity: newIngredient.quantity
-      }); // Debug
       alert('Veuillez remplir tous les champs obligatoires');
       return;
     }
-
-    console.log('Adding ingredient:', newIngredient); // Debug
 
     if (mealId) {
       // Mode édition : ajouter directement à la base de données
@@ -123,6 +115,7 @@ const MealIngredientsManager = ({
       onAddTemporaryIngredient?.(tempIngredient);
       setIsAddingIngredient(false);
       setNewIngredient({ food_id: 0, quantity: "", unit: "g" });
+      setSearchTerm("");
     }
   };
 
@@ -158,9 +151,6 @@ const MealIngredientsManager = ({
   const handleDeleteTemporaryIngredient = (index: number) => {
     onRemoveTemporaryIngredient?.(index);
   };
-
-  // Déterminer quelle liste d'ingrédients afficher
-  const isTemporaryMode = !mealId;
 
   const foodOptions = availableFoods?.map(food => ({
     value: food.food_id.toString(),
@@ -213,7 +203,6 @@ const MealIngredientsManager = ({
                   key={`food-select-${newIngredient.food_id}`}
                   defaultValue={newIngredient.food_id > 0 ? newIngredient.food_id.toString() : ""}
                   onChange={(value) => {
-                    console.log('Select changed to:', value); // Debug
                     setNewIngredient(prev => ({ 
                       ...prev, 
                       food_id: parseInt(value, 10) 
@@ -520,7 +509,6 @@ interface TemporaryIngredientItemProps {
 
 const TemporaryIngredientItem = ({
   ingredient,
-  index: _index,
   availableFoods,
   readOnly,
   onUpdate,
@@ -531,7 +519,7 @@ const TemporaryIngredientItem = ({
   const [editUnit, setEditUnit] = useState(ingredient.unit);
 
   const foodItem = availableFoods.find(food => food.food_id === ingredient.food_id);
-
+  
   const handleSaveEdit = () => {
     onUpdate({
       quantity: editQuantity,
@@ -552,6 +540,11 @@ const TemporaryIngredientItem = ({
               <Badge color="info" variant="light" size="sm">
                 {foodItem.category}
               </Badge>
+            )}
+            {!foodItem && (
+              <div className="text-sm text-orange-600 dark:text-orange-400">
+                ⚠️ Aliment non trouvé dans la base de données
+              </div>
             )}
           </div>
         </div>

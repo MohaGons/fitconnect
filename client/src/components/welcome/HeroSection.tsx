@@ -30,15 +30,19 @@ const HeroSection: React.FC = () => {
           {/* Left Content */}
           <div className="space-y-8">
             <div>
-              <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+              <h1
+                data-cy="hero-title"
+                className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight"
+              >
                 La Plateforme de
                 <br />
-                <span className="text-orange-500">Coaching Fitness</span> Personnalisé
+                <span className="text-orange-500">Coaching Fitness</span>{" "}
+                Personnalisé
               </h1>
               <p className="mt-6 text-gray-600 text-lg leading-relaxed">
-                Gérez facilement vos clients, proposez des programmes sur-mesure 
-                et suivez les progrès en temps réel. Notre interface intuitive 
-                digitalise l'expérience du coaching pour maximiser l'engagement 
+                Gérez facilement vos clients, proposez des programmes sur-mesure
+                et suivez les progrès en temps réel. Notre interface intuitive
+                digitalise l'expérience du coaching pour maximiser l'engagement
                 et garantir des résultats concrets.
               </p>
             </div>
@@ -61,7 +65,9 @@ const HeroSection: React.FC = () => {
                 <div key={stat.label} className="text-center">
                   <div className="flex items-center justify-center mb-2">
                     <stat.icon className="w-5 h-5 text-orange-500 mr-2" />
-                    <span className="text-2xl font-bold text-gray-900">{stat.value}</span>
+                    <span className="text-2xl font-bold text-gray-900">
+                      {stat.value}
+                    </span>
                   </div>
                   <p className="text-sm text-gray-600">{stat.label}</p>
                 </div>
@@ -80,9 +86,7 @@ const HeroSection: React.FC = () => {
                     className="flex items-center space-x-2 text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     <span className="text-2xl">{partner.logo}</span>
-                    <span className="text-lg font-medium">
-                      {partner.name}
-                    </span>
+                    <span className="text-lg font-medium">{partner.name}</span>
                   </div>
                 ))}
               </div>
@@ -95,9 +99,6 @@ const HeroSection: React.FC = () => {
             <div className="absolute top-8 right-8 w-8 h-8 bg-orange-500 rounded-full animate-bounce"></div>
             <div className="absolute top-1/2 left-8 w-6 h-6 bg-yellow-400 rounded-full animate-ping"></div>
             <div className="absolute bottom-16 right-16 w-10 h-10 bg-orange-400 rounded-full animate-bounce delay-200"></div>
-
-         
-
 
             {/* Main image */}
             <div className="relative h-full flex items-center justify-center">

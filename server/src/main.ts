@@ -3,12 +3,15 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { SentryExceptionFilter } from './sentry/sentry-exception.filter';
+import "./sentry/instrument";
 import { join } from 'path';
 import * as bodyParser from 'body-parser';
 
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-
+  app.useGlobalFilters(new SentryExceptionFilter());
   app.use(bodyParser.json({ limit: '10mb' }));
   app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
@@ -22,6 +25,8 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+
+
 
   app.enableCors({
     origin: 'https://fitnessconnect.fr',

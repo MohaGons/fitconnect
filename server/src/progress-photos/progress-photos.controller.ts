@@ -6,11 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { ProgressPhotosService } from './progress-photos.service';
 import { CreateProgressPhotoDto } from './dto/create-progress-photo.dto';
 import { UpdateProgressPhotoDto } from './dto/update-progress-photo.dto';
+import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 
+@UseGuards(JwtAuthGuard) 
 @Controller('progress-photos')
 export class ProgressPhotosController {
   constructor(private readonly progressPhotosService: ProgressPhotosService) {}

@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaSave } from "react-icons/fa";
+import { useQuery } from "@tanstack/react-query";
 import Button from "../../../../components/ui/button/Button";
 import Input from "../../../../components/form/input/InputField";
 import TextArea from "../../../../components/form/input/TextArea";
 import Select from "../../../../components/form/Select";
 import { NutritionPlan, NutritionGoal, NUTRITION_GOAL_OPTIONS } from "../../types";
+import { useUserRole } from "../../../../hooks/useUserRole";
+import { nutritionService } from "../../services/nutritionService";
 
 interface NutritionPlanFormData {
   coach_id: number;
@@ -32,14 +35,33 @@ const NutritionPlanForm = ({
   onCancel,
   mode,
 }: NutritionPlanFormProps) => {
+  const { coachId, isCoach } = useUserRole();
+  
   const [formData, setFormData] = useState<NutritionPlanFormData>({
-    coach_id: planData?.coach_id || 0,
+    coach_id: planData?.coach_id || (coachId ? Number(coachId) : 0),
     client_id: planData?.client_id || 0,
     name: planData?.name || "",
     daily_calories: planData?.daily_calories || undefined,
     goal: planData?.goal || undefined,
     comments: planData?.comments || "",
   });
+
+  // Récupérer les clients du coach
+  const { data: clients, isLoading: isLoadingClients } = useQuery({
+    queryKey: ["coach-clients", coachId],
+    queryFn: () => nutritionService.getCoachClients(Number(coachId)),
+    enabled: !!coachId && isCoach,
+  });
+
+  // Mettre à jour l'ID du coach quand il est disponible
+  useEffect(() => {
+    if (coachId && mode === "add") {
+      setFormData(prev => ({
+        ...prev,
+        coach_id: Number(coachId)
+      }));
+    }
+  }, [coachId, mode]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -52,7 +74,7 @@ const NutritionPlanForm = ({
   const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [name]: name === 'client_id' ? Number(value) : value,
     }));
   };
 
@@ -68,6 +90,12 @@ const NutritionPlanForm = ({
     onSubmit(formData);
   };
 
+  // Options pour le sélecteur de clients
+  const clientOptions = clients?.map((client: { client_id: number; user_id: string; firstName?: string; lastName?: string }) => ({
+    value: client.client_id.toString(),
+    label: `${client.firstName || ''} ${client.lastName || ''} (${client.user_id})`
+  })) || [];
+
   return (
     <div>
       <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
@@ -81,36 +109,31 @@ const NutritionPlanForm = ({
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Coach ID */}
+        {/* Sélection du client */}
         <div>
           <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
-            ID du coach*
+            Client*
           </label>
-          <Input
-            type="number"
-            name="coach_id"
-            value={formData.coach_id}
-            onChange={handleChange}
-            placeholder="ID du coach"
-            className="w-full"
-            aria-required="true"
-          />
-        </div>
-
-        {/* Client ID */}
-        <div>
-          <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
-            ID du client*
-          </label>
-          <Input
-            type="number"
-            name="client_id"
-            value={formData.client_id}
-            onChange={handleChange}
-            placeholder="ID du client"
-            className="w-full"
-            aria-required="true"
-          />
+          {isLoadingClients ? (
+            <div className="flex items-center space-x-2">
+              <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-sm text-gray-500">Chargement des clients...</span>
+            </div>
+          ) : (
+            <Select
+              options={clientOptions}
+              defaultValue={formData.client_id ? formData.client_id.toString() : ""}
+              onChange={(value) => handleSelectChange("client_id", value)}
+              placeholder="Sélectionner un client"
+              className="w-full"
+              aria-required="true"
+            />
+          )}
+          {clientOptions.length === 0 && !isLoadingClients && (
+            <p className="text-sm text-gray-500 mt-1">
+              Aucun client actif trouvé. Assurez-vous d'avoir des clients avec des abonnements actifs.
+            </p>
+          )}
         </div>
 
         {/* Nom du plan */}
@@ -186,7 +209,7 @@ const NutritionPlanForm = ({
             variant="primary"
             size="md"
             startIcon={<FaSave />}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !formData.client_id}
           >
             {isSubmitting ? "Enregistrement..." : "Enregistrer"}
           </Button>

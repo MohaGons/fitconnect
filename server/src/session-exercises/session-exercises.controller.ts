@@ -6,11 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { SessionExercisesService } from './session-exercises.service';
 import { CreateSessionExerciseDto } from './dto/create-session-exercise.dto';
 import { UpdateSessionExerciseDto } from './dto/update-session-exercise.dto';
+import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('session-exercises')
 export class SessionExercisesController {
   constructor(
