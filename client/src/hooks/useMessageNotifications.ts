@@ -14,18 +14,21 @@ export const useMessageNotifications = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const { userId_entity, userRole } = useUserRole();
   const userType = userRole === 'coach' ? 'coach' : 'client';
+  
+  // Convertir userId_entity en number pour les appels API
+  const userId = typeof userId_entity === 'string' ? parseInt(userId_entity, 10) : userId_entity;
 
   // Charger le compteur de messages non lus
   const loadUnreadCount = useCallback(async () => {
-    if (!userId_entity || !userType) return;
+    if (!userId || !userType) return;
     
     try {
-      const count = await messagesApi.getUnreadCount(userId_entity, userType);
+      const count = await messagesApi.getUnreadCount(userId, userType);
       setUnreadCount(count);
     } catch (error) {
       console.error('Erreur lors du chargement du compteur de messages non lus:', error);
     }
-  }, [userId_entity, userType]);
+  }, [userId, userType]);
 
   // Ajouter une notification
   const addNotification = useCallback((notification: MessageNotification) => {
@@ -45,17 +48,17 @@ export const useMessageNotifications = () => {
 
   // Marquer tous les messages comme lus
   const markAllAsRead = useCallback(async () => {
-    if (!userId_entity || !userType) return;
+    if (!userId || !userType) return;
     
     try {
       // Récupérer toutes les conversations
-      const conversations = await messagesApi.getConversationsList(userId_entity, userType);
+      const conversations = await messagesApi.getConversationsList(userId, userType);
       
       // Marquer chaque conversation comme lue
       for (const conversation of conversations) {
         if (conversation.unreadCount > 0) {
           await messagesApi.markConversationAsRead(
-            userId_entity,
+            userId,
             userType,
             conversation.otherUserId
           );
@@ -67,20 +70,20 @@ export const useMessageNotifications = () => {
     } catch (error) {
       console.error('Erreur lors du marquage comme lu:', error);
     }
-  }, [userId_entity, userType]);
+  }, [userId, userType]);
 
   // Simuler la réception de nouveaux messages (pour la démo)
   // Dans un vrai projet, cela serait remplacé par WebSocket ou Server-Sent Events
   useEffect(() => {
-    if (!userId_entity || !userType) return;
+    if (!userId || !userType) return;
 
     const interval = setInterval(async () => {
       try {
-        const currentCount = await messagesApi.getUnreadCount(userId_entity, userType);
+        const currentCount = await messagesApi.getUnreadCount(userId, userType);
         
         // Si le nombre de messages non lus a augmenté
         if (currentCount > unreadCount) {
-          const conversations = await messagesApi.getConversationsList(userId_entity, userType);
+          const conversations = await messagesApi.getConversationsList(userId, userType);
           const newMessages = conversations.filter(conv => conv.unreadCount > 0);
           
           // Ajouter des notifications pour les nouveaux messages
@@ -101,7 +104,7 @@ export const useMessageNotifications = () => {
     }, 10000); // Vérifier toutes les 10 secondes
 
     return () => clearInterval(interval);
-  }, [userId_entity, userType, unreadCount, addNotification]);
+  }, [userId, userType, unreadCount, addNotification]);
 
   // Charger le compteur initial
   useEffect(() => {

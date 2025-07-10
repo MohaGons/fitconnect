@@ -30,35 +30,94 @@ const Chat = () => {
   
   const { userId_entity, userRole } = useUserRole();
   const userType = userRole === 'COACH' ? 'coach' : userRole === 'CLIENT' ? 'client' : '';
+  
+  // Convertir userId_entity en number pour les appels API
+  const userId = typeof userId_entity === 'string' ? parseInt(userId_entity, 10) : userId_entity;
 
   useEffect(() => {
-    if (userId_entity && userType) {
+    if (userId && userType) {
       loadConversations();
       loadUnreadCount();
     }
-  }, [userId_entity, userType]);
+  }, [userId, userType]);
 
   useEffect(() => {
-    if (selectedConversation && userId_entity && userType) {
+    if (selectedConversation && userId && userType) {
       loadConversation();
       markConversationAsRead();
     }
-  }, [selectedConversation, userId_entity, userType]);
+  }, [selectedConversation, userId, userType]);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Effet pour détecter les nouveaux messages et faire défiler automatiquement
+  useEffect(() => {
+    if (messages.length > 0) {
+      // Attendre un peu pour que le DOM soit mis à jour
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
+    }
+  }, [messages.length]);
+
+  // Système de polling pour mettre à jour les messages en temps réel
+  useEffect(() => {
+    if (!userId || !userType) return;
+
+    const interval = setInterval(async () => {
+      try {
+        // Mettre à jour les conversations et le compteur de messages non lus
+        const updatedConversations = await messagesApi.getConversationsList(userId, userType);
+        const updatedUnreadCount = await messagesApi.getUnreadCount(userId, userType);
+        
+        setConversations(updatedConversations);
+        setUnreadCount(updatedUnreadCount);
+
+        // Si une conversation est sélectionnée, mettre à jour ses messages
+        if (selectedConversation) {
+          const updatedMessages = await messagesApi.getConversation(
+            userId,
+            userType,
+            selectedConversation.otherUserId
+          );
+          
+          // Vérifier s'il y a de nouveaux messages en comparant les IDs
+          const hasNewMessages = updatedMessages.length > messages.length || 
+            (updatedMessages.length > 0 && messages.length > 0 && 
+             updatedMessages[updatedMessages.length - 1].message_id !== messages[messages.length - 1].message_id);
+          
+          if (hasNewMessages) {
+            setMessages(updatedMessages);
+            
+            // Mettre à jour la conversation sélectionnée avec les nouvelles données
+            const updatedSelectedConversation = updatedConversations.find(
+              conv => conv.otherUserId === selectedConversation.otherUserId
+            );
+            if (updatedSelectedConversation) {
+              setSelectedConversation(updatedSelectedConversation);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors de la mise à jour en temps réel:', error);
+      }
+    }, 3000); // Vérifier toutes les 3 secondes pour une meilleure réactivité
+
+    return () => clearInterval(interval);
+  }, [userId, userType, messages.length]); // Ajouter messages.length pour détecter les changements
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const loadConversations = async () => {
-    if (!userId_entity || !userType) return;
+    if (!userId || !userType) return;
     
     setLoading(true);
     try {
-      const data = await messagesApi.getConversationsList(userId_entity, userType);
+      const data = await messagesApi.getConversationsList(userId, userType);
       setConversations(data);
       setError(null);
     } catch (error) {
@@ -71,10 +130,10 @@ const Chat = () => {
   };
 
   const loadUnreadCount = async () => {
-    if (!userId_entity || !userType) return;
+    if (!userId || !userType) return;
     
     try {
-      const count = await messagesApi.getUnreadCount(userId_entity, userType);
+      const count = await messagesApi.getUnreadCount(userId, userType);
       setUnreadCount(count);
       setError(null);
     } catch (error) {
@@ -84,11 +143,11 @@ const Chat = () => {
   };
 
   const loadConversation = async () => {
-    if (!selectedConversation || !userId_entity || !userType) return;
+    if (!selectedConversation || !userId || !userType) return;
     
     try {
       const data = await messagesApi.getConversation(
-        userId_entity, 
+        userId, 
         userType, 
         selectedConversation.otherUserId
       );
@@ -102,11 +161,11 @@ const Chat = () => {
   };
 
   const markConversationAsRead = async () => {
-    if (!selectedConversation || !userId_entity || !userType) return;
+    if (!selectedConversation || !userId || !userType) return;
     
     try {
       await messagesApi.markConversationAsRead(
-        userId_entity, 
+        userId, 
         userType, 
         selectedConversation.otherUserId
       );
@@ -127,10 +186,10 @@ const Chat = () => {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedConversation || !newMessage.trim() || !userId_entity || !userType) return;
+    if (!selectedConversation || !newMessage.trim() || !userId || !userType) return;
 
     const messageData = {
-      sender_id: userId_entity,
+      sender_id: userId,
       sender_type: userType as 'coach' | 'client',
       recipient_id: selectedConversation.otherUserId,
       recipient_type: selectedConversation.otherUserType,
@@ -171,24 +230,16 @@ const Chat = () => {
 
   const isOwnMessage = (message: Message) => {
     if (userType === 'coach') {
-      return message.sender_coach_id === userId_entity;
+      return message.sender_coach_id === userId;
     } else {
-      return message.sender_client_id === userId_entity;
+      return message.sender_client_id === userId;
     }
   };
 
-  const getSenderName = (message: Message) => {
-    if (message.sender_coach) {
-      return `${message.sender_coach.firstName} ${message.sender_coach.lastName}`;
-    }
-    if (message.sender_client) {
-      return `${message.sender_client.firstName} ${message.sender_client.lastName}`;
-    }
-    return 'Utilisateur inconnu';
-  };
+
 
   const handleFileUpload = async (file: File) => {
-    if (!selectedConversation || !userId_entity || !userType) return;
+    if (!selectedConversation || !userId || !userType) return;
     
     setUploading(true);
     setError(null);
@@ -199,7 +250,7 @@ const Chat = () => {
       
       // Créer le message avec le fichier attaché
       const messageData = {
-        sender_id: userId_entity,
+        sender_id: userId,
         sender_type: userType as 'coach' | 'client',
         recipient_id: selectedConversation.otherUserId,
         recipient_type: selectedConversation.otherUserType,
