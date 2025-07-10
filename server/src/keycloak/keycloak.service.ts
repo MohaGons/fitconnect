@@ -32,7 +32,7 @@ export class KeycloakService {
   private async initKeycloakAdmin() {
     try {
       const username = 'admin';
-      const password = 'admin';
+      const password = 'admin?fit';
       const clientId = 'admin-cli';
       const clientSecret = 'ObkISiWU00ydpPjjmTpL9lvOkrJAWlzy';
 
