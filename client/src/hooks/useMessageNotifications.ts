@@ -19,8 +19,12 @@ export const useMessageNotifications = () => {
   const loadUnreadCount = useCallback(async () => {
     if (!userId_entity || !userType) return;
     
+    // Convertir userId_entity en number ou retourner si ce n'est pas un nombre valide
+    const entityId = typeof userId_entity === 'string' ? parseInt(userId_entity, 10) : userId_entity;
+    if (isNaN(entityId)) return;
+    
     try {
-      const count = await messagesApi.getUnreadCount(userId_entity, userType);
+      const count = await messagesApi.getUnreadCount(entityId, userType);
       setUnreadCount(count);
     } catch (error) {
       console.error('Erreur lors du chargement du compteur de messages non lus:', error);
@@ -47,15 +51,19 @@ export const useMessageNotifications = () => {
   const markAllAsRead = useCallback(async () => {
     if (!userId_entity || !userType) return;
     
+    // Convertir userId_entity en number ou retourner si ce n'est pas un nombre valide
+    const entityId = typeof userId_entity === 'string' ? parseInt(userId_entity, 10) : userId_entity;
+    if (isNaN(entityId)) return;
+    
     try {
       // Récupérer toutes les conversations
-      const conversations = await messagesApi.getConversationsList(userId_entity, userType);
+      const conversations = await messagesApi.getConversationsList(entityId, userType);
       
       // Marquer chaque conversation comme lue
       for (const conversation of conversations) {
         if (conversation.unreadCount > 0) {
           await messagesApi.markConversationAsRead(
-            userId_entity,
+            entityId,
             userType,
             conversation.otherUserId
           );
@@ -74,13 +82,17 @@ export const useMessageNotifications = () => {
   useEffect(() => {
     if (!userId_entity || !userType) return;
 
+    // Convertir userId_entity en number ou retourner si ce n'est pas un nombre valide
+    const entityId = typeof userId_entity === 'string' ? parseInt(userId_entity, 10) : userId_entity;
+    if (isNaN(entityId)) return;
+
     const interval = setInterval(async () => {
       try {
-        const currentCount = await messagesApi.getUnreadCount(userId_entity, userType);
+        const currentCount = await messagesApi.getUnreadCount(entityId, userType);
         
         // Si le nombre de messages non lus a augmenté
         if (currentCount > unreadCount) {
-          const conversations = await messagesApi.getConversationsList(userId_entity, userType);
+          const conversations = await messagesApi.getConversationsList(entityId, userType);
           const newMessages = conversations.filter(conv => conv.unreadCount > 0);
           
           // Ajouter des notifications pour les nouveaux messages
