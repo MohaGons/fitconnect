@@ -8,57 +8,74 @@ export class KeycloakService {
   private lastAuthTime: number = 0;
 
   constructor(private configService: ConfigService) {
-    const keycloakUrl = 'https://login.fitnessconnect.fr';
-    const keycloakRealm = 'MY-REALM';
+    const keycloakUrl = this.configService.get<string>('KEYCLOAK_URL');
+    const keycloakRealm = this.configService.get<string>('KEYCLOAK_REALM');
 
     console.log(
       `Initializing Keycloak Admin Client with URL: ${keycloakUrl}, Realm: ${keycloakRealm}`,
     );
 
     if (!keycloakUrl || !keycloakRealm) {
-      console.error('KEYCLOAK_URL or KEYCLOAK_REALM not defined');
+      console.error(
+        'KEYCLOAK_URL or KEYCLOAK_REALM not defined in environment',
+      );
     }
 
+    // Initialiser le client admin Keycloak
     this.kcAdminClient = new KcAdminClient({
       baseUrl: keycloakUrl,
       realmName: keycloakRealm,
     });
 
-    this.initKeycloakAdmin();
+    // this.initKeycloakAdmin();
   }
 
   private async initKeycloakAdmin() {
     try {
-      const username = 'admin';
-      const password = 'admin?fit';
-      const clientId = 'admin-cli';
-      const clientSecret = 'ObkISiWU00ydpPjjmTpL9lvOkrJAWlzy';
+      // Récupérer les variables d'environnement pour l'authentification
+      const username = this.configService.get<string>(
+        'KEYCLOAK_ADMIN_USERNAME',
+      );
+      const password = this.configService.get<string>(
+        'KEYCLOAK_ADMIN_PASSWORD',
+      );
+      const clientId = this.configService.get<string>(
+        'KEYCLOAK_ADMIN_CLIENT_ID',
+        'admin-cli',
+      );
+      const clientSecret = this.configService.get<string>(
+        'KEYCLOAK_ADMIN_CLIENT_SECRET',
+      );
 
       console.log(`Authenticating with Keycloak using username: ${username}`);
 
       if (!clientSecret) {
+        // Si pas de client secret, utiliser l'authentification par identifiants
         if (!username || !password) {
-          throw new Error('Hardcoded username or password missing');
+          throw new Error(
+            'KEYCLOAK_ADMIN_USERNAME or KEYCLOAK_ADMIN_PASSWORD not defined in environment',
+          );
         }
 
+        // Authentification avec Keycloak via un compte utilisateur
         await this.kcAdminClient.auth({
           username,
           password,
           clientId,
           grantType: 'password',
         });
-        console.log(`Keyckloak Initialized with password `);
       } else {
+        // Authentification avec client credentials
         await this.kcAdminClient.auth({
           clientId,
           clientSecret,
           grantType: 'client_credentials',
         });
-        console.log(`Keyckloak Initialized with secret `);
       }
 
       console.log('Keycloak admin client initialized successfully');
 
+      // Vérifier que le token existe bien
       if (!this.kcAdminClient.accessToken) {
         throw new Error('Failed to get access token from Keycloak');
       }
@@ -67,9 +84,11 @@ export class KeycloakService {
         `Access token acquired: ${this.kcAdminClient.accessToken ? 'Yes' : 'No'}`,
       );
 
+      // Stocker le timestamp d'authentification
       this.lastAuthTime = Date.now();
 
-      this.scheduleTokenRefresh();
+      // Programmer le renouvellement du token avant expiration
+      //this.scheduleTokenRefresh();
     } catch (error) {
       console.error('Failed to initialize Keycloak admin client:', error);
       if (error.response && error.response.data) {
@@ -167,10 +186,12 @@ export class KeycloakService {
 
   async getUserIdFromToken(token: string): Promise<string | null> {
     try {
+      // Méthode manuelle pour décoder le token JWT
       const parts = token.split('.');
       if (parts.length !== 3)
         throw new Error('Token does not appear to be a valid JWT');
 
+      // Décoder la partie payload du token (deuxième partie)
       const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
       const padded = base64.padEnd(
         base64.length + ((4 - (base64.length % 4)) % 4),
@@ -187,13 +208,21 @@ export class KeycloakService {
     }
   }
 
+  // // Fonction améliorée de gestion des rôles
   async assignRole(userId: string, roleName: string): Promise<void> {
     try {
       console.log(`Attempting to assign role ${roleName} to user ${userId}`);
+
+      // S'assurer que l'authentification est fraîche avant d'opérer
       await this.initKeycloakAdmin();
 
+      // Récupérer le rôle
       console.log(`Searching for role: ${roleName}`);
       const roles = await this.kcAdminClient.roles.find();
+      console.log(
+        'Available roles:',
+        roles.map((r) => r.name),
+      );
       console.log(
         'Available roles:',
         roles.map((r) => r.name),
@@ -205,6 +234,7 @@ export class KeycloakService {
 
       console.log(`Found role ${roleName} with ID ${targetRole.id}`);
 
+      // Vérifier si l'utilisateur existe
       try {
         await this.kcAdminClient.users.findOne({ id: userId });
         console.log(`User ${userId} exists`);
@@ -213,10 +243,16 @@ export class KeycloakService {
         throw new Error(`User ${userId} not found`);
       }
 
+      // Assigner le rôle à l'utilisateur
       console.log(`Assigning role ${roleName} to user ${userId}`);
       await this.kcAdminClient.users.addRealmRoleMappings({
         id: userId,
-        roles: [{ id: targetRole.id!, name: targetRole.name! }],
+        roles: [
+          {
+            id: targetRole.id!,
+            name: targetRole.name!,
+          },
+        ],
       });
 
       console.log(`Role ${roleName} assigned to user ${userId} successfully`);
@@ -230,6 +266,7 @@ export class KeycloakService {
         await this.initKeycloakAdmin();
 
         try {
+          // Récupérer le rôle après ré-authentification
           const roles = await this.kcAdminClient.roles.find();
           const targetRole = roles.find((role) => role.name === roleName);
           if (!targetRole)
@@ -239,14 +276,26 @@ export class KeycloakService {
 
           await this.kcAdminClient.users.addRealmRoleMappings({
             id: userId,
-            roles: [{ id: targetRole.id!, name: targetRole.name! }],
+            roles: [
+              {
+                id: targetRole.id!,
+                name: targetRole.name!,
+              },
+            ],
           });
 
           console.log(
             `Role ${roleName} assigned to user ${userId} after re-auth`,
           );
+          console.log(
+            `Role ${roleName} assigned to user ${userId} after re-auth`,
+          );
           return;
         } catch (retryError) {
+          console.error(
+            'Failed to assign role even after re-auth:',
+            retryError,
+          );
           console.error(
             'Failed to assign role even after re-auth:',
             retryError,
