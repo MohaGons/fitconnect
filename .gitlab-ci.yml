@@ -84,7 +84,7 @@ test-frontend:
   tags:
     - ilyes-runner  
   only:
-    - feature-deploy-ilyes
+    - main
 
 test-api:
   stage: test
@@ -111,7 +111,7 @@ test-api:
   tags:
     - ilyes-runner  
   only:
-    - feature-deploy-ilyes
+    - main
 
 deploy:
   stage: deploy
