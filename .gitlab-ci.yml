@@ -84,7 +84,7 @@ test-frontend:
   tags:
     - ilyes-runner  
   only:
-    - main
+    - feature-deploy-ilyes
 
 test-api:
   stage: test
@@ -111,7 +111,7 @@ test-api:
   tags:
     - ilyes-runner  
   only:
-    - main
+    - feature-deploy-ilyes
 
 deploy:
   stage: deploy
@@ -177,39 +177,5 @@ deploy:
   only:
     - feature-deploy-ilyes
 
-check-ingress:
-  stage: deploy
-  image: google/cloud-sdk:alpine
-  before_script:
-    - gcloud components install kubectl gke-gcloud-auth-plugin --quiet
-    - echo $GCP_SERVICE_KEY | base64 -d > gcp-key.json
-    - gcloud auth activate-service-account --key-file gcp-key.json
-    - gcloud config set project $GCP_PROJECT_ID
-    - gcloud container clusters get-credentials $GKE_CLUSTER_NAME --zone $GKE_ZONE
-  script:
-    - echo "🌐 Vérification de l'Ingress (adresse IP publique)..."
-    - kubectl get ingress -n $NAMESPACE
-  tags:
-    - ilyes-runner  
-  only:
-    - feature-deploy-ilyes
-  needs:
-    - deploy
 
 
-
-
-
-
-# check-keycloak-health:
-#   stage: deploy
-#   image: curlimages/curl:latest
-#   script:
-#     - echo "Vérification de la santé de Keycloak..."
-#     - >
-#       if curl -s --fail --insecure https://login.fitnessconnect.fr/health/ready;
-#       then echo "✅ Keycloak is healthy";
-#       else echo "❌ Keycloak health check failed"; exit 1;
-#       fi
-#   only:
-#     - feature-deploy-ilyes
