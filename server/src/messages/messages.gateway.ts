@@ -46,7 +46,6 @@ interface Message {
     origin: process.env.CLIENT_URL || 'http://localhost:5173',
     credentials: true,
   },
-  namespace: '/messages',
 })
 @Injectable()
 export class MessagesGateway
