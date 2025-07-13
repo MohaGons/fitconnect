@@ -118,7 +118,7 @@ variables:
   tags:
     - ilyes-runner
   only:
-    - main
+    - feature-deploy-ilyes
 
 🧪 test-api:
   stage: 🧪 test
@@ -150,7 +150,7 @@ variables:
   tags:
     - ilyes-runner
   only:
-    - main
+    - feature-deploy-ilyes
 
 # =============================================================================
 # 🚀 DEPLOY STAGE - Déploiement sur GKE
