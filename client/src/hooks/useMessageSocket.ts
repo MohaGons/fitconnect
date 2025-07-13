@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { Message, CreateMessageDto } from '../api/messages';
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000/messages';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'https://api.fitnessconnect.fr/messages';
 
 interface UseMessageSocketOptions {
   token: string;
