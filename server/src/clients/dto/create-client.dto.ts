@@ -5,6 +5,7 @@ import {
   IsNumberString,
   IsString,
   Matches,
+  IsBoolean,
 } from 'class-validator';
 
 export class CreateClientDto {
@@ -59,4 +60,7 @@ export class CreateClientDto {
   @IsOptional()
   @IsString()
   photo: string;
+
+  @IsBoolean()
+  termsAccepted: boolean;
 }

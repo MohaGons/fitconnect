@@ -44,6 +44,17 @@ export const nutritionService = {
   // Supprimer un plan nutritionnel
   deleteNutritionPlan: async (id: number): Promise<void> => {
     await apiClient.delete(`/nutrition-plans/${id}`);
+  },
+
+  // Récupérer les clients d'un coach
+  getCoachClients: async (coachId: number): Promise<Array<{
+    client_id: number;
+    user_id: string;
+    firstName?: string;
+    lastName?: string;
+  }>> => {
+    const response = await apiClient.get(`/calendar-events/coach/${coachId}/clients`);
+    return response.data;
   }
 };
 

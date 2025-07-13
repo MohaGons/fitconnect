@@ -29,7 +29,7 @@ spec:
           echo "PostgreSQL is ready!"
       containers:
       - name: keycloak
-        image: ilyeskab/keycloak-mytheme:latest
+        image: ilyeskab/keycloak-mytheme-prod:latest
         args:
         - "start"
         - "--proxy=edge"

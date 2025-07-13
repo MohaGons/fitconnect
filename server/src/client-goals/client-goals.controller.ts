@@ -6,11 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { ClientGoalsService } from './client-goals.service';
 import { CreateClientGoalDto } from './dto/create-client-goal.dto';
 import { UpdateClientGoalDto } from './dto/update-client-goal.dto';
+import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('client-goals')
 export class ClientGoalsController {
   constructor(private readonly clientGoalsService: ClientGoalsService) {}

@@ -20,7 +20,7 @@ export class Coach {
   @Column({ type: 'uuid' })
   user_id: string; // UUID venant de Keycloak
 
-  @Column()
+  @Column({ type: 'text', nullable: true })
   specialty: string;
 
   @Column({ type: 'text', nullable: true })
@@ -49,6 +49,12 @@ export class Coach {
 
   @Column({ type: 'text', nullable: true })
   photo: string;
+
+  @Column({ type: 'boolean', default: false })
+  termsAccepted: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  deleted: boolean;
 
   // Champs pour le système de paiement plateforme
   @Column({

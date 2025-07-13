@@ -1,10 +1,10 @@
-export type MealType = 
-  | 'breakfast'
-  | 'lunch'
-  | 'dinner'
-  | 'snack'
-  | 'pre_workout'
-  | 'post_workout';
+export type MealType =
+  | "breakfast"
+  | "lunch"
+  | "dinner"
+  | "snack"
+  | "pre_workout"
+  | "post_workout";
 
 export interface FoodItem {
   food_id: number;
@@ -69,9 +69,7 @@ export interface MealCreate {
   instructions?: string;
 }
 
-export interface MealUpdate extends Partial<MealCreate> {
-  updated_at: string;
-}
+export interface MealUpdate extends Partial<MealCreate> {}
 
 export interface FoodItemCreate {
   name: string;
@@ -110,12 +108,12 @@ export interface PaginatedResponse<T> {
 export interface MealFilters extends PaginationParams, FilterParams {}
 
 export const MealTypeLabels: Record<MealType, string> = {
-  breakfast: 'Petit-déjeuner',
-  lunch: 'Déjeuner',
-  dinner: 'Dîner',
-  snack: 'Collation',
-  pre_workout: 'Pré-entraînement',
-  post_workout: 'Post-entraînement',
+  breakfast: "Petit-déjeuner",
+  lunch: "Déjeuner",
+  dinner: "Dîner",
+  snack: "Collation",
+  pre_workout: "Pré-entraînement",
+  post_workout: "Post-entraînement",
 };
 
 export const MEAL_TYPE_OPTIONS = Object.entries(MealTypeLabels).map(
@@ -124,14 +122,14 @@ export const MEAL_TYPE_OPTIONS = Object.entries(MealTypeLabels).map(
 
 // Unités de mesure pour les aliments
 export const FOOD_UNITS = [
-  { value: 'g', label: 'grammes (g)' },
-  { value: 'kg', label: 'kilogrammes (kg)' },
-  { value: 'ml', label: 'millilitres (ml)' },
-  { value: 'l', label: 'litres (l)' },
-  { value: 'cup', label: 'tasse' },
-  { value: 'tbsp', label: 'cuillère à soupe' },
-  { value: 'tsp', label: 'cuillère à thé' },
-  { value: 'piece', label: 'pièce(s)' },
-  { value: 'slice', label: 'tranche(s)' },
-  { value: 'portion', label: 'portion(s)' },
-]; 
+  { value: "g", label: "grammes (g)" },
+  { value: "kg", label: "kilogrammes (kg)" },
+  { value: "ml", label: "millilitres (ml)" },
+  { value: "l", label: "litres (l)" },
+  { value: "cup", label: "tasse" },
+  { value: "tbsp", label: "cuillère à soupe" },
+  { value: "tsp", label: "cuillère à thé" },
+  { value: "piece", label: "pièce(s)" },
+  { value: "slice", label: "tranche(s)" },
+  { value: "portion", label: "portion(s)" },
+];

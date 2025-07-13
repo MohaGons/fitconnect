@@ -1,9 +1,23 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Client } from './entities/client.entity';
+import { Repository, ILike } from 'typeorm';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
+import { Client } from './entities/client.entity';
+
+interface FindAllOptions {
+  page?: number;
+  limit?: number;
+  search?: string;
+  deleted?: boolean;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+}
 
 @Injectable()
 export class ClientsService {
@@ -13,28 +27,99 @@ export class ClientsService {
   ) {}
 
   async create(createClientDto: CreateClientDto): Promise<Client> {
-    const client = this.clientRepository.create({
+    // Convert weight to number if it's a string
+    const dto = {
       ...createClientDto,
-      weight: createClientDto.weight
-        ? Number(createClientDto.weight)
-        : undefined,
-      height: createClientDto.height
-        ? Number(createClientDto.height)
-        : undefined,
-    });
-    return this.clientRepository.save(client);
+      weight:
+        createClientDto.weight !== undefined
+          ? Number(createClientDto.weight)
+          : undefined,
+      height:
+        createClientDto.height !== undefined
+          ? Number(createClientDto.height)
+          : undefined,
+    };
+    const client = this.clientRepository.create(dto);
+    return await this.clientRepository.save(client);
   }
 
-  async findAll(): Promise<Client[]> {
-    return this.clientRepository.find({
-      order: { created_at: 'DESC' },
-    });
+  async findAll(
+    options: FindAllOptions = {},
+  ): Promise<PaginatedResponse<Client>> {
+    try {
+      const { page = 1, limit = 10, search, deleted } = options;
+      const skip = (page - 1) * limit;
+
+      // Construction des conditions WHERE
+      const whereConditions: any = {};
+
+      // Filtre par statut supprimé si spécifié
+      if (deleted !== undefined) {
+        whereConditions.deleted = deleted;
+      }
+
+      // Construction des conditions de recherche
+      let searchConditions: any[] = [];
+      if (search && search.trim() !== '') {
+        const searchTerm = search.trim();
+        // Recherche insensible à la casse sur plusieurs champs
+        searchConditions = [
+          { firstName: ILike(`%${searchTerm}%`) },
+          { lastName: ILike(`%${searchTerm}%`) },
+          { email: ILike(`%${searchTerm}%`) },
+        ];
+      }
+
+      // Log pour déboguer
+      console.log('Service Clients - Find All Options:', {
+        page,
+        limit,
+        search,
+        deleted,
+        skip,
+        whereConditions,
+        hasSearch: !!search,
+      });
+
+      // Requête principale avec les conditions
+      const [clients, total] = await this.clientRepository.findAndCount({
+        where: search
+          ? [
+              ...searchConditions.map((condition) => ({
+                ...whereConditions,
+                ...condition,
+              })),
+            ]
+          : whereConditions,
+        skip,
+        take: limit,
+        order: { created_at: 'DESC' },
+      });
+
+      // Log des résultats
+      console.log('Service Clients - Résultats:', {
+        clientsFound: clients.length,
+        total,
+        searchApplied: !!search,
+      });
+
+      return {
+        data: clients,
+        total,
+        page,
+        limit,
+      };
+    } catch (error) {
+      console.error('Error in findAll clients:', error);
+      throw error;
+    }
   }
+
+  // Les autres méthodes restent inchangées
 
   async findOne(id: number): Promise<Client> {
     const client = await this.clientRepository.findOne({
       where: { client_id: id },
-      relations: ['subscriptions', 'sessions', 'progress_trackings'],
     });
 
     if (!client) {
@@ -47,7 +132,7 @@ export class ClientsService {
   async findByUserId(userId: string): Promise<{ client_id: number }> {
     const client = await this.clientRepository.findOne({
       where: { user_id: userId },
-      select: ['client_id'],
+      select: ['client_id'], // Récupérer uniquement client_id
     });
 
     if (!client) {
@@ -57,34 +142,20 @@ export class ClientsService {
     return { client_id: client.client_id };
   }
 
-  async findByUserIdFull(userId: string): Promise<Client> {
-    const client = await this.clientRepository.findOne({
+  async getClientProfile(userId: string) {
+    const clientProfile = await this.clientRepository.findOne({
       where: { user_id: userId },
-      relations: ['subscriptions', 'sessions'],
     });
-
-    if (!client) {
-      throw new NotFoundException(`Client with user_id ${userId} not found`);
+    if (!clientProfile) {
+      throw new NotFoundException(`Client non trouvé pour l'userId: ${userId}`);
     }
-
-    return client;
+    return clientProfile;
   }
 
   async update(id: number, updateClientDto: UpdateClientDto): Promise<Client> {
     const client = await this.findOne(id);
-
-    const updateData = {
-      ...updateClientDto,
-      weight: updateClientDto.weight
-        ? Number(updateClientDto.weight)
-        : client.weight,
-      height: updateClientDto.height
-        ? Number(updateClientDto.height)
-        : client.height,
-    };
-
-    Object.assign(client, updateData);
-    return this.clientRepository.save(client);
+    Object.assign(client, updateClientDto);
+    return await this.clientRepository.save(client);
   }
 
   async remove(id: number): Promise<void> {
@@ -93,31 +164,5 @@ export class ClientsService {
     if (result.affected === 0) {
       throw new NotFoundException(`Client with id ${id} not found`);
     }
-  }
-
-  // Méthode utile pour obtenir un client avec ses informations utilisateur
-  async getClientProfile(userId: string): Promise<any> {
-    const client = await this.findByUserIdFull(userId);
-
-    // Ici vous pourriez ajouter des informations supplémentaires
-    // depuis Keycloak si nécessaire
-    return {
-      client_id: client.client_id,
-      user_id: client.user_id,
-      birth_date: client.birth_date,
-      weight: client.weight,
-      height: client.height,
-      goal: client.goal,
-      dietary_restrictions: client.dietary_restrictions,
-      health_issues: client.health_issues,
-      sport_experience: client.sport_experience,
-      created_at: client.created_at,
-      updated_at: client.updated_at,
-      firstName: client.firstName,
-      lastName: client.lastName,
-      email: client.email,
-      gendre: client.gendre,
-      photo: client.photo,
-    };
   }
 }

@@ -6,6 +6,7 @@ import * as jwksRsa from 'jwks-rsa';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
+    console.log('✅ JwtStrategy initialisée');
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -15,12 +16,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         rateLimit: true,
         jwksRequestsPerMinute: 5,
         jwksUri:
-          'http://localhost:8081/realms/MY-REALM/protocol/openid-connect/certs',
+          'https://login.fitnessconnect.fr/realms/MY-REALM/protocol/openid-connect/certs',
       }),
     });
   }
 
   async validate(payload: any) {
-    return payload; // req.user contiendra ce payload
+    return payload;
   }
 }

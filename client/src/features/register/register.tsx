@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useState } from "react";
+import React, { lazy, useState } from "react";
 import { useKeycloakContext } from '../../services/useKeycloakContext';
 import CoachImage from "../../assets/coach2.jpg";
 import ComanyImage from "../../assets/client.jpg";
@@ -10,12 +10,14 @@ const Inscription: React.FC = () => {
   const [selectedProfile, setSelectedProfile] = useState<string>("dealer");
  
     const { keycloak } = useKeycloakContext();
-    /*const token = keycloak?.token;
-    const roles = keycloak?.tokenParsed?.realm_access?.roles || []; 
-    const userId = keycloak?.tokenParsed?.sub; */
+    const token = keycloak?.token;
+    if (token) {
+      localStorage.setItem('token', token);
+    }
 
-     const handleLogout = () => {
-    keycloak.logout();
+    const handleLogout = () => {
+      localStorage.removeItem('token');
+      keycloak.logout();
     };
 
   
@@ -109,10 +111,8 @@ const Inscription: React.FC = () => {
         
        {/* Dynamic Forms */}
         <div className="w-full ">
-            <Suspense fallback={<p>Chargement...</p>}>
             {selectedProfile === "COACH" && <CoachForm />}
             {selectedProfile === "CLIENT" && <ClientForm />}
-            </Suspense>
         </div>
        
           <div className="mt-4 text-center">

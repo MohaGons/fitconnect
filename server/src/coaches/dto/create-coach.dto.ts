@@ -5,6 +5,7 @@ import {
   IsUUID,
   IsNumber,
   Matches,
+  IsBoolean,
 } from 'class-validator';
 
 export class CreateCoachDto {
@@ -52,4 +53,7 @@ export class CreateCoachDto {
   @IsOptional()
   @IsString()
   photo: string;
+
+  @IsBoolean()
+  termsAccepted: boolean;
 }

@@ -6,6 +6,8 @@ import "swiper/swiper-bundle.css";
 import "flatpickr/dist/flatpickr.css";
 import { AppWrapper } from "./components/common/PageMeta.tsx";
 import { ThemeProvider } from "./context/ThemeContext.tsx";
+import { UserProvider } from "./context/UserContext.tsx";
+import * as Sentry from "@sentry/react";
 import {
   QueryClient,
   QueryClientProvider,
@@ -25,12 +27,22 @@ const queryClient = new QueryClient({
     },
   },
 });
+Sentry.init({
+  dsn: "https://6ef82ca121759513b3669610879c74f7@o4509640868102144.ingest.de.sentry.io/4509640878194768",
+  // Setting this option to true will send default PII data to Sentry.
+  // For example, automatic IP address collection on events
+  sendDefaultPii: true
+});
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider>
       <AppWrapper>
         <QueryClientProvider client={queryClient}>
-          <App />
+          <UserProvider>
+            <Sentry.ErrorBoundary fallback={<p>Une erreur est survenue.</p>}>
+              <App />
+            </Sentry.ErrorBoundary>
+          </UserProvider>
         </QueryClientProvider>
       </AppWrapper>
     </ThemeProvider>

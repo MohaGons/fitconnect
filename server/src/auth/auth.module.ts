@@ -8,5 +8,6 @@ import { KeycloakModule } from '../keycloak/keycloak.module';
   imports: [PassportModule, KeycloakModule],
   controllers: [AuthController],
   providers: [JwtStrategy],
+  exports: [JwtStrategy],
 })
 export class AuthModule {}
