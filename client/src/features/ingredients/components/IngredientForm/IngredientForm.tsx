@@ -3,7 +3,7 @@ import { FaSave } from "react-icons/fa";
 import Button from "../../../../components/ui/button/Button";
 import Input from "../../../../components/form/input/InputField";
 import Select from "../../../../components/form/Select";
-import { FoodItem, FoodItemCreate, FOOD_CATEGORIES } from "../../types";
+import { FoodItem, FOOD_CATEGORIES } from "../../types";
 
 interface IngredientFormData {
   name: string;
@@ -42,18 +42,22 @@ const IngredientForm = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: ['calories'].includes(name) 
-        ? (value === '' ? undefined : Number(value))
-        : ['protein', 'carbs', 'fat'].includes(name)
-        ? (value === '' ? undefined : parseFloat(value))
+      [name]: ["calories"].includes(name)
+        ? value === ""
+          ? undefined
+          : Number(value)
+        : ["protein", "carbs", "fat"].includes(name)
+        ? value === ""
+          ? undefined
+          : parseFloat(value)
         : value,
     }));
   };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -61,13 +65,13 @@ const IngredientForm = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validation
     if (!formData.name.trim()) {
-      alert('Veuillez saisir un nom pour l\'ingrédient');
+      alert("Veuillez saisir un nom pour l'ingrédient");
       return;
     }
-    
+
     onSubmit(formData);
   };
 
@@ -119,7 +123,7 @@ const IngredientForm = ({
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Informations nutritionnelles (pour 100g)
           </h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Calories */}
             <div>
@@ -143,7 +147,7 @@ const IngredientForm = ({
               </label>
               <Input
                 type="number"
-                step="0.1"
+                step={0.1}
                 name="protein"
                 value={formData.protein ? String(formData.protein) : ""}
                 onChange={handleChange}
@@ -159,7 +163,7 @@ const IngredientForm = ({
               </label>
               <Input
                 type="number"
-                step="0.1"
+                step={0.1}
                 name="carbs"
                 value={formData.carbs ? String(formData.carbs) : ""}
                 onChange={handleChange}
@@ -175,7 +179,7 @@ const IngredientForm = ({
               </label>
               <Input
                 type="number"
-                step="0.1"
+                step={0.1}
                 name="fat"
                 value={formData.fat ? String(formData.fat) : ""}
                 onChange={handleChange}
@@ -188,12 +192,7 @@ const IngredientForm = ({
 
         {/* Boutons */}
         <div className="flex justify-end space-x-3">
-          <Button
-            type="button"
-            onClick={onCancel}
-            variant="outline"
-            size="md"
-          >
+          <Button type="button" onClick={onCancel} variant="outline" size="md">
             Annuler
           </Button>
           <Button
@@ -211,4 +210,4 @@ const IngredientForm = ({
   );
 };
 
-export default IngredientForm; 
+export default IngredientForm;

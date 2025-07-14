@@ -14,7 +14,7 @@ import {
   useCookieConsent,
   CookieCategories,
 } from "../../context/CookieConsentContext";
-import { CookieService, COOKIE_CATALOG } from "../../services/cookieService";
+import { CookieService } from "../../services/cookieService";
 
 interface CookieManagerProps {
   isOpen: boolean;

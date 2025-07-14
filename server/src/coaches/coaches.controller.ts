@@ -9,12 +9,12 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { 
-  ApiTags, 
-  ApiOperation, 
-  ApiResponse, 
-  ApiParam, 
-  ApiQuery 
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { CoachesService } from './coaches.service';
 import { CreateCoachDto } from './dto/create-coach.dto';
@@ -28,7 +28,7 @@ import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 export class CoachesController {
   constructor(
     private readonly coachesService: CoachesService,
-    private readonly keycloakService: KeycloakService // Ajouté ici
+    private readonly keycloakService: KeycloakService, // Ajouté ici
   ) {}
 
   @Post()
@@ -80,11 +80,33 @@ export class CoachesController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Récupérer tous les coachs avec filtrage et pagination' })
-  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Numéro de page' })
-  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Nombre d\'éléments par page' })
-  @ApiQuery({ name: 'search', required: false, type: String, description: 'Terme de recherche' })
-  @ApiQuery({ name: 'deleted', required: false, type: Boolean, description: 'Filtre par statut (supprimé ou non)' })
+  @ApiOperation({
+    summary: 'Récupérer tous les coachs avec filtrage et pagination',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Numéro de page',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: "Nombre d'éléments par page",
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description: 'Terme de recherche',
+  })
+  @ApiQuery({
+    name: 'deleted',
+    required: false,
+    type: Boolean,
+    description: 'Filtre par statut (supprimé ou non)',
+  })
   @ApiResponse({
     status: 200,
     description: 'Coachs récupérés avec succès',
@@ -99,9 +121,14 @@ export class CoachesController {
     const pageNum = page ? parseInt(page, 10) : 1;
     const limitNum = limit ? parseInt(limit, 10) : 10;
     const deletedBool = deleted === undefined ? undefined : deleted === 'true';
-    
-    console.log('Controller - Paramètres reçus:', { page: pageNum, limit: limitNum, search, deleted: deletedBool });
-    
+
+    console.log('Controller - Paramètres reçus:', {
+      page: pageNum,
+      limit: limitNum,
+      search,
+      deleted: deletedBool,
+    });
+
     return this.coachesService.findAll({
       page: pageNum,
       limit: limitNum,
@@ -116,7 +143,10 @@ export class CoachesController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateCoachDto: UpdateCoachDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateCoachDto: UpdateCoachDto,
+  ) {
     // 1. Mettre à jour le coach dans la base
     const updatedCoach = await this.coachesService.update(+id, updateCoachDto);
 
@@ -130,7 +160,9 @@ export class CoachesController {
     }
     // 3. Sinon, on synchronise les infos de base dans Keycloak si besoin
     else if (
-      (updateCoachDto.firstName || updateCoachDto.lastName || updateCoachDto.email) &&
+      (updateCoachDto.firstName ||
+        updateCoachDto.lastName ||
+        updateCoachDto.email) &&
       updatedCoach &&
       updatedCoach.user_id
     ) {

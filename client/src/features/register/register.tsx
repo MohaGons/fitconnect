@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useState } from "react";
+import React, { lazy, useState } from "react";
 import { useKeycloakContext } from '../../services/useKeycloakContext';
 import CoachImage from "../../assets/coach2.jpg";
 import ComanyImage from "../../assets/client.jpg";
@@ -14,8 +14,6 @@ const Inscription: React.FC = () => {
     if (token) {
       localStorage.setItem('token', token);
     }
-    const roles = keycloak?.tokenParsed?.realm_access?.roles || []; 
-    const userId = keycloak?.tokenParsed?.sub; 
 
     const handleLogout = () => {
       localStorage.removeItem('token');

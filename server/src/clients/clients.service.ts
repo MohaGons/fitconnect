@@ -30,14 +30,22 @@ export class ClientsService {
     // Convert weight to number if it's a string
     const dto = {
       ...createClientDto,
-      weight: createClientDto.weight !== undefined ? Number(createClientDto.weight) : undefined,
-      height: createClientDto.height !== undefined ? Number(createClientDto.height) : undefined,
+      weight:
+        createClientDto.weight !== undefined
+          ? Number(createClientDto.weight)
+          : undefined,
+      height:
+        createClientDto.height !== undefined
+          ? Number(createClientDto.height)
+          : undefined,
     };
     const client = this.clientRepository.create(dto);
     return await this.clientRepository.save(client);
   }
 
-  async findAll(options: FindAllOptions = {}): Promise<PaginatedResponse<Client>> {
+  async findAll(
+    options: FindAllOptions = {},
+  ): Promise<PaginatedResponse<Client>> {
     try {
       const { page = 1, limit = 10, search, deleted } = options;
       const skip = (page - 1) * limit;
@@ -59,27 +67,29 @@ export class ClientsService {
           { firstName: ILike(`%${searchTerm}%`) },
           { lastName: ILike(`%${searchTerm}%`) },
           { email: ILike(`%${searchTerm}%`) },
-          
         ];
       }
 
       // Log pour déboguer
-      console.log('Service Clients - Find All Options:', { 
-        page, 
-        limit, 
-        search, 
-        deleted, 
+      console.log('Service Clients - Find All Options:', {
+        page,
+        limit,
+        search,
+        deleted,
         skip,
         whereConditions,
-        hasSearch: !!search
+        hasSearch: !!search,
       });
 
       // Requête principale avec les conditions
       const [clients, total] = await this.clientRepository.findAndCount({
-        where: search 
+        where: search
           ? [
-              ...searchConditions.map(condition => ({ ...whereConditions, ...condition }))
-            ] 
+              ...searchConditions.map((condition) => ({
+                ...whereConditions,
+                ...condition,
+              })),
+            ]
           : whereConditions,
         skip,
         take: limit,
@@ -87,10 +97,10 @@ export class ClientsService {
       });
 
       // Log des résultats
-      console.log('Service Clients - Résultats:', { 
-        clientsFound: clients.length, 
-        total, 
-        searchApplied: !!search
+      console.log('Service Clients - Résultats:', {
+        clientsFound: clients.length,
+        total,
+        searchApplied: !!search,
       });
 
       return {
@@ -119,9 +129,7 @@ export class ClientsService {
     return client;
   }
 
-  async findByUserId(
-    userId: string,
-  ): Promise<{ client_id: number }> {
+  async findByUserId(userId: string): Promise<{ client_id: number }> {
     const client = await this.clientRepository.findOne({
       where: { user_id: userId },
       select: ['client_id'], // Récupérer uniquement client_id
@@ -135,7 +143,9 @@ export class ClientsService {
   }
 
   async getClientProfile(userId: string) {
-    const clientProfile = await this.clientRepository.findOne({ where: { user_id: userId } });
+    const clientProfile = await this.clientRepository.findOne({
+      where: { user_id: userId },
+    });
     if (!clientProfile) {
       throw new NotFoundException(`Client non trouvé pour l'userId: ${userId}`);
     }

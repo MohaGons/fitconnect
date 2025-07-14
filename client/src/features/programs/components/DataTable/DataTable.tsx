@@ -98,8 +98,6 @@ export function DataTable({
   const queryClient = useQueryClient();
   const {
     coachId,
-    isLoading: isLoadingCoachId,
-    error: coachIdError,
   } = useCoachId();
 
   const [sorting, setSorting] = useState<SortingState>([]);

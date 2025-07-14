@@ -7,7 +7,6 @@ import {
 } from 'class-validator';
 
 export class UpdateCoachDto {
-
   @IsOptional()
   @IsString()
   @Matches(/^(Homme|Femme)$/)
@@ -25,7 +24,7 @@ export class UpdateCoachDto {
   @IsString()
   email?: string;
 
-  @IsOptional() 
+  @IsOptional()
   @IsString()
   specialty?: string;
 

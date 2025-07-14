@@ -10,7 +10,6 @@ const Payment: React.FC = () => {
     hasActiveSubscription,
     isLoading,
     refetch,
-    isCoach,
     isClient,
   } = useUserRole();
   const [showPaymentForm, setShowPaymentForm] = useState(false);

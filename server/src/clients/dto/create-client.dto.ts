@@ -61,7 +61,6 @@ export class CreateClientDto {
   @IsString()
   photo: string;
 
-
   @IsBoolean()
   termsAccepted: boolean;
 }

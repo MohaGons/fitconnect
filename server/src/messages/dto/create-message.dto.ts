@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, IsNumber, IsEnum, IsOptional } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsNumber,
+  IsEnum,
+  IsOptional,
+} from 'class-validator';
 
 export enum UserType {
   COACH = 'coach',

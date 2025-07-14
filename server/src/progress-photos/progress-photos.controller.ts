@@ -13,7 +13,7 @@ import { CreateProgressPhotoDto } from './dto/create-progress-photo.dto';
 import { UpdateProgressPhotoDto } from './dto/update-progress-photo.dto';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 
-@UseGuards(JwtAuthGuard) 
+@UseGuards(JwtAuthGuard)
 @Controller('progress-photos')
 export class ProgressPhotosController {
   constructor(private readonly progressPhotosService: ProgressPhotosService) {}

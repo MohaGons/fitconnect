@@ -17,7 +17,9 @@ describe('ProgramExercisesService', () => {
   });
 
   it('should return a string for create', () => {
-    expect(service.create({} as any)).toBe('This action adds a new programExercise');
+    expect(service.create({} as any)).toBe(
+      'This action adds a new programExercise',
+    );
   });
 
   it('should return a string for findAll', () => {

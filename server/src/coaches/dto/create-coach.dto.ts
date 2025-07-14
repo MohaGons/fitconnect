@@ -50,12 +50,10 @@ export class CreateCoachDto {
   @IsOptional()
   availability?: string;
 
-
   @IsOptional()
   @IsString()
   photo: string;
 
-  
   @IsBoolean()
   termsAccepted: boolean;
 }

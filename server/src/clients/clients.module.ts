@@ -6,7 +6,7 @@ import { Client } from './entities/client.entity';
 import { KeycloakModule } from '../keycloak/keycloak.module'; // Import du module Keycloak
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Client]),KeycloakModule],
+  imports: [TypeOrmModule.forFeature([Client]), KeycloakModule],
   controllers: [ClientsController],
   providers: [ClientsService],
   exports: [ClientsService],

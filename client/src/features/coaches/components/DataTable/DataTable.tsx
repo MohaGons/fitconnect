@@ -17,7 +17,6 @@ import {
   FaChevronRight,
   FaEye,
   FaEdit,
-  FaTrash,
 } from "react-icons/fa";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Input from "../../../../components/form/input/InputField";
@@ -156,7 +155,7 @@ const DataTable = ({
     mutationFn: (id: number) => {
       return coachesService.deleteCoach(id);
     },
-    onSuccess: (_data, id) => {
+    onSuccess: (_data) => {
       queryClient.invalidateQueries({ queryKey: ["coaches"] });
       setIsDeleteModalOpen(false);
       setCoachToDelete(null);
@@ -169,10 +168,6 @@ const DataTable = ({
     setIsDetailModalOpen(true);
   };
 
-  const handleOpenDeleteModal = (id: number) => {
-    setCoachToDelete(id);
-    setIsDeleteModalOpen(true);
-  };
 
   const handleConfirmDelete = () => {
     if (coachToDelete !== null) {

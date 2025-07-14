@@ -365,9 +365,7 @@ const ProgramForm = ({
     onCancel();
   };
 
-  const handleSubmitClick = () => {
-    onSubmit(formData);
-  };
+
 
   const handleCloseModalClick = () => {
     setIsExerciseModalOpen(false);

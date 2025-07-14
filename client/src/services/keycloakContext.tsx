@@ -10,6 +10,7 @@ const contextValue = {
   initialized: false,
   isAuthenticated: false,
 };
+
 export const KeycloakContext = createContext(contextValue);
 
 // Liste des routes publiques qui ne nécessitent pas d'authentification
@@ -59,65 +60,43 @@ export const KeycloakProvider = ({
   }
 
   useEffect(() => {
-    if (keycloak.didInitialize) {
-      return;
-    }
-
-    // Ne pas initialiser Keycloak si les cookies essentiels sont explicitement refusés
-    if (consent.hasConsented && !consent.categories.essential) {
-      console.log(
-        "Keycloak initialization blocked: essential cookies not accepted"
-      );
-      setInitialized(true); // Marquer comme initialisé mais non authentifié
-      return;
-    }
-
     if (!initialized && !initCalled.current) {
       initCalled.current = true;
 
-      // Configuration Keycloak adaptée au consentement des cookies
-      const keycloakConfig = {
-        onLoad: consent.categories.essential
-          ? ("check-sso" as const)
-          : ("login-required" as const),
-        silentCheckSsoRedirectUri: consent.categories.essential
-          ? window.location.origin + "/silent-check-sso.html"
-          : undefined,
-        redirectUri: "http://localhost:5173/dashboard/home",
-        // Désactiver les cookies de session si pas de consentement
-        enableLogging: process.env.NODE_ENV === "development",
-      };
-
       keycloak
-        .init(keycloakConfig)
-        .then((authenticated) => {
-          console.log("Keycloak initialized:", authenticated);
+        .init({
+          onLoad: 'check-sso',
+          silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
+          redirectUri: 'https://fitnessconnect.fr/dashboard/home',
+        })
+        .then(authenticated => {
+          console.log('✅ Keycloak initialized:', authenticated);
           setIsAuthenticated(authenticated);
           setInitialized(true);
         })
-        .catch((err) => {
-          console.error("Keycloak init failed:", err);
-          setInitialized(true); // Marquer comme initialisé même en cas d'erreur
+        .catch(err => {
+          console.error('❌ Keycloak init failed:', err);
+          setInitialized(true); // On ne bloque pas l’app si init échoue
         });
     }
   }, [consent?.categories?.essential, consent?.hasConsented]);
 
-  // Mise à jour de la valeur du contexte avec l'état actuel
-  const currentContextValue = {
-    keycloak,
-    initialized,
-    isAuthenticated,
-  };
+  // ✅ Normalisation du chemin
+  const normalizePath = (path: string) => path.replace(/\/+$/, '');
+  const isPublicRoute = publicRoutes.some(route =>
+    normalizePath(location.pathname).startsWith(normalizePath(route))
+  );
 
-  // Vérifier si la route actuelle est publique
-  const isPublicRoute = publicRoutes.includes(location.pathname);
+  console.log('Path:', location.pathname, '| Public:', isPublicRoute, '| Init:', initialized, '| Auth:', isAuthenticated);
 
+  // ✅ Bloquer le rendu uniquement pendant init
   if (!initialized) {
-    return <div></div>;
+    return null; // ou un spinner
   }
 
+  // ✅ Rendu sécurisé après init
   return (
-    <KeycloakContext.Provider value={currentContextValue}>
+    <KeycloakContext.Provider value={{ keycloak, initialized, isAuthenticated }}>
       {isPublicRoute || isAuthenticated ? children : <Login />}
     </KeycloakContext.Provider>
   );

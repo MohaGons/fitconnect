@@ -47,14 +47,14 @@ export class Coach {
   @Column({ type: 'text', nullable: true })
   availability: string;
 
-  @Column({ type: 'text', nullable: true }) 
-  photo: string; 
+  @Column({ type: 'text', nullable: true })
+  photo: string;
 
   @Column({ type: 'boolean', default: false })
   termsAccepted: boolean;
 
   @Column({ type: 'boolean', default: false })
-  deleted: boolean; 
+  deleted: boolean;
 
   // Champs pour le système de paiement plateforme
   @Column({

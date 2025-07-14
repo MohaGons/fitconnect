@@ -14,7 +14,6 @@ import { CreateFoodItemDto } from './dto/create-food-item.dto';
 import { UpdateFoodItemDto } from './dto/update-food-item.dto';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 
-
 interface QueryFilters {
   page?: string;
   limit?: string;

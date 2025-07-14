@@ -49,7 +49,9 @@ export class CoachesService {
     };
   }
 
-  async findAll(options: FindAllOptions = {}): Promise<PaginatedResponse<Coach>> {
+  async findAll(
+    options: FindAllOptions = {},
+  ): Promise<PaginatedResponse<Coach>> {
     try {
       const { page = 1, limit = 10, search, deleted } = options;
       const skip = (page - 1) * limit;
@@ -76,22 +78,25 @@ export class CoachesService {
       }
 
       // Log pour déboguer
-      console.log('Service - Find All Options:', { 
-        page, 
-        limit, 
-        search, 
-        deleted, 
+      console.log('Service - Find All Options:', {
+        page,
+        limit,
+        search,
+        deleted,
         skip,
         whereConditions,
-        hasSearch: !!search
+        hasSearch: !!search,
       });
 
       // Requête principale avec les conditions
       const [coaches, total] = await this.coachRepository.findAndCount({
-        where: search 
+        where: search
           ? [
-              ...searchConditions.map(condition => ({ ...whereConditions, ...condition }))
-            ] 
+              ...searchConditions.map((condition) => ({
+                ...whereConditions,
+                ...condition,
+              })),
+            ]
           : whereConditions,
         skip,
         take: limit,
@@ -99,10 +104,10 @@ export class CoachesService {
       });
 
       // Log des résultats
-      console.log('Service - Résultats:', { 
-        coachesFound: coaches.length, 
-        total, 
-        searchApplied: !!search
+      console.log('Service - Résultats:', {
+        coachesFound: coaches.length,
+        total,
+        searchApplied: !!search,
       });
 
       return {
@@ -130,7 +135,9 @@ export class CoachesService {
   }
 
   async getCoachProfile(userId: string) {
-    const coachProfile = await this.coachRepository.findOne({ where: { user_id: userId } });
+    const coachProfile = await this.coachRepository.findOne({
+      where: { user_id: userId },
+    });
     if (!coachProfile) {
       throw new NotFoundException(`Coach non trouvé pour l'userId: ${userId}`);
     }

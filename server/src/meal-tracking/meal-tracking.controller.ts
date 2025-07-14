@@ -13,7 +13,7 @@ import { CreateMealTrackingDto } from './dto/create-meal-tracking.dto';
 import { UpdateMealTrackingDto } from './dto/update-meal-tracking.dto';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 
-@UseGuards(JwtAuthGuard)  
+@UseGuards(JwtAuthGuard)
 @Controller('meal-tracking')
 export class MealTrackingController {
   constructor(private readonly mealTrackingService: MealTrackingService) {}

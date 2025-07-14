@@ -1,4 +1,3 @@
-import React from "react";
 import SkewedElement, {
   SKEW_STYLE,
   COUNTER_SKEW_STYLE,

@@ -44,8 +44,8 @@ export class Client {
   @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
   height: number;
 
-  @Column({ type: 'text', nullable: true }) 
-  photo: string; 
+  @Column({ type: 'text', nullable: true })
+  photo: string;
 
   @Column({ nullable: true })
   goal: string;
@@ -67,7 +67,7 @@ export class Client {
 
   @Column({ type: 'boolean', default: false })
   termsAccepted: boolean;
-  
+
   @Column({ type: 'boolean', default: false })
   deleted: boolean;
 

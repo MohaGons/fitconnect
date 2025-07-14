@@ -11,7 +11,13 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
@@ -19,13 +25,13 @@ import { Client } from './entities/client.entity';
 import { KeycloakService } from '../keycloak/keycloak.service';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
 
-
 @ApiTags('clients')
 @UseGuards(JwtAuthGuard)
 @Controller('clients')
 export class ClientsController {
-  constructor(private readonly clientsService: ClientsService,
-    private readonly keycloakService: KeycloakService
+  constructor(
+    private readonly clientsService: ClientsService,
+    private readonly keycloakService: KeycloakService,
   ) {}
 
   @Post()
@@ -40,11 +46,33 @@ export class ClientsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Récupérer tous les clients avec filtrage et pagination' })
-  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Numéro de page' })
-  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Nombre d\'éléments par page' })
-  @ApiQuery({ name: 'search', required: false, type: String, description: 'Terme de recherche' })
-  @ApiQuery({ name: 'deleted', required: false, type: Boolean, description: 'Filtre par statut (supprimé ou non)' })
+  @ApiOperation({
+    summary: 'Récupérer tous les clients avec filtrage et pagination',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Numéro de page',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: "Nombre d'éléments par page",
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description: 'Terme de recherche',
+  })
+  @ApiQuery({
+    name: 'deleted',
+    required: false,
+    type: Boolean,
+    description: 'Filtre par statut (supprimé ou non)',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Clients récupérés avec succès',
@@ -59,9 +87,14 @@ export class ClientsController {
     const pageNum = page ? parseInt(page, 10) : 1;
     const limitNum = limit ? parseInt(limit, 10) : 10;
     const deletedBool = deleted === undefined ? undefined : deleted === 'true';
-    
-    console.log('Controller Clients - Paramètres reçus:', { page: pageNum, limit: limitNum, search, deleted: deletedBool });
-    
+
+    console.log('Controller Clients - Paramètres reçus:', {
+      page: pageNum,
+      limit: limitNum,
+      search,
+      deleted: deletedBool,
+    });
+
     return this.clientsService.findAll({
       page: pageNum,
       limit: limitNum,
@@ -153,7 +186,9 @@ export class ClientsController {
     }
     // 3. Sinon, on synchronise les infos de base dans Keycloak si besoin
     else if (
-      (updateClientDto.firstName || updateClientDto.lastName || updateClientDto.email) &&
+      (updateClientDto.firstName ||
+        updateClientDto.lastName ||
+        updateClientDto.email) &&
       updatedClient &&
       updatedClient.user_id
     ) {

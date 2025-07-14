@@ -40,6 +40,8 @@ import TableSkeleton from "../../../../components/common/TableSkeleton";
 
 interface DataTableProps {
   searchPlaceholder?: string;
+  apiEndpoint?: string
+  featurePath?: string
   initialPageSize?: number;
   initialPageIndex?: number;
 }
