@@ -2,8 +2,8 @@
 # 📋 Configuration des stages et variables globales
 
 stages:
-  - 🏗️ build
   - 🧪 test
+  - 🏗️ build
   - 🚀 deploy
 
 variables:
@@ -23,7 +23,73 @@ variables:
   NAMESPACE: "annual-project"
 
 # =============================================================================
-# 🏗️ BUILD STAGE - Construction des images Docker
+# 🧪 TEST STAGE - Tests unitaires et d'intégration (Feature branches + Develop)
+# =============================================================================
+
+🧪 test-frontend:
+  stage: 🧪 test
+  image: node:18-alpine
+  cache:
+    paths:
+      - client/node_modules/
+  before_script:
+    - echo "📁 Déplacement vers le dossier client..."
+    - cd client
+  script:
+    - echo "📦 Installation des dépendances..."
+    - npm ci
+    - echo "🧪 Exécution des tests frontend..."
+    - npm run test
+    - echo "✅ Tests frontend réussis!"
+  tags:
+    - ilyes-runner
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^feature\/.*/
+      when: always
+    - if: $CI_COMMIT_BRANCH == "develop"
+      when: always
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop"
+      when: always
+
+🧪 test-api:
+  stage: 🧪 test
+  image: node:18-alpine
+  services:
+    - postgres:14
+  variables:
+    # 🗄️ Configuration PostgreSQL pour les tests
+    POSTGRES_DB: test_db
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    DATABASE_HOST: postgres
+    DATABASE_PORT: 5432
+    DATABASE_USER: postgres
+    DATABASE_PASSWORD: postgres
+    DATABASE_NAME: test_db
+  cache:
+    paths:
+      - server/node_modules/
+  before_script:
+    - echo "📁 Déplacement vers le dossier server..."
+    - cd server
+  script:
+    - echo "📦 Installation des dépendances..."
+    - npm ci
+    - echo "🧪 Exécution des tests API..."
+    - npm run test
+    - echo "✅ Tests API réussis!"
+  tags:
+    - ilyes-runner
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^feature\/.*/
+      when: always
+    - if: $CI_COMMIT_BRANCH == "develop"
+      when: always
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "develop"
+      when: always
+
+# =============================================================================
+# 🏗️ BUILD STAGE - Construction des images Docker (Main branch uniquement)
 # =============================================================================
 
 🏗️ build-frontend:
@@ -58,8 +124,11 @@ variables:
     - echo "✅ Build frontend terminé avec succès!"
   tags:
     - ilyes-runner
-  only:
-    - feature-deploy-ilyes
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: always
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+      when: always
 
 🏗️ build-api:
   stage: 🏗️ build
@@ -93,67 +162,14 @@ variables:
     - echo "✅ Build API terminé avec succès!"
   tags:
     - ilyes-runner
-  only:
-    - feature-deploy-ilyes
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: always
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+      when: always
 
 # =============================================================================
-# 🧪 TEST STAGE - Tests unitaires et d'intégration
-# =============================================================================
-
-🧪 test-frontend:
-  stage: 🧪 test
-  image: node:18-alpine
-  cache:
-    paths:
-      - client/node_modules/
-  before_script:
-    - echo "📁 Déplacement vers le dossier client..."
-    - cd client
-  script:
-    - echo "📦 Installation des dépendances..."
-    - npm ci
-    - echo "🧪 Exécution des tests frontend..."
-    - npm run test
-    - echo "✅ Tests frontend réussis!"
-  tags:
-    - ilyes-runner
-  only:
-    - feature-deploy-ilyes
-
-🧪 test-api:
-  stage: 🧪 test
-  image: node:18-alpine
-  services:
-    - postgres:14
-  variables:
-    # 🗄️ Configuration PostgreSQL pour les tests
-    POSTGRES_DB: test_db
-    POSTGRES_USER: postgres
-    POSTGRES_PASSWORD: postgres
-    DATABASE_HOST: postgres
-    DATABASE_PORT: 5432
-    DATABASE_USER: postgres
-    DATABASE_PASSWORD: postgres
-    DATABASE_NAME: test_db
-  cache:
-    paths:
-      - server/node_modules/
-  before_script:
-    - echo "📁 Déplacement vers le dossier server..."
-    - cd server
-  script:
-    - echo "📦 Installation des dépendances..."
-    - npm ci
-    - echo "🧪 Exécution des tests API..."
-    - npm run test
-    - echo "✅ Tests API réussis!"
-  tags:
-    - ilyes-runner
-  only:
-    - feature-deploy-ilyes
-
-# =============================================================================
-# 🚀 DEPLOY STAGE - Déploiement sur GKE
+# 🚀 DEPLOY STAGE - Déploiement sur GKE (Main branch uniquement)
 # =============================================================================
 
 🚀 deploy:
@@ -237,5 +253,11 @@ variables:
     - echo "🎉 Déploiement terminé avec succès!"
   tags:
     - ilyes-runner
-  only:
-    - feature-deploy-ilyes
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: always
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+      when: always
+  needs:
+    - job: 🏗️ build-frontend
+    - job: 🏗️ build-api
