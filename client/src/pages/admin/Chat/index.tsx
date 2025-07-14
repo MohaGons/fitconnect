@@ -26,6 +26,7 @@ const Chat = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [localMessages, setLocalMessages] = useState<Message[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -42,23 +43,25 @@ const Chat = () => {
       : userId_entity
     : undefined;
 
-  // Récupération du token JWT (à adapter selon votre logique d'authentification)
+  // Récupération du token JWT
   const token = localStorage.getItem("token") || "";
 
   // Utilisation du hook WebSocket
   const {
-    messages,
-    setMessages,
+    messages: wsMessages,
+    setMessages: setWsMessages,
     sendMessage,
     joinConversation,
     leaveConversation,
+    connected,
+    error: wsError,
   } = useMessageSocket({
     token,
     userId: userId || 0,
     userType: (userType as "coach" | "client") || "client",
   });
 
-  // Suppression du polling : on ne garde que le chargement initial des conversations
+  // Chargement initial des conversations
   useEffect(() => {
     if (userId && userType) {
       loadConversations();
@@ -66,17 +69,23 @@ const Chat = () => {
     }
   }, [userId, userType]);
 
-  // Lorsqu'une conversation est sélectionnée, on la rejoint via WebSocket
+  // Gestion de la sélection de conversation
   useEffect(() => {
     if (selectedConversation && userId && userType) {
+      // Rejoindre la conversation via WebSocket
       joinConversation(
         selectedConversation.otherUserId,
         selectedConversation.otherUserType
       );
-      loadConversation(); // On peut garder le chargement initial pour l'historique
+      
+      // Charger l'historique des messages via API REST
+      loadConversationHistory();
+      
+      // Marquer comme lu
       markConversationAsRead();
     }
-    // On quitte la conversation précédente si besoin
+    
+    // Nettoyage lors du changement de conversation
     return () => {
       if (selectedConversation && userId && userType) {
         leaveConversation(
@@ -85,32 +94,42 @@ const Chat = () => {
         );
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedConversation, userId, userType]);
 
-  // Met à jour les messages affichés lors de la réception via WebSocket
+  // Synchronisation des messages WebSocket avec les messages locaux
   useEffect(() => {
-    setMessages(messages);
-    scrollToBottom();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  // Effet pour détecter les nouveaux messages et faire défiler automatiquement
-  useEffect(() => {
-    if (messages.length > 0) {
-      // Attendre un peu pour que le DOM soit mis à jour
-      setTimeout(() => {
-        scrollToBottom();
-      }, 100);
+    if (selectedConversation && wsMessages.length > 0) {
+      // Filtrer les messages pour la conversation actuelle
+      const conversationMessages = wsMessages.filter(msg => {
+        if (userType === "coach") {
+          return (msg.sender_coach_id === userId && msg.recipient_client_id === selectedConversation.otherUserId) ||
+                 (msg.sender_client_id === selectedConversation.otherUserId && msg.recipient_coach_id === userId);
+        } else {
+          return (msg.sender_client_id === userId && msg.recipient_coach_id === selectedConversation.otherUserId) ||
+                 (msg.sender_coach_id === selectedConversation.otherUserId && msg.recipient_client_id === userId);
+        }
+      });
+      
+      setLocalMessages(conversationMessages);
     }
-  }, [messages.length]);
+  }, [wsMessages, selectedConversation, userId, userType]);
+
+  // Scroll automatique vers le bas
+  useEffect(() => {
+    scrollToBottom();
+  }, [localMessages]);
+
+  // Gestion des erreurs WebSocket
+  useEffect(() => {
+    if (wsError) {
+      setError(`Erreur de connexion: ${wsError}`);
+    }
+  }, [wsError]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   };
 
   const loadConversations = async () => {
@@ -146,7 +165,7 @@ const Chat = () => {
     }
   };
 
-  const loadConversation = async () => {
+  const loadConversationHistory = async () => {
     if (!selectedConversation || !userId || !userType) return;
 
     try {
@@ -155,12 +174,27 @@ const Chat = () => {
         userType,
         selectedConversation.otherUserId
       );
-      setMessages(data);
+      
+      // Mettre à jour les messages WebSocket avec l'historique
+      setWsMessages(prevMessages => {
+        // Filtrer les messages existants qui ne sont pas dans cette conversation
+        const otherMessages = prevMessages.filter(msg => {
+          if (userType === "coach") {
+            return !((msg.sender_coach_id === userId && msg.recipient_client_id === selectedConversation.otherUserId) ||
+                    (msg.sender_client_id === selectedConversation.otherUserId && msg.recipient_coach_id === userId));
+          } else {
+            return !((msg.sender_client_id === userId && msg.recipient_coach_id === selectedConversation.otherUserId) ||
+                    (msg.sender_coach_id === selectedConversation.otherUserId && msg.recipient_client_id === userId));
+          }
+        });
+        
+        return [...otherMessages, ...data];
+      });
+      
       setError(null);
     } catch (error) {
       console.error("Erreur lors du chargement de la conversation:", error);
       setError("Impossible de charger la conversation");
-      setMessages([]);
     }
   };
 
@@ -173,10 +207,12 @@ const Chat = () => {
         userType,
         selectedConversation.otherUserId
       );
+      
       // Mettre à jour le compteur local
       setUnreadCount((prev) =>
         Math.max(0, prev - selectedConversation.unreadCount)
       );
+      
       // Mettre à jour la conversation dans la liste
       setConversations((prev) =>
         prev.map((conv) =>
@@ -190,10 +226,17 @@ const Chat = () => {
     }
   };
 
-  // Remplace l'envoi de message par la fonction du hook
+  // Envoi de message via WebSocket
   const handleSendMessage = async () => {
-    if (!selectedConversation || !userId || !userType || !newMessage.trim())
+    if (!selectedConversation || !userId || !userType || !newMessage.trim()) {
       return;
+    }
+    
+    if (!connected) {
+      setError("Pas de connexion WebSocket. Tentative de reconnexion...");
+      return;
+    }
+
     const messageData = {
       sender_id: userId,
       sender_type: userType as "coach" | "client",
@@ -202,8 +245,15 @@ const Chat = () => {
       content: newMessage,
       message_type: "text",
     };
-    sendMessage(messageData);
-    setNewMessage("");
+
+    try {
+      sendMessage(messageData);
+      setNewMessage("");
+      setError(null);
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du message:", error);
+      setError("Impossible d'envoyer le message");
+    }
   };
 
   const handleSelectConversation = (conversation: Conversation) => {
@@ -243,8 +293,8 @@ const Chat = () => {
         attachment_url: uploadResult.url,
       };
 
-      const message = await messagesApi.create(messageData);
-      setMessages((prev) => [...prev, message]);
+      // Envoyer via WebSocket
+      sendMessage(messageData);
 
       // Mettre à jour la conversation dans la liste
       setConversations((prev) =>
@@ -252,7 +302,6 @@ const Chat = () => {
           conv.otherUserId === selectedConversation.otherUserId
             ? {
                 ...conv,
-                lastMessage: message,
                 unreadCount: 0,
               }
             : conv
@@ -404,6 +453,9 @@ const Chat = () => {
                 <MessageSquare className="h-5 w-5 text-blue-600" />
                 Messages
               </h2>
+              {/* Indicateur de connexion WebSocket */}
+              <div className={`w-3 h-3 rounded-full ${connected ? 'bg-green-500' : 'bg-red-500'}`} 
+                   title={connected ? 'Connecté' : 'Déconnecté'} />
             </div>
 
             {/* Barre de recherche */}
@@ -429,52 +481,47 @@ const Chat = () => {
           {/* Liste des conversations */}
           <div className="flex-1 overflow-y-auto">
             {loading ? (
-              <div className="flex items-center justify-center p-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <div className="p-4 text-center text-gray-500">
+                Chargement des conversations...
               </div>
-            ) : filteredConversations.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">
-                <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <p>Aucune conversation</p>
-                <p className="text-sm">
-                  {userType === "coach"
-                    ? "Aucun client actif pour le moment"
-                    : "Aucun coach actif pour le moment"}
-                </p>
+            ) : conversations.length === 0 ? (
+              <div className="p-4 text-center text-gray-500">
+                Aucune conversation trouvée
               </div>
             ) : (
               filteredConversations.map((conversation) => (
                 <div
-                  key={`${conversation.otherUserType}-${conversation.otherUserId}`}
+                  key={`${conversation.otherUserId}-${conversation.otherUserType}`}
+                  onClick={() => handleSelectConversation(conversation)}
                   className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${
-                    selectedConversation?.otherUserId ===
-                    conversation.otherUserId
-                      ? "bg-blue-50 border-l-4 border-l-blue-500"
+                    selectedConversation?.otherUserId === conversation.otherUserId
+                      ? "bg-blue-50 border-blue-200"
                       : ""
                   }`}
-                  onClick={() => handleSelectConversation(conversation)}
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-medium text-gray-900 truncate">
-                      {conversation.otherUserName}
-                    </h3>
-                    <span className="text-xs text-gray-500">
-                      {format(
-                        new Date(conversation.lastMessage.sent_date),
-                        "HH:mm",
-                        { locale: fr }
-                      )}
-                    </span>
-                  </div>
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-600 truncate flex-1">
-                      {conversation.lastMessage.content}
-                    </p>
-                    {conversation.unreadCount > 0 && (
-                      <span className="ml-2 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center min-w-[20px]">
-                        {conversation.unreadCount}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-gray-900 truncate">
+                        {conversation.otherUserName}
+                      </h3>
+                      <p className="text-sm text-gray-500 truncate">
+                        {conversation.lastMessage.content}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-end ml-2">
+                      <span className="text-xs text-gray-400">
+                        {format(
+                          new Date(conversation.lastMessage.sent_date),
+                          "HH:mm",
+                          { locale: fr }
+                        )}
                       </span>
-                    )}
+                      {conversation.unreadCount > 0 && (
+                        <span className="bg-blue-600 text-white text-xs rounded-full px-2 py-1 mt-1">
+                          {conversation.unreadCount}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))
@@ -482,46 +529,32 @@ const Chat = () => {
           </div>
         </div>
 
-        {/* Zone de conversation */}
+        {/* Zone de chat */}
         <div className="flex-1 flex flex-col">
           {selectedConversation ? (
             <>
               {/* Header de la conversation */}
-              <div className="bg-white border-b border-gray-200 p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-medium">
-                        {selectedConversation.otherUserName
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </span>
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-gray-900">
-                        {selectedConversation.otherUserName}
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        {selectedConversation.otherUserType === "coach"
-                          ? "Coach"
-                          : "Client"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+              <div className="p-4 border-b border-gray-200 bg-white">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  {selectedConversation.otherUserName}
+                </h3>
+                <p className="text-sm text-gray-500">
+                  {selectedConversation.otherUserType === "coach"
+                    ? "Coach"
+                    : "Client"}
+                </p>
               </div>
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages.length === 0 ? (
+                {localMessages.length === 0 ? (
                   <div className="text-center text-gray-500 py-8">
                     <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                     <p>Aucun message dans cette conversation</p>
                     <p className="text-sm">Commencez la conversation !</p>
                   </div>
                 ) : (
-                  messages.map((message) => (
+                  localMessages.map((message) => (
                     <div
                       key={message.message_id}
                       className={`flex ${
@@ -562,66 +595,56 @@ const Chat = () => {
               </div>
 
               {/* Zone de saisie */}
-              <div className="bg-white border-t border-gray-200 p-4">
-                <form
-                  onSubmit={handleSendMessage}
-                  className="flex items-end gap-2"
-                >
-                  <div className="flex-1 flex items-end gap-2">
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      onChange={handleFileSelect}
-                      accept="image/*,.pdf,.txt,.doc,.docx"
-                      className="hidden"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAttachmentClick}
-                      disabled={uploading}
-                      className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <Paperclip className="h-4 w-4" />
-                    </button>
-                    <textarea
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      placeholder="Écrivez votre message..."
-                      className="flex-1 resize-none border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      rows={1}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          handleSendMessage();
-                        }
-                      }}
-                    />
-                  </div>
+              <div className="p-4 border-t border-gray-200 bg-white">
+                <div className="flex items-center gap-2">
                   <button
-                    type="submit"
-                    disabled={!newMessage.trim() || uploading}
-                    className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={handleAttachmentClick}
+                    className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                    disabled={uploading}
                   >
-                    <Send className="h-4 w-4" />
+                    <Paperclip className="h-5 w-5" />
                   </button>
-                </form>
-                {uploading && (
-                  <div className="mt-2 text-sm text-blue-600">
-                    Upload en cours...
-                  </div>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileSelect}
+                    className="hidden"
+                    accept="image/*,.pdf,.doc,.docx,.txt"
+                  />
+                  <input
+                    type="text"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSendMessage();
+                      }
+                    }}
+                    placeholder="Tapez votre message..."
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    disabled={!connected}
+                  />
+                  <button
+                    onClick={handleSendMessage}
+                    disabled={!newMessage.trim() || !connected || uploading}
+                    className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <Send className="h-5 w-5" />
+                  </button>
+                </div>
+                {!connected && (
+                  <p className="text-sm text-red-500 mt-2">
+                    Connexion perdue. Tentative de reconnexion...
+                  </p>
                 )}
               </div>
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-gray-500">
-              <div className="text-center">
-                <MessageSquare className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-medium mb-2">
-                  Sélectionnez une conversation
-                </h3>
-                <p className="text-sm">
-                  Choisissez une conversation pour commencer à discuter
-                </p>
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center text-gray-500">
+                <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>Sélectionnez une conversation pour commencer</p>
               </div>
             </div>
           )}
