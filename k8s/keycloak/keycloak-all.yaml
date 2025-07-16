@@ -36,6 +36,7 @@ spec:
         - "--http-enabled=true"
         - "--hostname-strict=false"
         - "--import-realm"
+        - "--optimized"
         ports:
         - containerPort: 8080
           name: http
@@ -66,8 +67,6 @@ spec:
               key: POSTGRES_PASSWORD
         - name: KC_HTTP_ENABLED
           value: "true"
-        - name: KC_PROXY
-          value: "edge"
         - name: KC_PROXY_HEADERS
           value: "xforwarded"
         - name: KC_HOSTNAME
@@ -87,19 +86,25 @@ spec:
           limits:
             memory: "1Gi"
             cpu: "300m"
+        startupProbe:
+          httpGet:
+            path: /health/ready
+            port: 8080
+          failureThreshold: 60
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8080
+          initialDelaySeconds: 180
+          periodSeconds: 15
+          timeoutSeconds: 10
+          failureThreshold: 10
         livenessProbe:
           httpGet:
             path: /health/live
             port: 8080
           initialDelaySeconds: 120
           periodSeconds: 30
-          timeoutSeconds: 10
-          failureThreshold: 5
-        readinessProbe:
-          httpGet:
-            path: /health/ready
-            port: 8080
-          initialDelaySeconds: 90
-          periodSeconds: 15
           timeoutSeconds: 10
           failureThreshold: 5
