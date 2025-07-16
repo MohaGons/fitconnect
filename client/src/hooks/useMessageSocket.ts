@@ -26,7 +26,9 @@ export function useMessageSocket({ token, userId, userType }: UseMessageSocketOp
     
     const socket = io(SOCKET_URL, {
       auth: { token },
-      transports: ['websocket'],
+      transports: ['websocket', 'polling'],
+      timeout: 20000,
+      forceNew: true,
     });
     socketRef.current = socket;
 

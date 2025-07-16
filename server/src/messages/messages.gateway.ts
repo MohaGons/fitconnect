@@ -43,9 +43,12 @@ interface Message {
 
 @WebSocketGateway({
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: process.env.CLIENT_URL || 'https://fitnessconnect.fr',
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   },
+  transports: ['websocket', 'polling'],
 })
 @Injectable()
 export class MessagesGateway
@@ -61,7 +64,7 @@ export class MessagesGateway
 
   private jwksClient = new jwksRsa.JwksClient({
     jwksUri:
-      'http://keycloak:8080/realms/MY-REALM/protocol/openid-connect/certs',
+      'https://login.fitnessconnect.fr/realms/MY-REALM/protocol/openid-connect/certs',
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,

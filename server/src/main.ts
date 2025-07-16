@@ -26,9 +26,9 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: 'https://fitnessconnect.fr',
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    origin: process.env.CLIENT_URL || 'https://fitnessconnect.fr',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     credentials: true,
   });
 
