@@ -87,9 +87,9 @@ services:
       - app-network
 
   keycloak:
-    image: quay.io/keycloak/keycloak:24.0.3
+    image: ilyeskab/keycloak-mytheme-new-prod:latest
     container_name: keycloak
-    command: start-dev --features=preview --import-realm
+    command: start --proxy=edge --http-enabled=true --hostname-strict=false --import-realm
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
@@ -97,11 +97,9 @@ services:
       - "8081:8080"
     depends_on:
       - db
-    volumes:
-      - ./realm-export:/opt/keycloak/data/import
-      - ./keycloak-theme/mytheme:/opt/keycloak/themes/mytheme 
     networks:
       - app-network
+    restart: unless-stopped
 
 volumes:
   postgres-data:
