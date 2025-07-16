@@ -42,7 +42,7 @@ variables:
     - npm run test
     - echo "✅ Tests frontend réussis!"
   tags:
-    - ilyes-runner
+    - ilyes-runner-2
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^feature\/.*/
       when: always
@@ -79,7 +79,7 @@ variables:
     - npm run test
     - echo "✅ Tests API réussis!"
   tags:
-    - ilyes-runner
+    - ilyes-runner-2
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^feature\/.*/
       when: always
@@ -123,9 +123,9 @@ variables:
     - docker push $LATEST_URL
     - echo "✅ Build frontend terminé avec succès!"
   tags:
-    - ilyes-runner
+    - ilyes-runner-2
   rules:
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "feature-deploy-ilyes"
       when: always
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
       when: always
@@ -161,9 +161,9 @@ variables:
     - docker push $LATEST_URL
     - echo "✅ Build API terminé avec succès!"
   tags:
-    - ilyes-runner
+    - ilyes-runner-2
   rules:
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "feature-deploy-ilyes"
       when: always
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
       when: always
@@ -252,9 +252,9 @@ variables:
     
     - echo "🎉 Déploiement terminé avec succès!"
   tags:
-    - ilyes-runner
+    - ilyes-runner-2
   rules:
-    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "feature-deploy-ilyes"
       when: always
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
       when: always
