@@ -11,19 +11,7 @@ spec:
       storage: 10Gi
   storageClassName: standard-rwo
 ---
-# Secret pour PostgreSQL
-apiVersion: v1
-kind: Secret
-metadata:
-  name: postgres-secret
-  namespace: annual-project
-type: Opaque
-data:
-  # postgres (base64 encoded)
-  POSTGRES_USER: cG9zdGdyZXM=
-  POSTGRES_PASSWORD: cG9zdGdyZXM=
-  POSTGRES_DB: Zml0bmVzc19wbGF0Zm9ybV9kYg==
----
+
 # Deployment PostgreSQL
 apiVersion: apps/v1
 kind: Deployment

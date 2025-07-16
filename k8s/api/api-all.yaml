@@ -6,8 +6,6 @@ metadata:
   namespace: annual-project
 data:
   NODE_ENV: "production"
-  # Utiliser les noms de services Kubernetes au lieu de localhost
-  # Variables pour correspondre au Docker Compose
   DATABASE_HOST: "postgres-service"
   DATABASE_PORT: "5432"
   DATABASE_USER: "postgres"
@@ -38,30 +36,6 @@ data:
   KEYCLOAK_REALM: "MY-REALM"
   KEYCLOAK_ADMIN_CLIENT_ID: "admin-api-client"
   KEYCLOAK_ADMIN_USERNAME: "admin"
-
----
-# Secret pour les variables sensibles
-apiVersion: v1
-kind: Secret
-metadata:
-  name: api-secret
-  namespace: annual-project
-type: Opaque
-data:
-  # JWT Secret (base64: your_jwt_secret_key_here)
-  JWT_SECRET: eW91cl9qd3Rfc2VjcmV0X2tleV9oZXJl
-
-  # Email password (base64: mail_password)
-  MAIL_PASSWORD: bWFpbF9wYXNzd29yZA==
-
-  # Keycloak secrets (base64: 115x2yOmMVGcHesD9JcFjotLTiksax5o)
-  KEYCLOAK_ADMIN_CLIENT_SECRET: MTE1eDJ5T21NVkdjSGVzRDlKY0Zqb3RMVGlrc2F4NW8=
-
-  # Keycloak admin password (base64: admin)
-  KEYCLOAK_ADMIN_PASSWORD: YWRtaW4=
-
-  # Stripe secret (base64 encoded de votre clé)
-  STRIPE_SECRET_KEY: c2tfdGVzdF81MU1mUkZHQ01CdlFmVHJMNXJxaGVrYzZTeWUzcmVSWk52UU5vTTBRNnU2bmJyWElJdXlmRVEwREU5Wm9FQ2VaN0Jvb1JIRndEYXd0eTNlQ0EyT01IMzNJTDAwcjFjamUwZ04=
 
 ---
 # Deployment API
