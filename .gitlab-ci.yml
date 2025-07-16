@@ -42,7 +42,7 @@ variables:
     - npm run test
     - echo "✅ Tests frontend réussis!"
   tags:
-    - ilyes-runner
+    - ilyes-runner-2
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^feature\/.*/
       when: always
@@ -79,7 +79,7 @@ variables:
     - npm run test
     - echo "✅ Tests API réussis!"
   tags:
-    - ilyes-runner
+    - ilyes-runner-2
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^feature\/.*/
       when: always
@@ -123,7 +123,7 @@ variables:
     - docker push $LATEST_URL
     - echo "✅ Build frontend terminé avec succès!"
   tags:
-    - ilyes-runner
+    - ilyes-runner-2
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       when: always
@@ -161,7 +161,7 @@ variables:
     - docker push $LATEST_URL
     - echo "✅ Build API terminé avec succès!"
   tags:
-    - ilyes-runner
+    - ilyes-runner-2
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       when: always
@@ -251,7 +251,7 @@ variables:
     
     - echo "🎉 Déploiement terminé avec succès!"
   tags:
-    - ilyes-runner
+    - ilyes-runner-2
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
       when: always
