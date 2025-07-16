@@ -32,7 +32,7 @@ spec:
         image: ilyeskab/keycloak-mytheme-prod:latest
         args:
         - "start"
-        - "--proxy=edge"
+        - "--proxy-headers=xforwarded"
         - "--http-enabled=true"
         - "--hostname-strict=false"
         - "--import-realm"
