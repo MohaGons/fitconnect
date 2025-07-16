@@ -49,6 +49,7 @@
       </div>
       </#if>
        
+       <#if social.providers?? && (social.providers?size > 0)>
         <#list social.providers as p>
         <#if p.alias == "google">
           <a href="${p.loginUrl}" class="inline-flex items-center justify-center w-full gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800">
@@ -61,7 +62,8 @@
             Continuer avec Google
           </a>
         </#if>
-      </#list>
+        </#list>
+       </#if>  
 
         <div class="relative py-3 sm:py-5">
           <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200 "></div></div>
