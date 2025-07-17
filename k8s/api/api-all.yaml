@@ -1,0 +1,274 @@
+# ConfigMap pour les variables non-sensibles
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-config
+  namespace: annual-project
+data:
+  NODE_ENV: "production"
+  DATABASE_HOST: "postgres-service"
+  DATABASE_PORT: "5432"
+  DATABASE_USER: "postgres"
+  DATABASE_PASSWORD: "postgres"
+  DATABASE_NAME: "fitness_platform_db"
+
+  # Variables pour compatibilité (votre app lit ces noms)
+  DB_HOST: "postgres-service"
+  DB_PORT: "5432"
+  DB_DATABASE: "fitness_platform_db"
+
+  # Application Configuration
+  PORT: "3000"
+  JWT_EXPIRATION: "1d"
+
+  # File Upload Configuration
+  UPLOAD_DIR: "./uploads"
+  MAX_FILE_SIZE: "5242880"
+
+  # Email Configuration
+  MAIL_HOST: "smtp.example.com"
+  MAIL_PORT: "587"
+  MAIL_USER: "user@example.com"
+  MAIL_FROM: "noreply@fitnessplatform.com"
+
+  # Keycloak Configuration - UTILISER LES SERVICES KUBERNETES
+  KEYCLOAK_URL: "https://login.fitnessconnect.fr"
+  KEYCLOAK_REALM: "MY-REALM"
+  KEYCLOAK_ADMIN_CLIENT_ID: "admin-api-client"
+  KEYCLOAK_ADMIN_USERNAME: "admin"
+
+---
+# Deployment API
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: annual-project
+  labels:
+    app: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      # Init container pour attendre PostgreSQL
+      initContainers:
+      - name: wait-for-postgres
+        image: postgres:14
+        command:
+        - sh
+        - -c
+        - |
+          until pg_isready -h postgres-service -p 5432 -U postgres; do
+            echo "Waiting for PostgreSQL..."
+            sleep 5
+          done
+          echo "PostgreSQL is ready!"
+      containers:
+      - name: api
+        image: europe-west1-docker.pkg.dev/k8s-frist-test/annual-project-repo/api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: NODE_ENV
+
+        # Variables Docker Compose style
+        - name: DATABASE_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: DATABASE_HOST
+        - name: DATABASE_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: DATABASE_PORT
+        - name: DATABASE_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: DATABASE_NAME
+        - name: DATABASE_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_USER
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+
+        # Variables pour .env.production (compatibilité)
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: DB_PORT
+        - name: DB_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: DB_DATABASE
+
+        # App settings
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: PORT
+        - name: JWT_EXPIRATION
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: JWT_EXPIRATION
+        - name: UPLOAD_DIR
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: UPLOAD_DIR
+        - name: MAX_FILE_SIZE
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: MAX_FILE_SIZE
+
+        # Email
+        - name: MAIL_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: MAIL_HOST
+        - name: MAIL_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: MAIL_PORT
+        - name: MAIL_USER
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: MAIL_USER
+        - name: MAIL_FROM
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: MAIL_FROM
+        - name: MAIL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: api-secret
+              key: MAIL_PASSWORD
+
+        # Keycloak
+        - name: KEYCLOAK_URL
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: KEYCLOAK_URL
+        - name: KEYCLOAK_REALM
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: KEYCLOAK_REALM
+        - name: KEYCLOAK_ADMIN_CLIENT_ID
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: KEYCLOAK_ADMIN_CLIENT_ID
+        - name: KEYCLOAK_ADMIN_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: api-config
+              key: KEYCLOAK_ADMIN_USERNAME
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: api-secret
+              key: KEYCLOAK_ADMIN_PASSWORD
+        - name: KEYCLOAK_ADMIN_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: api-secret
+              key: KEYCLOAK_ADMIN_CLIENT_SECRET
+
+        # JWT et Stripe
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: api-secret
+              key: JWT_SECRET
+        - name: STRIPE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-secret
+              key: STRIPE_SECRET_KEY
+
+        # Volume pour les uploads
+        volumeMounts:
+        - name: uploads
+          mountPath: /app/uploads
+
+        # Health checks
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 15
+          failureThreshold: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 90
+          periodSeconds: 15
+          timeoutSeconds: 10
+          failureThreshold: 5
+
+        # Resources
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "300m"
+
+      volumes:
+      - name: uploads
+        emptyDir: {}
+
+---
+# Service API
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-service
+  namespace: annual-project
+  labels:
+    app: api
+spec:
+  selector:
+    app: api
+  ports:
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP
+  type: LoadBalancer
