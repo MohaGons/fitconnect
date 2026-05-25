@@ -1,0 +1,15 @@
+
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: fitnessconnect-cert
+  namespace: annual-project
+spec:
+  domains:
+    - fitnessconnect.fr
+    - www.fitnessconnect.fr
+    - api.fitnessconnect.fr
+    - login.fitnessconnect.fr
+    - adminer.fitnessconnect.fr
+    - uptimekuma.fitnessconnect.fr
+

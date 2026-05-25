@@ -53,6 +53,17 @@ import { ReactComponent as MoreDotIcon } from "./moredot.svg?react";
 import { ReactComponent as AlertHexaIcon } from "./alert-hexa.svg?react";
 import { ReactComponent as ErrorHexaIcon } from "./info-hexa.svg?react";
 import { ReactComponent as HeroLogin } from "./hero-login.svg?react";
+import { ReactComponent as Gym } from "./gym.svg?react";
+import { ReactComponent as Motivation } from "./motivation.svg?react";
+import { ReactComponent as Fitness } from "./fitness.svg?react";
+import { ReactComponent as Nutrition } from "./nutrition.svg?react";
+import { ReactComponent as Juice } from "./juice.svg?react";
+import { ReactComponent as Yoga } from "./yoga.svg?react";
+import { ReactComponent as Health } from "./health.svg?react";
+import { ReactComponent as Heart } from "./heart.svg?react";
+
+
+
 
 export {
   HeroLogin,
@@ -110,5 +121,12 @@ export {
   HorizontaLDots,
   ChevronUpIcon,
   ChatIcon,
-  
+  Gym,
+  Motivation,
+  Fitness,
+  Nutrition,
+  Juice,
+  Yoga,
+  Health,
+  Heart
 };

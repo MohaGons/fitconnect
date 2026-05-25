@@ -1,0 +1,12 @@
+# Normalisation automatique des fins de ligne
+* text=auto
+
+# Force les JSON à avoir des fins de ligne Unix (LF)
+*.json text eol=lf
+
+# Fichiers shell, Docker, YAML, etc. aussi en LF
+*.sh text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.env text eol=lf
+*.md text eol=lf

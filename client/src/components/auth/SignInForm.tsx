@@ -59,7 +59,6 @@ export default function SignInForm() {
                 </svg>
                 Connexion avec Google
               </button>
-           
             </div>
             <div className="relative py-3 sm:py-5">
               <div className="absolute inset-0 flex items-center">
@@ -115,7 +114,7 @@ export default function SignInForm() {
                   </Link>
                 </div>
                 <div>
-                  <Button className="w-full" size="sm">
+                  <Button className="w-full" size="sm" type="submit">
                     Se connecter
                   </Button>
                 </div>
